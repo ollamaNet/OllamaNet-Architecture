@@ -16,8 +16,4 @@
     <ProjectReference Include="..\OllamaNet_Components.ServiceDefaults\OllamaNet_Components.ServiceDefaults.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SemanticKerne.Service\" />
-  </ItemGroup>
-
 </Project>
