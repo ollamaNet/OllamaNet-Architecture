@@ -1,4 +1,8 @@
 
+using ChatService;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using OllamaSharp;
 using Scalar.AspNetCore;
 
 namespace Ollama_Component;
@@ -15,6 +19,13 @@ public class Program
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
+        // Add Ollama API client and Semantic Kernel configuration
+        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
+        builder.Services.AddScoped<OllamaConnector>();
+        builder.Services.AddScoped<ChatHistory>();
+        builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
+
 
         builder.Services.AddCors(options =>
         {

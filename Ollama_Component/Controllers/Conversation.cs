@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ChatService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Models;
-using Ollama_Console_HttpClient.chatDTos;
+using Models;
 
 namespace Ollama_Component.Controllers
 {
@@ -9,7 +10,11 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class Conversation : ControllerBase
     {
-
+        public ISemanticKernelService _kernelService { get; set; }
+        public Conversation(ISemanticKernelService Kernelinterface)
+        { 
+            _kernelService = Kernelinterface;
+        }
 
         [HttpPost("chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
@@ -20,8 +25,7 @@ namespace Ollama_Component.Controllers
             }
 
             // Use the Ollama HTTP Client to send the request
-            //var response = await _ollamaClient.ChatAsync(request);
-            var response = "this is the AI model response";
+            var response = await _kernelService.SendMessageAsync(request);
 
             if (response == null)
             {

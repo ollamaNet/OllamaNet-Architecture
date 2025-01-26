@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Ollama_Console_HttpClient.chatDTos
+namespace Models
 {
     public class PromptRequest
     {
