@@ -1,9 +1,14 @@
-﻿using Models;
+﻿using Microsoft.SemanticKernel;
+using Models;
 
 namespace ChatService
 {
     public interface ISemanticKernelService
     {
-        Task<string> SendMessageAsync(PromptRequest request);
+        Task<string> GetModelResponse(PromptRequest request);
+        Task<IAsyncEnumerable<StreamingChatMessageContent>> GetStreamingModelResponse(PromptRequest request);
+
+
+
     }
 }

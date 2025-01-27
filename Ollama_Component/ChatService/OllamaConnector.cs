@@ -105,7 +105,6 @@ namespace ChatService
 
             return new ChatRequest
             {
-                
                 Messages = messages,
                 Stream = true,
                 Model = model

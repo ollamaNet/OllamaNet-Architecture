@@ -31,7 +31,7 @@ public class Program
         {
             options.AddPolicy("AllowSwagger", policy =>
             {
-                policy.WithOrigins("http://localhost:7006", "https://your-swagger-ui-domain.com") // Replace with your Swagger domain
+                policy.WithOrigins("http://localhost:7006/swagger/index.html", "https://localhost:7006/swagger/index.html") // Replace with your Swagger domain
                       .AllowAnyHeader()
                       .AllowAnyMethod();
             });

@@ -18,7 +18,7 @@ namespace ChatService
         }
 
 
-        public async Task<string> SendMessageAsync(PromptRequest request)
+        public async Task<string> GetModelResponse(PromptRequest request)
         {
             if (request is null)
             {
@@ -40,5 +40,30 @@ namespace ChatService
 
             return "No response from the assistant.";
         }
+
+        public async Task<IAsyncEnumerable<StreamingChatMessageContent>> GetStreamingModelResponse(PromptRequest request)
+        {
+            if (request is null)
+            {
+                throw new ArgumentException("Message cannot be null or empty.", nameof(request));
+            }
+
+            _chatHistory.AddSystemMessage(request.SystemMessage);
+            // Add user message to chat history
+            _chatHistory.AddUserMessage(request.Content);
+
+            var response = _connector.GetStreamingChatMessageContentsAsync(_chatHistory, request.Model);
+
+            //// Add the assistant's response to chat history
+            //if (response.Count > 0)
+            //{
+            //    _chatHistory.AddMessage(response[0].Role, response[0].Content ?? string.Empty);
+            //    return response[0].Content ?? string.Empty;
+            //}
+            return response;
+
+        }
+
+
     }
 }
