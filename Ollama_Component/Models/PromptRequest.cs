@@ -26,5 +26,8 @@ namespace Models
         [JsonPropertyName("stream")]
         public bool Stream { get; set; }
 
+        [JsonPropertyName("SessionId")]
+        public string SessionId { get; set; }
+
     }
 }

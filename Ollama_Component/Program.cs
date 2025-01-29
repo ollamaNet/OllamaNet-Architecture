@@ -26,6 +26,8 @@ public class Program
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
 
+        builder.Services.AddMemoryCache();
+
 
         builder.Services.AddCors(options =>
         {
