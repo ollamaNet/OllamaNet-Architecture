@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gateway\Gateway.csproj" />
     <ProjectReference Include="..\Ollama_Component\Ollama_Component.csproj" />
   </ItemGroup>
 
