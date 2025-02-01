@@ -53,7 +53,6 @@ namespace Ollama_Component.Controllers
                     await HttpContext.Response.WriteAsync("Failed to process the chat request.");
                     return;
                 }
-
                 HttpContext.Response.ContentType = "application/json";
                 await HttpContext.Response.WriteAsync(response);
                 return;

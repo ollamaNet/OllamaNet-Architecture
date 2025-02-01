@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
+using Ollama_Component.Connectors;
 using OllamaSharp;
 
 namespace ChatService
@@ -23,7 +24,7 @@ namespace ChatService
             _cache = cache;
             _chatHistory = chatHistory;
             _logger = logger;
-        }
+        } 
 
 
         public async Task<string> GetModelResponse(PromptRequest request)
@@ -43,7 +44,7 @@ namespace ChatService
 
             }
             _chatHistory.AddSystemMessage(request.SystemMessage);
-
+            
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);
 
@@ -54,7 +55,7 @@ namespace ChatService
             // Add the assistant's response to chat history
             if (response.Count > 0)
             {
-                _chatHistory.AddMessage(response[0].Role, response[0].Content ?? string.Empty);
+                _chatHistory.AddAssistantMessage(response[0].Content ?? string.Empty);
 
                 // Cache Options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
