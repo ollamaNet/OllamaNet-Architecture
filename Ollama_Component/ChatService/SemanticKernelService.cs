@@ -42,7 +42,20 @@ namespace ChatService
                 _chatHistory.AddRange(history);
 
             }
-            _chatHistory.AddSystemMessage(request.SystemMessage);
+            if(_chatHistory.Count != 0)
+            {
+                foreach(var message in _chatHistory)
+                {
+                    var sysMessage = message.InnerContent;
+                    if (message.Role == AuthorRole.System && sysMessage != request.SystemMessage){
+                        _chatHistory.Remove(message);
+                        _chatHistory.AddSystemMessage(request.SystemMessage);
+                    }
+                }
+            }
+            else
+                _chatHistory.AddSystemMessage(request.SystemMessage);
+            
 
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);
