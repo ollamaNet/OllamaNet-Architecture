@@ -29,7 +29,7 @@ namespace ChatService
         public async Task<string> GetModelResponse(PromptRequest request)
         {
 
-            cacheKey = request.SessionId;
+            cacheKey = request.ConversationId;
 
             if (request is null)
             {
