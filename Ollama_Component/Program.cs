@@ -1,8 +1,7 @@
-
-using ChatService;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
+using Ollama_Component.Services.ChatService;
 using OllamaSharp;
 using Scalar.AspNetCore;
 

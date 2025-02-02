@@ -6,7 +6,7 @@ using Models;
 using Ollama_Component.Connectors;
 using OllamaSharp;
 
-namespace ChatService
+namespace Ollama_Component.Services.ChatService
 {
     public class SemanticKernelService : ISemanticKernelService
     {
@@ -16,7 +16,7 @@ namespace ChatService
         private readonly ILogger<SemanticKernelService> _logger;
 
         private string cacheKey;
-            
+
         public SemanticKernelService(IOllamaApiClient ollamaApiClient, OllamaConnector connector, IMemoryCache cache, ChatHistory chatHistory, ILogger<SemanticKernelService> logger)
         {
             //_chatHistory = new ChatHistory();
@@ -24,7 +24,7 @@ namespace ChatService
             _cache = cache;
             _chatHistory = chatHistory;
             _logger = logger;
-        } 
+        }
 
 
         public async Task<string> GetModelResponse(PromptRequest request)
@@ -44,13 +44,11 @@ namespace ChatService
 
             }
             _chatHistory.AddSystemMessage(request.SystemMessage);
-            
+
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);
 
             var response = await _connector.GetChatMessageContentsAsync(_chatHistory, request.Model);
-
-
 
             // Add the assistant's response to chat history
             if (response.Count > 0)

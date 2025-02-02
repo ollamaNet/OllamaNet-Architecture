@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Models;
 
-namespace ChatService
+namespace Ollama_Component.Services.ChatService
 {
     public interface ISemanticKernelService
     {
