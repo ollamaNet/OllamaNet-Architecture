@@ -1,8 +1,8 @@
-﻿using ChatService;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Models;
 using Models;
+using Ollama_Component.Services.ChatService;
 
 namespace Ollama_Component.Controllers
 {
@@ -53,7 +53,6 @@ namespace Ollama_Component.Controllers
                     await HttpContext.Response.WriteAsync("Failed to process the chat request.");
                     return;
                 }
-
                 HttpContext.Response.ContentType = "application/json";
                 await HttpContext.Response.WriteAsync(response);
                 return;

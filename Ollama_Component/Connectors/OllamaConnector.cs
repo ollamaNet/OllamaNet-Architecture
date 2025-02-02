@@ -5,9 +5,9 @@ using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 
-namespace ChatService
+namespace Ollama_Component.Connectors
 {
-    public class OllamaConnector 
+    public class OllamaConnector
     {
         private readonly IOllamaApiClient ollamaApiClient;
 
@@ -59,7 +59,7 @@ namespace ChatService
             ];
         }
 
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync( ChatHistory chatHistory, string model, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, string model, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
         {
             var request = CreateChatRequest(chatHistory, model);
 
@@ -108,7 +108,13 @@ namespace ChatService
                 Messages = messages,
                 Stream = true,
                 Model = model
+
             };
         }
+
+
+
+
+
     }
 }
