@@ -109,6 +109,7 @@ namespace Ollama_Component.Connectors
                 Messages = messages,
                 Stream = true,
                 Model = request.Model
+
             };
         }
 
