@@ -6,9 +6,9 @@ using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 
-namespace ChatService
+namespace Ollama_Component.Connectors
 {
-    public class OllamaConnector 
+    public class OllamaConnector
     {
         private readonly IOllamaApiClient ollamaApiClient;
 
@@ -111,5 +111,10 @@ namespace ChatService
                 Model = request.Model
             };
         }
+
+
+
+
+
     }
 }

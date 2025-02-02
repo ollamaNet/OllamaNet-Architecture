@@ -15,7 +15,6 @@ namespace Models
         [JsonPropertyName("model")]
         public string Model { get; set; }
 
-
         [JsonPropertyName("SystemMessage")]
         public string SystemMessage{ get; set; }
 

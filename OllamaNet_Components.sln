@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OllamaNet_Components.Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{31070AB7-0785-4F93-917B-35AE984DBFC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ollama DB layer", "..\Ollama-DB-layer\Ollama DB layer.csproj", "{2274B38A-3331-4924-82C8-2979FCFFD259}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2274B38A-3331-4924-82C8-2979FCFFD259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2274B38A-3331-4924-82C8-2979FCFFD259}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2274B38A-3331-4924-82C8-2979FCFFD259}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2274B38A-3331-4924-82C8-2979FCFFD259}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
