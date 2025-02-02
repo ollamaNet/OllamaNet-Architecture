@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Models;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
@@ -21,13 +22,13 @@ namespace ChatService
 
         public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
             ChatHistory chatHistory,
-            string model,
+            PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
             Kernel? kernel = null,
             CancellationToken cancellationToken = default
         )
         {
-            var request = CreateChatRequest(chatHistory, model);
+            var request = CreateChatRequest(chatHistory, request);
 
             var content = new StringBuilder();
             List<ChatResponseStream> innerContent = [];
@@ -55,21 +56,21 @@ namespace ChatService
                     Role = authorRole ?? AuthorRole.Assistant,
                     Content = content.ToString(),
                     InnerContent = innerContent,
-                    ModelId = model}
+                    ModelId = request.Model}
             ];
         }
 
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync( ChatHistory chatHistory, string model, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync( ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
         {
-            var request = CreateChatRequest(chatHistory, model);
+            var req = CreateChatRequest(chatHistory, request);
 
-            await foreach (var response in ollamaApiClient.ChatAsync(request, cancellationToken))
+            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
                 yield return new StreamingChatMessageContent(
                     role: GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
                     content: response.Message.Content,
                     innerContent: response,
-                    modelId: model
+                    modelId: request.Model
                 );
                 ;
             }
@@ -88,7 +89,7 @@ namespace ChatService
 
 
 
-        private static ChatRequest CreateChatRequest(ChatHistory chatHistory, string model)
+        private static ChatRequest CreateChatRequest(ChatHistory chatHistory, PromptRequest request)
         {
             var messages = new List<Message>();
 
@@ -107,7 +108,7 @@ namespace ChatService
             {
                 Messages = messages,
                 Stream = true,
-                Model = model
+                Model = request.Model
             };
         }
     }

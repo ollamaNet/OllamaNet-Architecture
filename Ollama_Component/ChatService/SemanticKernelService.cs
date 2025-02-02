@@ -46,10 +46,11 @@ namespace ChatService
             {
                 foreach(var message in _chatHistory)
                 {
-                    var sysMessage = message.InnerContent;
+                    var sysMessage = message.Content;
                     if (message.Role == AuthorRole.System && sysMessage != request.SystemMessage){
                         _chatHistory.Remove(message);
                         _chatHistory.AddSystemMessage(request.SystemMessage);
+                        break;
                     }
                 }
             }
@@ -60,7 +61,7 @@ namespace ChatService
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);
 
-            var response = await _connector.GetChatMessageContentsAsync(_chatHistory, request.Model);
+            var response = await _connector.GetChatMessageContentsAsync(_chatHistory, request);
 
 
 
