@@ -28,13 +28,13 @@ namespace Ollama_Component.Connectors
             CancellationToken cancellationToken = default
         )
         {
-            var request = CreateChatRequest(chatHistory, request);
+            var req = CreateChatRequest(chatHistory, request);
 
             var content = new StringBuilder();
             List<ChatResponseStream> innerContent = [];
             AuthorRole? authorRole = null;
 
-            await foreach (var response in ollamaApiClient.ChatAsync(request, cancellationToken))
+            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
                 if (response == null || response.Message == null)
                 {
