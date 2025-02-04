@@ -33,7 +33,6 @@ namespace Admin_Component.Controllers
         }
 
 
-
         [HttpGet("InstalledModels")]
         public async Task<IActionResult> InstalledModels()
         {

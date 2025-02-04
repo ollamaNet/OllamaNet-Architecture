@@ -1,4 +1,4 @@
-﻿using Admin_Component.Services;
+﻿using Ollama_Component.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;

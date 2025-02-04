@@ -1,22 +1,24 @@
-﻿using Admin_Component.Connector;
+﻿using Ollama_Component.Connectors;
+using Ollama_Component.Services.AdminServices.Models;
 using System.Globalization;
-using Admin_Component.Models;
-namespace Admin_Component.Services
+
+namespace Ollama_Component.Services
 {
     public class AdminService : IAdminService
     {
-        public IOllamaAdminConnector _OllamaConnector { get; set; }
-        public AdminService(IOllamaAdminConnector connector)
+        public IOllamaConnector _OllamaConnector;
+        public AdminService(IOllamaConnector connector)
         {
             _OllamaConnector = connector;
         }
 
 
-        public async Task<InstalledModelsResponse> InstalledModelsAsync()
+        public async Task<string> InstalledModelsAsync()
         {
-            var models = await _OllamaConnector.GetInstalledModelsAsync();
+            var models = "installed models";
 
             return models;
         }
+
     }
 }
