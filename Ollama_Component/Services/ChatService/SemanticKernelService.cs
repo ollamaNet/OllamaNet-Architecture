@@ -17,7 +17,7 @@ namespace Ollama_Component.Services.ChatService
 
         private string cacheKey;
 
-        public SemanticKernelService(IOllamaApiClient ollamaApiClient, OllamaConnector connector, IMemoryCache cache, ChatHistory chatHistory, ILogger<SemanticKernelService> logger)
+        public SemanticKernelService(OllamaConnector connector, IMemoryCache cache, ChatHistory chatHistory, ILogger<SemanticKernelService> logger)
         {
             //_chatHistory = new ChatHistory();
             _connector = connector;
