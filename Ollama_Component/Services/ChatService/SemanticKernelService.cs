@@ -94,7 +94,7 @@ namespace Ollama_Component.Services.ChatService
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);
 
-            var response = _connector.GetStreamingChatMessageContentsAsync(_chatHistory, request.Model);
+            var response = _connector.GetStreamingChatMessageContentsAsync(_chatHistory, request);
 
             //// Add the assistant's response to chat history
             //if (response.Count > 0)
