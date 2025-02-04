@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
 
-namespace Admin_Component.Controllers
+namespace Ollama_Component.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
