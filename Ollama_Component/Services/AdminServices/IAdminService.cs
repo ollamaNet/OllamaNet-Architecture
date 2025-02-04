@@ -1,12 +1,9 @@
-﻿using Admin_Component.Connector;
-using Admin_Component.Models;
+﻿using Ollama_Component.Services.AdminServices.Models;
 
-namespace Admin_Component.Services
+namespace Ollama_Component.Services
 {
     public interface IAdminService
     {
-        IOllamaAdminConnector _OllamaConnector { get; set; }
-
-        Task<InstalledModelsResponse> InstalledModelsAsync();
+        Task<string> InstalledModelsAsync();
     }
 }

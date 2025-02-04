@@ -8,7 +8,7 @@ using OllamaSharp.Models.Chat;
 
 namespace Ollama_Component.Connectors
 {
-    public class OllamaConnector
+    public class OllamaConnector : IOllamaConnector
     {
         private readonly IOllamaApiClient ollamaApiClient;
 
