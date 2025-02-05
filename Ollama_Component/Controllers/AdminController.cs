@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Ollama_Component.Controllers
 {
@@ -11,18 +12,19 @@ namespace Ollama_Component.Controllers
     public class AdminController : ControllerBase
     {
         public IAdminService AdminService { get; set; }
-        public AIModelRepository AIModelRepository { get; set; }   
+        public IAIModelRepository AIModelRepository { get; set; }   
 
-        public AdminController(IAdminService adminService, AIModelRepository AIModelRepo)
+        public AdminController(IAdminService adminService, IAIModelRepository AIModelRepo)
         {
             AdminService = adminService;
             AIModelRepository = AIModelRepo;
         }
 
+
         [HttpPost("AddModel")]
-        public async Task<IActionResult> AddModel(AIModel model)
+        public async Task<IActionResult> AddModel(string model)
         {
-            var response =  AIModelRepository.AddAsync(model);
+            var response = AdminService.GetModelInfo(model);
 
             if (response == null)
             {

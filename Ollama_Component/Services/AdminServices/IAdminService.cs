@@ -1,9 +1,11 @@
-﻿using Ollama_Component.Services.AdminServices.Models;
+﻿
+using OllamaSharp.Models;
 
 namespace Ollama_Component.Services
 {
     public interface IAdminService
     {
-        Task<string> InstalledModelsAsync();
+        Task<IEnumerable<Model>> InstalledModelsAsync();
+        Task<ShowModelResponse> GetModelInfo(string modelName);
     }
 }

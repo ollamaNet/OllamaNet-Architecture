@@ -2,9 +2,11 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
+using Ollama_Component.Services.AdminServices.Models;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
+using Model = OllamaSharp.Models.Model;
 
 namespace Ollama_Component.Connectors
 {
@@ -115,7 +117,17 @@ namespace Ollama_Component.Connectors
 
 
 
+        public async Task<IEnumerable<Model>> GetInstalledModels()
+        {
+            var response = await ollamaApiClient.ListLocalModelsAsync();
 
+            return response;
+        }
 
+        public async Task<ShowModelResponse> GetModelInfo(string modelName)
+        {
+            var modelInfo = await ollamaApiClient.ShowModelAsync(modelName);
+            return modelInfo;
+        }
     }
 }

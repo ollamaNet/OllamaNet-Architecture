@@ -7,6 +7,9 @@ using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Ollama_DB_layer.Persistence;
 using Ollama_DB_layer.Repositories.ApplicationUserRepo;
+using Ollama_Component.Services;
+using Ollama_Component.Services.AdminServices;
+using Ollama_DB_layer.Repositories.AIModelRepo;
 
 namespace Ollama_Component;
 
@@ -18,22 +21,22 @@ public class Program
         builder.AddServiceDefaults();
 
         // Add services to the container.
-
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
         builder.Services.AddDbContext<MyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         // Add Ollama API client and Semantic Kernel configuration
         builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
-        builder.Services.AddScoped<OllamaConnector>();
+        builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
         builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
-
+        builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
+        builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddMemoryCache();
-
 
         builder.Services.AddCors(options =>
         {
@@ -45,7 +48,6 @@ public class Program
             });
         });
 
-        // Use the CORS policy
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
@@ -57,12 +59,10 @@ public class Program
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
             app.MapScalarApiReference();
             app.UseCors("AllowSwagger");
-
         }
 
         app.UseHttpsRedirection();
         app.UseAuthorization();
-
         app.MapControllers();
 
         app.Run();
