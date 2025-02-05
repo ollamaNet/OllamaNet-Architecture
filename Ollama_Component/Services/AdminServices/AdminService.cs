@@ -1,6 +1,8 @@
 ﻿using Ollama_Component.Connectors;
 using System.Globalization;
 using OllamaSharp.Models;
+using Ollama_DB_layer.Repositories.AIModelRepo;
+using Ollama_DB_layer.Entities;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -8,6 +10,7 @@ namespace Ollama_Component.Services.AdminServices
     public class AdminService : IAdminService
     {
         public IOllamaConnector _ollamaConnector;
+        public IAIModelRepository _aIModelRepo;
         public AdminService(IOllamaConnector connector)
         {
             _ollamaConnector = connector;
@@ -21,13 +24,24 @@ namespace Ollama_Component.Services.AdminServices
             return models;
         }
 
-
         public async Task<ShowModelResponse> GetModelInfo(string modelName)
         {
-            var models = await _ollamaConnector.GetModelInfo(modelName);
-            return models;
+            var model = await _ollamaConnector.GetModelInfo(modelName);
+
+            return model;
         }
 
+        //private AIModel MapModel(Model model)
+        //{
+        //    return new AIModel
+        //    {
+        //        Name = model.Name,
+        //        Description = "temp desription",
+        //        CreatedAt = DateTime.Now,
+        //        Size = model.,
+        //        Version = model.Version,
+        //    };
+        //}
 
     }
 }

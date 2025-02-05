@@ -22,15 +22,28 @@ namespace Ollama_Component.Controllers
 
 
         [HttpPost("AddModel")]
-        public async Task<IActionResult> AddModel(string model)
+        public async Task<IActionResult> AddModel(AIModelDTO model)
         {
-            var response = AdminService.GetModelInfo(model);
-
+            var DbModel = new AIModel 
+            {
+                Name = model.Name,
+                Description = model.Description,
+                Version = model.Version,
+                Size = model.Size,
+                Digest = model.Digest,
+                Format = model.Format,
+                ParameterSize = model.ParameterSize,
+                QuantizationLevel = model.QuantizationLevel,
+                CreatedAt = DateTime.Now,
+                ReleasedAt = model.ReleasedAt,
+                User_Id = model.UserId
+            };
+            var response = AIModelRepository.AddAsync(DbModel);
+            await AIModelRepository.SaveChangesAsync();
             if (response == null)
             {
                 return StatusCode(500, "Failed to process the chat request.");
             }
-
             return Ok(response);
         }
 
@@ -51,7 +64,19 @@ namespace Ollama_Component.Controllers
         }
 
 
-        
+        [HttpPost("ModelInfo")]
+        public async Task<IActionResult> ModelInfo(string modelName, bool storeModel)
+        {
+
+            var response = await AdminService.GetModelInfo(modelName);
+
+            if (response == null)
+            {
+                return StatusCode(500, "Failed to process the chat request.");
+            }
+
+            return Ok(response);
+        }
 
         [HttpPost("InstallModel")]
         public async Task<IActionResult> InstallModel()
@@ -66,6 +91,8 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+
+
 
 
         [HttpPost("DeleteModel")]
@@ -84,6 +111,8 @@ namespace Ollama_Component.Controllers
 
 
 
+
+
         [HttpPost("RemoveModel")]
         public async Task<IActionResult> RemoveModel()
         {
@@ -97,5 +126,23 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+    }
+
+
+    public class AIModelDTO
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Version { get; set; }
+        public string Size { get; set; }
+        public string Digest { get; set; }
+        public string Format { get; set; }
+        public string ParameterSize { get; set; }
+        public string QuantizationLevel { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public bool IsArchived { get; set; } = false;
+        public DateTime CreatedAt { get; set; }
+        public DateTime ReleasedAt { get; set; }
+        public string UserId{ get; set; }
     }
 }
