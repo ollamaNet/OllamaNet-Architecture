@@ -4,14 +4,15 @@ using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;
 
-namespace Ollama_Component.Services
+namespace Ollama_Component.Services.AdminServices
 {
     public interface IAdminService
     {
         Task<IEnumerable<Model>> InstalledModelsAsync();
-        Task<ShowModelResponse> GetModelInfo(string modelName);
-
+        Task<ShowModelResponse> ModelInfoAsync(string modelName);
         Task<AIModel> AddModelAsync(AddModelRequest model);
+        Task<string> UninstllModelAsync(RemoveModelRequest model);
+        Task<string> SoftDeleteModelAsync(string modelName);
 
     }
 }

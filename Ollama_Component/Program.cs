@@ -1,15 +1,14 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
-using Ollama_Component.Services.ChatService;
 using OllamaSharp;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Ollama_DB_layer.Persistence;
-using Ollama_DB_layer.Repositories.ApplicationUserRepo;
-using Ollama_Component.Services;
 using Ollama_Component.Services.AdminServices;
+using Ollama_Component.Services.ChatService;
 using Ollama_DB_layer.Repositories.AIModelRepo;
+using Ollama_DB_layer.Repositories.ApplicationUserRepo;
 
 namespace Ollama_Component;
 

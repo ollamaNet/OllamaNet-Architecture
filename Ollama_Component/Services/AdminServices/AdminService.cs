@@ -13,47 +13,100 @@ namespace Ollama_Component.Services.AdminServices
     public class AdminService : IAdminService
     {
         public IOllamaConnector _ollamaConnector;
-        public IAIModelRepository _aIModelRepo;
+        public IAIModelRepository AIModelRepo;
         public AdminService(IOllamaConnector connector, IAIModelRepository modelRepo)
         {
             _ollamaConnector = connector;
-            _aIModelRepo = modelRepo;
+            AIModelRepo = modelRepo;
         }
-
 
         public async Task<IEnumerable<Model>> InstalledModelsAsync()
         {
-            var models = await _ollamaConnector.GetInstalledModels();
-            return models;
-        }
+            var models = await _ollamaConnector.GetInstalledModels()
+                         ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
-        public async Task<ShowModelResponse> GetModelInfo(string modelName)
-        {
-            var model = await _ollamaConnector.GetModelInfo(modelName);
-
-            return model;
+            return models.Any() ? models : throw new InvalidOperationException("No models are installed.");
         }
 
 
-        public async Task<AIModel> AddModelAsync(AddModelRequest model)
+        public async Task<ShowModelResponse?> ModelInfoAsync(string modelName)
         {
+            if (string.IsNullOrWhiteSpace(modelName))
+                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
+
+            return await _ollamaConnector.GetModelInfo(modelName)
+                   ?? throw new InvalidOperationException($"Model '{modelName}' not found.");
+        }
+
+
+        public async Task<AIModel?> AddModelAsync(AddModelRequest model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.Name))
+                throw new ArgumentException("Invalid model data. Model name is required.");
+
+            AIModel? dbModel = null;
+
             if (!model.FromOllama)
             {
-                var DBmodel = AIModelMapper.FromRequestToAIModel(model);
-                await _aIModelRepo.AddAsync(DBmodel);
-                await _aIModelRepo.SaveChangesAsync();
+                dbModel = AIModelMapper.FromRequestToAIModel(model);
             }
             else
             {
-                var OllamaModelInfo = await GetModelInfo(model.Name);
-                var DBmodel = AIModelMapper.FromOllamaToAIModel(model,OllamaModelInfo);
-                await _aIModelRepo.AddAsync(DBmodel);
-                await _aIModelRepo.SaveChangesAsync();
+                var ollamaModelInfo = await ModelInfoAsync(model.Name);
+                if (ollamaModelInfo == null)
+                    throw new InvalidOperationException("Model not installed in Ollama.");
+
+                dbModel = AIModelMapper.FromOllamaToAIModel(model, ollamaModelInfo);
             }
+            
+            if (dbModel == null)
+                throw new InvalidOperationException("Failed to create AI model.");
 
-            var response = await _aIModelRepo.GetByIdAsync(model.Name);
+            await AIModelRepo.AddAsync(dbModel);
+            await AIModelRepo.SaveChangesAsync();
 
-            return response;
+            return await AIModelRepo.GetByIdAsync(model.Name);
         }
+
+
+        public async Task<string> UninstllModelAsync(RemoveModelRequest model)
+        {
+            if (model is null || string.IsNullOrWhiteSpace(model.ModelName))
+                throw new ArgumentException("Invalid model request.", nameof(model));
+
+            await _ollamaConnector.RemoveModel(model.ModelName);
+
+            if (!model.DeleteFromDB)
+                return "Model removed from Ollama";
+
+            await AIModelRepo.SoftDeleteAsync(model.ModelName);
+            await AIModelRepo.SaveChangesAsync();
+
+            return await AIModelRepo.GetByIdAsync(model.ModelName) == null
+                ? "Model removed from Ollama and DB"
+                : "Model removed from Ollama but not from DB";
+        }
+
+
+        public async Task<string> SoftDeleteModelAsync(string modelName)
+        {
+            if (string.IsNullOrWhiteSpace(modelName))
+                throw new ArgumentException("Model name is required.", nameof(modelName));
+
+            var model = await AIModelRepo.GetByIdAsync(modelName);
+            if (model == null)
+                return "Model not found";
+
+            await AIModelRepo.SoftDeleteAsync(modelName);
+            await AIModelRepo.SaveChangesAsync();
+
+            return "Model soft deleted successfully";
+        }
+
+
+
+
+
     }
+
 }

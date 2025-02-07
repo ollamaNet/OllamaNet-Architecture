@@ -1,10 +1,11 @@
-﻿using Ollama_Component.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ollama_Component.Services.AdminServices.Models;
+using OllamaSharp.Models;
+using Ollama_Component.Services.AdminServices;
 
 namespace Ollama_Component.Controllers
 {
@@ -13,7 +14,7 @@ namespace Ollama_Component.Controllers
     public class AdminController : ControllerBase
     {
         public IAdminService AdminService { get; set; }
-        public IAIModelRepository AIModelRepository { get; set; }   
+        public IAIModelRepository AIModelRepository { get; set; }
 
         public AdminController(IAdminService adminService, IAIModelRepository AIModelRepo)
         {
@@ -25,7 +26,7 @@ namespace Ollama_Component.Controllers
         [HttpPost("AddModel")]
         public async Task<IActionResult> AddModel(AddModelRequest model)
         {
-          
+
             var response = await AdminService.AddModelAsync(model);
             if (response == null)
             {
@@ -34,28 +35,10 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
-
-
-        [HttpGet("InstalledModels")]
-        public async Task<IActionResult> InstalledModels()
-        {
-
-            var response = await AdminService.InstalledModelsAsync();
-
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-
-            return Ok(response);
-        }
-
-
         [HttpPost("ModelInfo")]
         public async Task<IActionResult> ModelInfo(string modelName, bool storeModel)
         {
-
-            var response = await AdminService.GetModelInfo(modelName);
+            var response = await AdminService.ModelInfoAsync(modelName);
 
             if (response == null)
             {
@@ -64,6 +47,7 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+
 
         [HttpPost("InstallModel")]
         public async Task<IActionResult> InstallModel()
@@ -80,13 +64,25 @@ namespace Ollama_Component.Controllers
         }
 
 
-
-
-        [HttpPost("DeleteModel")]
-        public async Task<IActionResult> DeleteModel()
+        [HttpGet("InstalledModels")]
+        public async Task<IActionResult> InstalledModels()
         {
 
-            var response = "here is a connection with Ollama to pull a model from ollama";
+            var response = await AdminService.InstalledModelsAsync();
+
+            if (response == null)
+            {
+                return StatusCode(500, "Failed to process the chat request.");
+            }
+            return Ok(response);
+        }
+
+
+        [HttpDelete("SoftDeleteModel")]
+        public async Task<IActionResult> SoftDeleteModel(string modelName)
+        {
+
+            var response = await AdminService.SoftDeleteModelAsync(modelName);
 
             if (response == null)
             {
@@ -96,15 +92,10 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
-
-
-
-
-        [HttpPost("RemoveModel")]
-        public async Task<IActionResult> RemoveModel()
+        [HttpDelete("UninstallModel")]
+        public async Task<IActionResult> UninstallModel(RemoveModelRequest model)
         {
-
-            var response = "here is a connection with Ollama to REMOVE a model from ollama and the DATABASE";
+            var response = await AdminService.UninstllModelAsync(model);
 
             if (response == null)
             {
@@ -113,7 +104,6 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+
     }
-
-
 }
