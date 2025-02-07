@@ -22,7 +22,7 @@ namespace Ollama_Component.Controllers
 
 
         [HttpPost("AddModel")]
-        public async Task<IActionResult> AddModel(AIModelDTO model)
+        public async Task<IActionResult> AddModel(AddModelRequest model)
         {
             var DbModel = new AIModel 
             {
@@ -129,18 +129,13 @@ namespace Ollama_Component.Controllers
     }
 
 
-    public class AIModelDTO
+    public class AddModelRequest
     {
         public string Name { get; set; }
         public string Description { get; set; }
         public string Version { get; set; }
         public string Size { get; set; }
         public string Digest { get; set; }
-        public string Format { get; set; }
-        public string ParameterSize { get; set; }
-        public string QuantizationLevel { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public bool IsArchived { get; set; } = false;
         public DateTime CreatedAt { get; set; }
         public DateTime ReleasedAt { get; set; }
         public string UserId{ get; set; }

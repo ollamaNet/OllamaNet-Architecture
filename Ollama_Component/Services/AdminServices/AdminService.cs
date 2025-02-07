@@ -31,17 +31,5 @@ namespace Ollama_Component.Services.AdminServices
             return model;
         }
 
-        //private AIModel MapModel(Model model)
-        //{
-        //    return new AIModel
-        //    {
-        //        Name = model.Name,
-        //        Description = "temp desription",
-        //        CreatedAt = DateTime.Now,
-        //        Size = model.,
-        //        Version = model.Version,
-        //    };
-        //}
-
     }
 }
