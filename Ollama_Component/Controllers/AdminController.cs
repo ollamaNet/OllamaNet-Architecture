@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Ollama_Component.Services.AdminServices.Models;
 
 namespace Ollama_Component.Controllers
 {
@@ -24,22 +25,8 @@ namespace Ollama_Component.Controllers
         [HttpPost("AddModel")]
         public async Task<IActionResult> AddModel(AddModelRequest model)
         {
-            var DbModel = new AIModel 
-            {
-                Name = model.Name,
-                Description = model.Description,
-                Version = model.Version,
-                Size = model.Size,
-                Digest = model.Digest,
-                Format = model.Format,
-                ParameterSize = model.ParameterSize,
-                QuantizationLevel = model.QuantizationLevel,
-                CreatedAt = DateTime.Now,
-                ReleasedAt = model.ReleasedAt,
-                User_Id = model.UserId
-            };
-            var response = AIModelRepository.AddAsync(DbModel);
-            await AIModelRepository.SaveChangesAsync();
+          
+            var response = await AdminService.AddModelAsync(model);
             if (response == null)
             {
                 return StatusCode(500, "Failed to process the chat request.");
@@ -129,15 +116,4 @@ namespace Ollama_Component.Controllers
     }
 
 
-    public class AddModelRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Version { get; set; }
-        public string Size { get; set; }
-        public string Digest { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime ReleasedAt { get; set; }
-        public string UserId{ get; set; }
-    }
 }

@@ -114,4 +114,4 @@ namespace Ollama_Component.Connectors
             return modelInfo;
         }
     }
-}
+}       
