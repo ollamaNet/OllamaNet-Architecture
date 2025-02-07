@@ -2,6 +2,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
+using Ollama_Component.Mappers;
 using Ollama_Component.Services.AdminServices.Models;
 using OllamaSharp;
 using OllamaSharp.Models;
@@ -93,26 +94,9 @@ namespace Ollama_Component.Connectors
 
         private static ChatRequest CreateChatRequest(ChatHistory chatHistory, PromptRequest request)
         {
-            var messages = new List<Message>();
+            var chatRequest = request.ToChatRequest(chatHistory);
 
-            foreach (var message in chatHistory)
-            {
-                messages.Add(
-                    new Message
-                    {
-                        Role = message.Role == AuthorRole.User ? ChatRole.User : ChatRole.System,
-                        Content = message.Content,
-                    }
-                );
-            }
-
-            return new ChatRequest
-            {
-                Messages = messages,
-                Stream = true,
-                Model = request.Model
-
-            };
+            return chatRequest;
         }
 
 
