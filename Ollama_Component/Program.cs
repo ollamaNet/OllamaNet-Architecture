@@ -7,6 +7,11 @@ using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Ollama_DB_layer.Persistence;
 using Ollama_DB_layer.Repositories.ApplicationUserRepo;
+using Ollama_DB_layer.Repositories;
+using Ollama_DB_layer.Entities;
+using Ollama_DB_layer.Repositories.PromptRepo;
+using Ollama_DB_layer.Repositories.AIResponseRepo;
+using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
 
 namespace Ollama_Component;
 
@@ -30,7 +35,12 @@ public class Program
         builder.Services.AddScoped<OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
+
+        // Add repositories
         builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+        builder.Services.AddScoped<IPromptRepository, PromptRepository>();
+        builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
+        builder.Services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
 
         builder.Services.AddMemoryCache();
 
