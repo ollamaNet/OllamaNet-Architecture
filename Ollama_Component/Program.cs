@@ -46,8 +46,10 @@ public class Program
         builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
+        builder.Services.AddScoped<ChatHistoryManager>();
         builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
+
 
         builder.Services.AddMemoryCache();
 

@@ -91,6 +91,7 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
+
         [HttpPost("embeddings")]
         public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
         {

@@ -5,7 +5,7 @@ using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 
-namespace Ollama_Component.Mappers
+namespace Ollama_Component.Mappers.DbMappers
 {
     public static class AIModelMapper
     {
@@ -72,9 +72,9 @@ namespace Ollama_Component.Mappers
                 Families = model.Families != null ? new List<string>(model.Families) : new List<string>(),
                 Languages = model.Languages != null ? new List<string>(model.Languages) : new List<string>(),
                 Architecture = model.Architecture,
-                FileType = (int)model.FileType,
-                ParameterCount = (long)model.ParameterCount,
-                QuantizationVersion = (int)model.QuantizationVersion,
+                FileType = model.FileType,
+                ParameterCount = model.ParameterCount,
+                QuantizationVersion = model.QuantizationVersion,
                 SizeLabel = model.SizeLabel,
                 ModelType = model.ModelType,
                 CreatedAt = DateTime.Now,
@@ -82,5 +82,6 @@ namespace Ollama_Component.Mappers
 
             return DBModel;
         }
+
     }
 }

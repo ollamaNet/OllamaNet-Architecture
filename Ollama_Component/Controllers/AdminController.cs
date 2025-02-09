@@ -48,7 +48,7 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
-        [HttpPost("InstallModel")]
+        [HttpPost("InstallModel'Buged'")]
         public async Task<IActionResult> InstallModel(InstallModelRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.ModelName))

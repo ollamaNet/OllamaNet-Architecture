@@ -5,8 +5,8 @@ using Ollama_DB_layer.Repositories.AIModelRepo;
 using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AdminServices.Models;
 using Model = OllamaSharp.Models.Model;
-using Ollama_Component.Mappers;
 using OllamaSharp;
+using Ollama_Component.Mappers.DbMappers;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -131,7 +131,6 @@ namespace Ollama_Component.Services.AdminServices
                     // Report progress to the caller (e.g., the controller)
                     progress?.Report(response);
                 }
-
                 return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
             }
         }

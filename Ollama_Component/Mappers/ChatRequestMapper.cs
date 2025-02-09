@@ -4,6 +4,7 @@ using OllamaSharp.Models.Chat;
 
 namespace Ollama_Component.Mappers
 {
+
     public static class ChatRequestMapper
     {
         public static ChatRequest ToChatRequest(this PromptRequest request, ChatHistory chatHistory)
