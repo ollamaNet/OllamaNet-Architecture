@@ -1,7 +1,8 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Models;
 using OllamaSharp.Models;
+using Ollama_Component.Services.ChatService.Models;
+
 
 namespace Ollama_Component.Connectors
 {

@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Models;
 using Ollama_Component.Connectors;
+using Ollama_Component.Services.ChatService.Models;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories;
 using Ollama_DB_layer.Repositories.AIResponseRepo;
@@ -27,9 +27,18 @@ namespace Ollama_Component.Services.ChatService
 
         private string cacheKey;
 
-        public SemanticKernelService(OllamaConnector connector, IMemoryCache cache, ChatHistory chatHistory, ILogger<SemanticKernelService> logger, IPromptRepository promptRepo, IAIResponseRepository responseRepo, IConversationPromptResponseRepository convPromptResRepo, IConversationRepository conversationRepo)
+        public SemanticKernelService
+            (
+            IOllamaConnector connector,
+            IMemoryCache cache,
+            ChatHistory chatHistory,
+            ILogger<SemanticKernelService> logger,
+            IPromptRepository promptRepo,
+            IAIResponseRepository responseRepo,
+            IConversationPromptResponseRepository convPromptResRepo,
+            IConversationRepository conversationRepo
+            )
         {
-            //_chatHistory = new ChatHistory();
             _connector = connector;
             _cache = cache;
             _chatHistory = chatHistory;
@@ -39,6 +48,7 @@ namespace Ollama_Component.Services.ChatService
             _responseRepo = responseRepo;
             _convPromptResRepo = convPromptResRepo;
         }
+
 
 
         public async Task<string> GetModelResponse(PromptRequest request)

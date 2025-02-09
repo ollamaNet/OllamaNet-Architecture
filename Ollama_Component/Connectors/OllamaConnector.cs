@@ -4,7 +4,6 @@ using Azure.Core;
 using System.Threading;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Models;
 using Ollama_Component.Mappers;
 using Ollama_Component.Services.AdminServices.Models;
 using Ollama_Component.Services.ChatService.Models;

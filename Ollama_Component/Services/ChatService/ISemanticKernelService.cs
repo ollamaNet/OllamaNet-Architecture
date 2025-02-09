@@ -1,5 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
-using Models;
+using Ollama_Component.Services.ChatService.Models;
 
 namespace Ollama_Component.Services.ChatService
 {

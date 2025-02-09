@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Ollama_Component.Services.ChatService;
+using Ollama_Component.Services.ChatService.Models;
 
 namespace Ollama_Component.Controllers
 {
@@ -90,6 +90,5 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
-
     }
 }

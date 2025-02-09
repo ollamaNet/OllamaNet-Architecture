@@ -14,6 +14,7 @@ using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.AIResponseRepo;
 using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
+using Ollama_DB_layer.Repositories.ConversationRepo;
 
 namespace Ollama_Component;
 
@@ -43,6 +44,8 @@ public class Program
         builder.Services.AddScoped<IPromptRepository, PromptRepository>();
         builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
         builder.Services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
+        builder.Services.AddScoped<IConversationRepository, ConversationRepository>(); 
+
 
         builder.Services.AddMemoryCache();
 

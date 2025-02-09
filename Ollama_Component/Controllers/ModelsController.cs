@@ -21,10 +21,9 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
-
+        [HttpGet("ModelInfo")]
         public async Task<IActionResult> ModelInfo(string modelName)
         {
-
             var response = new List<ModelInfo> { };
 
             if (response == null)
