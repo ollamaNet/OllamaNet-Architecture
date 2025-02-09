@@ -1,12 +1,18 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
+using Azure.Core;
+using System.Threading;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
 using Ollama_Component.Mappers;
+using Ollama_Component.Services.AdminServices.Models;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
+using Model = OllamaSharp.Models.Model;
+using OpenTelemetry.Trace;
 
 namespace Ollama_Component.Connectors
 {
@@ -85,7 +91,7 @@ namespace Ollama_Component.Connectors
             ];
         }
 
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync( ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
         {
             var req = CreateChatRequest(chatHistory, request);
 
@@ -123,7 +129,29 @@ namespace Ollama_Component.Connectors
 
 
 
+        public async Task<IEnumerable<Model>> GetInstalledModels()
+        {
+            var response = await ollamaApiClient.ListLocalModelsAsync();
 
+            return response;
+        }
+
+        public async Task<ShowModelResponse> GetModelInfo(string modelName)
+        {
+            var modelInfo = await ollamaApiClient.ShowModelAsync(modelName);
+            return modelInfo;
+        }
+
+        public async Task<string> RemoveModel(string modelName)
+        {
+
+            await ollamaApiClient.DeleteModelAsync(modelName);
+
+            var models = await ollamaApiClient.ListLocalModelsAsync();
+            var modelExists = models.Any(m => m.Name == modelName);
+
+            return modelExists ? "Model not removed successfully" : "Model removed successfully";
+        }
 
     }
 }

@@ -15,37 +15,34 @@ namespace Ollama_Component.Controllers
         {
             _UserRepos = userRepository;
         }
+
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserDTO user)
         {
             var userModel = new ApplicationUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = user.Id,
                 UserName = user.Name,
-                PasswordHash = user.Password
+                PasswordHash = user.Password,
+                Prefrences = "None",
             };
 
             await _UserRepos.AddAsync(userModel);
+            await _UserRepos.SaveChangesAsync();
 
             return Ok("User registered successfully");
         }
 
+
         [HttpPost("UserInfo")]
-        public async Task<IActionResult> UserInfo(UserDTO user)
+        public async Task<IActionResult> UserInfo(string Id)
         {
-            var userModel = new ApplicationUser
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserName = user.Name,
-                PasswordHash = user.Password
-            };
+            
+            var info = await _UserRepos.GetByIdAsync(Id);
 
-            await _UserRepos.AddAsync(userModel);
-
-            return Ok("User info processed successfully");
+            return Ok(info);
         }
-
-
     }
 
     public class UserDTO

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Ollama_Component.Models;
 using Models;
 using Ollama_Component.Services.ChatService;
 

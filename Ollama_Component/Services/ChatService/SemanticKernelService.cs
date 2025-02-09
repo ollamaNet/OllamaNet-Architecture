@@ -16,7 +16,7 @@ namespace Ollama_Component.Services.ChatService
 {
     public class SemanticKernelService : ISemanticKernelService
     {
-        private readonly OllamaConnector _connector;
+        private readonly IOllamaConnector _connector;
         private readonly ChatHistory _chatHistory;
         private readonly IMemoryCache _cache;
         private readonly ILogger<SemanticKernelService> _logger;
@@ -73,7 +73,7 @@ namespace Ollama_Component.Services.ChatService
             }
             else
                 _chatHistory.AddSystemMessage(request.SystemMessage);
-            
+
 
             // Add user message to chat history
             _chatHistory.AddUserMessage(request.Content);

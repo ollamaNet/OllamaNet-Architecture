@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
-using Ollama_Component.Services.ChatService.Models;
+using OllamaSharp.Models;
 
 namespace Ollama_Component.Connectors
 {
@@ -10,5 +10,8 @@ namespace Ollama_Component.Connectors
         IReadOnlyDictionary<string, object?> Attributes { get; }
         Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
         IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Model>> GetInstalledModels();
+        Task<ShowModelResponse> GetModelInfo(string modelName);
+        Task<string> RemoveModel(string modelName);
     }
 }
