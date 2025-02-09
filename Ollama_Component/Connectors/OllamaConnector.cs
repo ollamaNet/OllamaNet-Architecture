@@ -3,6 +3,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Models;
 using Ollama_Component.Mappers;
+using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
@@ -21,7 +22,7 @@ namespace Ollama_Component.Connectors
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
 
 
-        public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
+        public async Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -34,6 +35,12 @@ namespace Ollama_Component.Connectors
             var content = new StringBuilder();
             List<ChatResponseStream> innerContent = [];
             AuthorRole? authorRole = null;
+            long duration = 0;
+            long loadDuration = 0;
+            int promptEvalCount = 0;
+            long promptEvalDuration = 0;
+            int evalCount = 0;
+            long evalDuration = 0;
 
             await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
@@ -50,14 +57,31 @@ namespace Ollama_Component.Connectors
                 }
 
                 authorRole = GetAuthorRole(response.Message.Role);
+
+                if (response is ChatDoneResponseStream doneResponse)
+                {
+                    duration = doneResponse.TotalDuration;
+                    loadDuration = doneResponse.LoadDuration;
+                    promptEvalCount = doneResponse.PromptEvalCount;
+                    promptEvalDuration = doneResponse.PromptEvalDuration;
+                    evalCount = doneResponse.EvalCount;
+                    evalDuration = doneResponse.EvalDuration;
+                }
             }
 
             return
-            [ new ChatMessageContent{
+            [ new ModelResponse{
                     Role = authorRole ?? AuthorRole.Assistant,
                     Content = content.ToString(),
                     InnerContent = innerContent,
-                    ModelId = request.Model}
+                    ModelId = request.Model,
+                    TotalDuration = duration,
+                    LoadDuration = loadDuration,
+                    PromptEvalCount = promptEvalCount,
+                    PromptEvalDuration = promptEvalDuration,
+                    EvalCount = evalCount,
+                    EvalDuration = evalDuration
+            }
             ];
         }
 
