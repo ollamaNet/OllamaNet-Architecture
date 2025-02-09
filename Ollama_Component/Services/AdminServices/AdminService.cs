@@ -6,18 +6,19 @@ using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AdminServices.Models;
 using Model = OllamaSharp.Models.Model;
 using Ollama_Component.Mappers;
+using OllamaSharp;
 
 
 namespace Ollama_Component.Services.AdminServices
 {
     public class AdminService : IAdminService
     {
-        public IOllamaConnector _ollamaConnector;
-        public IAIModelRepository AIModelRepo;
+        public readonly IOllamaConnector _ollamaConnector;
+        public readonly IAIModelRepository _aiModelRepo;
         public AdminService(IOllamaConnector connector, IAIModelRepository modelRepo)
         {
             _ollamaConnector = connector;
-            AIModelRepo = modelRepo;
+            _aiModelRepo = modelRepo;
         }
 
         public async Task<IEnumerable<Model>> InstalledModelsAsync()
@@ -47,9 +48,7 @@ namespace Ollama_Component.Services.AdminServices
             AIModel? dbModel = null;
 
             if (!model.FromOllama)
-            {
                 dbModel = AIModelMapper.FromRequestToAIModel(model);
-            }
             else
             {
                 var ollamaModelInfo = await ModelInfoAsync(model.Name);
@@ -58,14 +57,14 @@ namespace Ollama_Component.Services.AdminServices
 
                 dbModel = AIModelMapper.FromOllamaToAIModel(model, ollamaModelInfo);
             }
-            
+
             if (dbModel == null)
                 throw new InvalidOperationException("Failed to create AI model.");
 
-            await AIModelRepo.AddAsync(dbModel);
-            await AIModelRepo.SaveChangesAsync();
+            await _aiModelRepo.AddAsync(dbModel);
+            await _aiModelRepo.SaveChangesAsync();
 
-            return await AIModelRepo.GetByIdAsync(model.Name);
+            return await _aiModelRepo.GetByIdAsync(model.Name);
         }
 
 
@@ -77,36 +76,72 @@ namespace Ollama_Component.Services.AdminServices
             await _ollamaConnector.RemoveModel(model.ModelName);
 
             if (!model.DeleteFromDB)
+            {
+                await SoftDeleteAIModelAsync(model.ModelName);
                 return "Model removed from Ollama";
-
-            await AIModelRepo.SoftDeleteAsync(model.ModelName);
-            await AIModelRepo.SaveChangesAsync();
-
-            return await AIModelRepo.GetByIdAsync(model.ModelName) == null
+            }
+               
+            return await _aiModelRepo.GetByIdAsync(model.ModelName) == null
                 ? "Model removed from Ollama and DB"
                 : "Model removed from Ollama but not from DB";
         }
 
 
-        public async Task<string> SoftDeleteModelAsync(string modelName)
+        public async Task<string> SoftDeleteAIModelAsync(string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
                 throw new ArgumentException("Model name is required.", nameof(modelName));
 
-            var model = await AIModelRepo.GetByIdAsync(modelName);
+            var model = await _aiModelRepo.GetByIdAsync(modelName);
             if (model == null)
                 return "Model not found";
 
-            await AIModelRepo.SoftDeleteAsync(modelName);
-            await AIModelRepo.SaveChangesAsync();
+            await _aiModelRepo.SoftDeleteAsync(modelName);
+            await _aiModelRepo.SaveChangesAsync();
 
             return "Model soft deleted successfully";
         }
+
+
+        public async Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null)
+        {
+            if (string.IsNullOrWhiteSpace(modelName))
+                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
+
+            // Check if the model is already installed
+            var installedModels = await InstalledModelsAsync();
+            if (installedModels.Any(model => model.Name == modelName))
+                return new InstallProgressInfo
+                {
+                    Completed = 100,
+                    Total = 100,
+                    Status = $"{modelName}already installed",
+                    Digest = installedModels.Where(installedModels => installedModels.Name == modelName).FirstOrDefault()?.Digest
+
+                };
+
+            else
+            {
+                InstallProgressInfo? lastProgress = null;
+
+                await foreach (var response in _ollamaConnector.PullModelAsync(modelName))
+                {
+                    lastProgress = response; // Store the latest progress
+
+                    // Report progress to the caller (e.g., the controller)
+                    progress?.Report(response);
+                }
+
+                return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
+            }
+        }
+
+
+
 
 
 
 
 
     }
-
 }

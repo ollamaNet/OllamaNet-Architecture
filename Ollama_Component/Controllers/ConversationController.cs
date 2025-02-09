@@ -24,7 +24,7 @@ namespace Ollama_Component.Controllers
             }
 
             // Use the Ollama HTTP Client to send the request
-            var response = await _kernelService.GetStreamingModelResponse(request);
+            var response = await _kernelService.GetModelResponse(request);
 
             if (response == null)
             {
@@ -82,6 +82,24 @@ namespace Ollama_Component.Controllers
             // Use the Ollama HTTP Client to send the request
             //var response = await _ollamaClient.ChatAsync(request);
             var response = "this is the AI model response of embeddings";
+
+            if (response == null)
+            {
+                return StatusCode(500, "Failed to process the chat request.");
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("embeddings")]
+        public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Request body cannot be null.");
+            }
+
+            var response = "logic to create a conversation in the db";
 
             if (response == null)
             {

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ollama_Component.Services.AdminServices.Models;
 using OllamaSharp.Models;
 using Ollama_Component.Services.AdminServices;
+using System.Text;
+using System.Text.Json;
 
 namespace Ollama_Component.Controllers
 {
@@ -14,12 +16,10 @@ namespace Ollama_Component.Controllers
     public class AdminController : ControllerBase
     {
         public IAdminService AdminService { get; set; }
-        public IAIModelRepository AIModelRepository { get; set; }
 
-        public AdminController(IAdminService adminService, IAIModelRepository AIModelRepo)
+        public AdminController(IAdminService adminService)
         {
             AdminService = adminService;
-            AIModelRepository = AIModelRepo;
         }
 
 
@@ -48,20 +48,47 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
-
         [HttpPost("InstallModel")]
-        public async Task<IActionResult> InstallModel()
+        public async Task<IActionResult> InstallModel(InstallModelRequest request)
         {
-
-            var response = "here is a connection with Ollama to pull a model from ollama ";
-
-            if (response == null)
+            if (string.IsNullOrWhiteSpace(request.ModelName))
             {
-                return StatusCode(500, "Failed to process the chat request.");
+                return BadRequest("Model name cannot be empty.");
             }
 
-            return Ok(response);
+            // Handle streaming responses
+            if (request.Stream)
+            {
+                var responseStream = Response.Body;
+                Response.Headers.Append("Content-Type", "text/event-stream");
+                Response.Headers.Append("Cache-Control", "no-cache");
+                Response.Headers.Append("Connection", "keep-alive");
+
+                var progress = new Progress<InstallProgressInfo>(async progressInfo =>
+                {
+                    if (!HttpContext.Response.HasStarted)
+                    {
+                        var json = JsonSerializer.Serialize(progressInfo);
+                        var data = $"data: {json}\n\n";
+                        var bytes = Encoding.UTF8.GetBytes(data);
+
+                        await responseStream.WriteAsync(bytes, 0, bytes.Length);
+                        await responseStream.FlushAsync();
+                    }
+                });
+
+                await AdminService.InstallModelAsync(request.ModelName, progress);
+                return new EmptyResult(); // End the stream when complete
+            }
+            else
+            {
+                // Non-streaming response
+                var response = await AdminService.InstallModelAsync(request.ModelName);
+                return response != null ? Ok(response) : StatusCode(500, "Failed to install model.");
+            }
         }
+
+
 
 
         [HttpGet("InstalledModels")]
@@ -82,7 +109,7 @@ namespace Ollama_Component.Controllers
         public async Task<IActionResult> SoftDeleteModel(string modelName)
         {
 
-            var response = await AdminService.SoftDeleteModelAsync(modelName);
+            var response = await AdminService.SoftDeleteAIModelAsync(modelName);
 
             if (response == null)
             {

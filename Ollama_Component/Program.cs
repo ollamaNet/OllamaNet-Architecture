@@ -33,19 +33,21 @@ public class Program
         builder.Services.AddDbContext<MyDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Add Ollama API client and Semantic Kernel configuration
-        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
-        builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
-        builder.Services.AddScoped<ChatHistory>();
-        builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
 
         // Add repositories
         builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
         builder.Services.AddScoped<IPromptRepository, PromptRepository>();
         builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
         builder.Services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
-        builder.Services.AddScoped<IConversationRepository, ConversationRepository>(); 
+        builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+        builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
 
+        // Add Ollama API client and Semantic Kernel configuration
+        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
+        builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
+        builder.Services.AddScoped<ChatHistory>();
+        builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
+        builder.Services.AddScoped<IAdminService, AdminService>();
 
         builder.Services.AddMemoryCache();
 

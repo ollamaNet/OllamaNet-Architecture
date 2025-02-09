@@ -152,5 +152,29 @@ namespace Ollama_Component.Connectors
             return modelExists ? "Model not removed successfully" : "Model removed successfully";
         }
 
+
+        public async IAsyncEnumerable<InstallProgressInfo> PullModelAsync(string modelName)
+        {
+            if (string.IsNullOrWhiteSpace(modelName))
+                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
+
+            await foreach (var response in ollamaApiClient.PullModelAsync(modelName))
+            {
+                yield return new InstallProgressInfo
+                {
+                    Status = response.Status,
+                    Digest = response.Digest,
+                    Total = response.Total,
+                    Completed = response.Completed,
+                    Progress = response.Total > 0
+                        ? (double)response.Completed / response.Total * 100
+                        : 0
+                };
+            }
+        }
+
+
+
+
     }
 }
