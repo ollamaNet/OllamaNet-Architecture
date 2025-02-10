@@ -47,6 +47,7 @@ public class Program
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
+        builder.Services.AddScoped<ChatCacheManager>();
         builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
 

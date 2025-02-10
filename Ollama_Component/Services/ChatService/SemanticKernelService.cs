@@ -15,38 +15,43 @@ namespace Ollama_Component.Services.ChatService
         private readonly IMemoryCache _cache;
         private readonly ILogger<SemanticKernelService> _logger;
         private readonly ChatHistoryManager _chatHistoryManager;
+        private readonly ChatCacheManager _cacheManager;
         private string cacheKey;
 
         public SemanticKernelService(
             IOllamaConnector connector,
             IMemoryCache cache,
             ILogger<SemanticKernelService> logger,
-            ChatHistoryManager chatHistoryManager)
+            ChatHistoryManager chatHistoryManager,
+            ChatCacheManager cacheManager)
         {
             _connector = connector;
             _cache = cache;
             _logger = logger;
             _chatHistoryManager = chatHistoryManager;
+            _cacheManager = cacheManager;
         }
 
         public async Task<string> GetModelResponse(PromptRequest request)
         {
-            cacheKey = request.ConversationId;
-
-            if (request is null)            
+            if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
 
-            if (_cache.TryGetValue(cacheKey, out ChatHistory history))
-                _logger.Log(LogLevel.Information, "History Found!");
+            cacheKey = request.ConversationId;
+            ChatHistory history;
+
+            if (_cacheManager.TryGetChatHistory(cacheKey, out history))
+                _logger.LogInformation("History Found in Cache!");
 
             else
             {
                 history = await _chatHistoryManager.GetChatHistoryAsync(request);
-                _cache.Set(cacheKey, history, new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(200))
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                    .SetPriority(CacheItemPriority.High));
+                _cacheManager.SetChatHistory(cacheKey, history);
             }
+
+            
+            history.AddSystemMessage(request.SystemMessage);
+            history.AddUserMessage(request.Content);
 
             var response = await _connector.GetChatMessageContentsAsync(history, request);
 

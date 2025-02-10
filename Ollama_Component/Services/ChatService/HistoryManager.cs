@@ -89,7 +89,8 @@ namespace Ollama_Component.Services.ChatService
 
                 await _responseRepo.AddAsync(repoResponse);
                 await _promptRepo.AddAsync(repoPrompt);
-                await _convPromptResRepo.AddAsync(repoConvPromptRes);
+                //Pending Edit
+                await _convPromptResRepo.AddAsync(request.ConversationId);
 
                 await _promptRepo.SaveChangesAsync();
                 await _responseRepo.SaveChangesAsync();
