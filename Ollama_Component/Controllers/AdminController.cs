@@ -35,10 +35,11 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
-        [HttpPost("ModelInfo")]
-        public async Task<IActionResult> ModelInfo(string modelName, bool storeModel)
+
+        [HttpPost("OllamaModelInfo")]
+        public async Task<IActionResult> OllamaModelInfo(ModelInfoRequest request)
         {
-            var response = await AdminService.ModelInfoAsync(modelName);
+            var response = await AdminService.ModelInfoAsync(request.ModelName);
 
             if (response == null)
             {
@@ -47,6 +48,7 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+
 
         [HttpPost("InstallModel'Buged'")]
         public async Task<IActionResult> InstallModel(InstallModelRequest request)

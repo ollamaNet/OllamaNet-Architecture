@@ -1,58 +1,76 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Ollama_Component.Services.AdminServices.Models
+namespace Ollama_Component.Services.ExploreService.Models
 {
-
-    public class AddModelRequest
+    public class ModelInfoResponse
     {
-
-        public string UserId { get; set; }
-        public bool FromOllama { get; set; }
         public string Name { get; set; }    
 
         public string Description { get; set; }
 
+
+        [MaxLength(20)]
         public string Version { get; set; }
 
+        [MaxLength(50)]
         public string Size { get; set; }
 
+
+        [Required]
+        [MaxLength(100)]
         public string Digest { get; set; }
 
+
+        [MaxLength(50)]
         public string Format { get; set; }
 
+
+        [MaxLength(50)]
         public string ParameterSize { get; set; }
 
+
+        [MaxLength(50)]
         public string QuantizationLevel { get; set; }
 
-        public bool IsDeleted { get; set; } = false;
-
-        public bool IsArchived { get; set; } = false;
-
+        [Required]
         public DateTime ReleasedAt { get; set; }
 
-        public DateTime ModifiedAt { get; set; }
 
+        [MaxLength(int.MaxValue)]
         public string License { get; set; }
 
+
+        [MaxLength(int.MaxValue)]
         public string ModelFile { get; set; }
 
+
+        [MaxLength(int.MaxValue)]
         public string Template { get; set; }
 
+
+        [MaxLength(255)]
         public string ParentModel { get; set; }
 
+
+        [MaxLength(100)]
         public string Family { get; set; }
+
 
 
         public List<string>? Families { get; set; } // JSON stored as string (Handled via serialization)
 
-        public List<string>? Languages { get; set; } // JSON stored as string (Handled via serialization)s
 
+
+        public List<string>? Languages { get; set; } // JSON stored as string (Handled via serialization)
+
+
+        [MaxLength(100)]
         public string Architecture { get; set; }
 
         public int FileType { get; set; }
 
         public long ParameterCount { get; set; }
-
+        
         public int QuantizationVersion { get; set; }
 
         [MaxLength(50)]
@@ -60,6 +78,5 @@ namespace Ollama_Component.Services.AdminServices.Models
 
         [MaxLength(50)]
         public string ModelType { get; set; }
-
     }
 }

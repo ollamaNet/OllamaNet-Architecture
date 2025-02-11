@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Ollama_Component.Services.ExploreService;
+using Ollama_Component.Services.ExploreService.Models;
 using OllamaSharp.Models;
 
 namespace Ollama_Component.Controllers
@@ -8,11 +10,20 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class ModelsController : ControllerBase
     {
+        public IExploreService expolerService { get; set; }
 
-        [HttpGet("AvailableModels")]
-        public async Task<IActionResult> AvailableModels()
+
+        public ModelsController(IExploreService expolre)
         {
-            var response = new List<ModelInfo> { };
+            expolerService = expolre;
+        }
+
+
+
+        [HttpPost("Models")]
+        public async Task<IActionResult> Models(GetPagedModelsRequest request)
+        {
+            var response = await expolerService.AvailableModels(request);
 
             if (response == null)
             {
@@ -21,10 +32,13 @@ namespace Ollama_Component.Controllers
 
             return Ok(response);
         }
+
+
+
         [HttpGet("ModelInfo")]
         public async Task<IActionResult> ModelInfo(string modelName)
         {
-            var response = new List<ModelInfo> { };
+            var response = await expolerService.ModelInfo(modelName);
 
             if (response == null)
             {
