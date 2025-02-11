@@ -1,7 +1,10 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Models;
 using OllamaSharp.Models;
+using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.AdminServices.Models;
+using Model = OllamaSharp.Models.Model;
+
 
 namespace Ollama_Component.Connectors
 {
@@ -13,5 +16,7 @@ namespace Ollama_Component.Connectors
         Task<IEnumerable<Model>> GetInstalledModels();
         Task<ShowModelResponse> GetModelInfo(string modelName);
         Task<string> RemoveModel(string modelName);
+        IAsyncEnumerable<InstallProgressInfo> PullModelAsync(string modelName);
+
     }
 }

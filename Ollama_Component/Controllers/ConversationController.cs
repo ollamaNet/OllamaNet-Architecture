@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Ollama_Component.Services.ChatService;
+using Ollama_Component.Services.ChatService.Models;
 
 namespace Ollama_Component.Controllers
 {
@@ -9,8 +9,8 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class ConversationController : ControllerBase
     {
-        public ISemanticKernelService _kernelService { get; set; }
-        public ConversationController(ISemanticKernelService Kernelinterface)
+        public IChatService _kernelService { get; set; }
+        public ConversationController(IChatService Kernelinterface)
         {
             _kernelService = Kernelinterface;
         }
@@ -24,7 +24,7 @@ namespace Ollama_Component.Controllers
             }
 
             // Use the Ollama HTTP Client to send the request
-            var response = await _kernelService.GetStreamingModelResponse(request);
+            var response = await _kernelService.GetModelResponse(request);
 
             if (response == null)
             {
@@ -91,5 +91,23 @@ namespace Ollama_Component.Controllers
             return Ok(response);
         }
 
+
+        [HttpPost("embeddings")]
+        public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Request body cannot be null.");
+            }
+
+            var response = "logic to create a conversation in the db";
+
+            if (response == null)
+            {
+                return StatusCode(500, "Failed to process the chat request.");
+            }
+
+            return Ok(response);
+        }
     }
 }

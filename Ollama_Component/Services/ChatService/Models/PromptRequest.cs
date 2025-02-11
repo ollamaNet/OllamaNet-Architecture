@@ -4,12 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Models
+namespace Ollama_Component.Services.ChatService.Models
 {
     public class PromptRequest
     {
-        [JsonPropertyName("ConversationId")] 
+        [JsonPropertyName("ConversationId")]
         public string ConversationId { get; set; }
+
+
+        [JsonPropertyName("UserId")]
+        public string UserId { get; set; }
 
         [JsonPropertyName("PromptId")]
         public string PromptId { get; set; }
