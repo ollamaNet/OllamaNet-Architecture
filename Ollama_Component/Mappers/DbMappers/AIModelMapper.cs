@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Controllers;
 using Ollama_Component.Services.AdminServices.Models;
+using Ollama_Component.Services.ExploreService.Models;
 using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
@@ -82,6 +83,40 @@ namespace Ollama_Component.Mappers.DbMappers
 
             return DBModel;
         }
+
+        public static ModelInfoResponse FromModelInfoResposne(this AIModel DBmodel)
+        {
+            if (DBmodel == null) throw new ArgumentNullException(nameof(DBmodel));
+
+            ModelInfoResponse model = new () 
+            {
+                Name = DBmodel.Name,
+                Description = DBmodel.Description,
+                Version = DBmodel.Version,
+                Size = DBmodel.Size,
+                Digest = DBmodel.Digest,
+                Format = DBmodel.Format,
+                ParameterSize = DBmodel.ParameterSize,
+                QuantizationLevel = DBmodel.QuantizationLevel,
+                ReleasedAt = DBmodel.ReleasedAt,
+                License = DBmodel.License,
+                ModelFile = DBmodel.ModelFile,
+                Template = DBmodel.Template,
+                ParentModel = DBmodel.ParentModel,
+                Family = DBmodel.Family,
+                Families = DBmodel.Families,
+                Languages = DBmodel.Languages,
+                Architecture = DBmodel.Architecture,
+                FileType = DBmodel.FileType,
+                ParameterCount = DBmodel.ParameterCount,
+                QuantizationVersion = DBmodel.QuantizationVersion,
+                SizeLabel = DBmodel.SizeLabel,
+                ModelType = DBmodel.ModelType
+            };
+            return model;
+
+        }
+
 
     }
 }

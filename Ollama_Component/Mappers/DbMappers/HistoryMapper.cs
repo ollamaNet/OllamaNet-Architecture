@@ -1,7 +1,7 @@
 ﻿using Ollama_Component.Services.ChatService.Models;
 using Ollama_DB_layer.Entities;
 
-public static class DbMappers
+public static class HistoryMapper
 {
     public static AIResponse ToAIResponse(this IReadOnlyList<ModelResponse> response)
     {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.ApplicationUserRepo;
+using Ollama_DB_layer.UOW;
 
 namespace Ollama_Component.Controllers
 {
@@ -10,10 +11,12 @@ namespace Ollama_Component.Controllers
     public class TEMP_AuthController : ControllerBase
     {
         public IApplicationUserRepository _UserRepos { get; private set; }
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TEMP_AuthController(IApplicationUserRepository userRepository)
+        public TEMP_AuthController(IApplicationUserRepository userRepository, IUnitOfWork _unitOfWork)
         {
             _UserRepos = userRepository;
+            _unitOfWork = _unitOfWork;
         }
 
 
@@ -29,7 +32,7 @@ namespace Ollama_Component.Controllers
             };
 
             await _UserRepos.AddAsync(userModel);
-            await _UserRepos.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok("User registered successfully");
         }

@@ -32,7 +32,7 @@ namespace Ollama_Component.Services.ChatService
             _cacheManager = cacheManager;
         }
 
-        public async Task<string> GetModelResponse(PromptRequest request)
+        public async Task<IReadOnlyList<ModelResponse>> GetModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
@@ -65,9 +65,9 @@ namespace Ollama_Component.Services.ChatService
                 _cacheManager.SetChatHistory(cacheKey, history);
 
                 await _chatHistoryManager.SaveChatInteractionAsync(request, response);
-                return response[0].Content ?? string.Empty;
+                return response;
             }
-            return "No response from the assistant.";
+            return response;
         }
 
 

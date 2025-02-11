@@ -7,6 +7,7 @@ using Ollama_Component.Services.AdminServices.Models;
 using Model = OllamaSharp.Models.Model;
 using OllamaSharp;
 using Ollama_Component.Mappers.DbMappers;
+using Ollama_DB_layer.UOW;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -15,10 +16,13 @@ namespace Ollama_Component.Services.AdminServices
     {
         public readonly IOllamaConnector _ollamaConnector;
         public readonly IAIModelRepository _aiModelRepo;
-        public AdminService(IOllamaConnector connector, IAIModelRepository modelRepo)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AdminService(IOllamaConnector connector, IAIModelRepository modelRepo, IUnitOfWork unitOfWork)
         {
             _ollamaConnector = connector;
             _aiModelRepo = modelRepo;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Model>> InstalledModelsAsync()
@@ -62,7 +66,7 @@ namespace Ollama_Component.Services.AdminServices
                 throw new InvalidOperationException("Failed to create AI model.");
 
             await _aiModelRepo.AddAsync(dbModel);
-            await _aiModelRepo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return await _aiModelRepo.GetByIdAsync(model.Name);
         }
@@ -97,7 +101,7 @@ namespace Ollama_Component.Services.AdminServices
                 return "Model not found";
 
             await _aiModelRepo.SoftDeleteAsync(modelName);
-            await _aiModelRepo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return "Model soft deleted successfully";
         }

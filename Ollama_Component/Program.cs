@@ -15,6 +15,8 @@ using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.AIResponseRepo;
 using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
 using Ollama_DB_layer.Repositories.ConversationRepo;
+using Ollama_DB_layer.UOW;
+using Ollama_Component.Services.ExploreService;
 
 namespace Ollama_Component;
 
@@ -46,10 +48,14 @@ public class Program
         builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
+        builder.Services.AddScoped<Ollama_DB_layer.UOW.IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<Ollama_DB_layer.Helpers.GetMessages>();
+        builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
         builder.Services.AddScoped<ChatHistoryManager>();
         builder.Services.AddScoped<ChatCacheManager>();
         builder.Services.AddScoped<IChatService, ChatService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
+        builder.Services.AddScoped<IExploreService, ExploreService>();
 
 
         builder.Services.AddMemoryCache();

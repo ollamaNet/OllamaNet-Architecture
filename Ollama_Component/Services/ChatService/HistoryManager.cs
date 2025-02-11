@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp.Models.Chat;
-using Ollama_DB_layer.UOW;
 using Ollama_DB_layer.Helpers;
+using Ollama_DB_layer.UOW;
 
 namespace Ollama_Component.Services.ChatService
 {
@@ -23,7 +23,11 @@ namespace Ollama_Component.Services.ChatService
         private readonly IAIResponseRepository _responseRepo;
         private readonly IConversationPromptResponseRepository _convPromptResRepo;
         private readonly ILogger<ChatHistoryManager> _logger;
+        private readonly GetMessages _getmessages;
+        private readonly AddMessages _addMessages;
+
         private readonly IUnitOfWork _unitOfWork;
+
 
         public ChatHistoryManager(
             IConversationRepository conversationRepo,
@@ -31,6 +35,8 @@ namespace Ollama_Component.Services.ChatService
             IAIResponseRepository responseRepo,
             IConversationPromptResponseRepository convPromptResRepo,
             ILogger<ChatHistoryManager> logger,
+            GetMessages getmessages,
+            AddMessages addMessages,
             IUnitOfWork unitOfWork)
         {
             _conversationRepo = conversationRepo;
@@ -38,7 +44,9 @@ namespace Ollama_Component.Services.ChatService
             _responseRepo = responseRepo;
             _convPromptResRepo = convPromptResRepo;
             _logger = logger;
+            _getmessages = getmessages;
             _unitOfWork = unitOfWork;
+            _addMessages = addMessages;
         }
 
         /// <summary>
@@ -55,7 +63,7 @@ namespace Ollama_Component.Services.ChatService
                 _logger.LogWarning("No conversation found with the given ID: {ConversationId}. Creating a new conversation.", request.ConversationId);
 
                 // Create a new conversation
-                conv = DbMappers.ToConversation(request);
+                conv = HistoryMapper.ToConversation(request);
                 await _conversationRepo.AddAsync(conv);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -67,17 +75,28 @@ namespace Ollama_Component.Services.ChatService
             }
             else
             {
-                //foreach (var message in conv.Messages)
-                //{
-                //    chatHistory.AddMessage(message.Role, message.Content);
-                //}
+                var messages = await _getmessages.GetMessagesByConversationIdAsync(request.ConversationId);
+                foreach (var message in messages)
+                {
+                    if (message.Role == "Prompt")
+                    {
+                        chatHistory.AddUserMessage(message.Content);
+                    }
+                    else if (message.Role == "AIResponse")
+                    {
+                        chatHistory.AddAssistantMessage(message.Content);
+                    }
+                    else if (message.Role == "SYSTEM")
+                    {
+                        chatHistory.AddSystemMessage(message.Content);
+                    }
+                }
 
                 _logger.LogInformation("Retrieved {MessageCount} messages for conversation ID: {ConversationId}", chatHistory.Count, request.ConversationId);
             }
 
             return chatHistory;
         }
-
 
 
         /// <summary>
@@ -87,12 +106,12 @@ namespace Ollama_Component.Services.ChatService
         {
             try
             {
-                var repoResponse = DbMappers.ToAIResponse(response);
-                var repoPrompt = DbMappers.ToPrompt(request);
-                var repoConvPromptRes = DbMappers.ToConversationPromptResponse(request, repoPrompt, repoResponse);
+                var repoResponse = HistoryMapper.ToAIResponse(response);
+                var repoPrompt = HistoryMapper.ToPrompt(request);
+                var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-                var addMessages = new AddMessages(_unitOfWork, _promptRepo, _responseRepo, _convPromptResRepo);
-                await addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
+
+                await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);
