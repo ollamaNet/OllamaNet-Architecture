@@ -40,27 +40,32 @@ namespace Ollama_Component.Services.ChatService
             cacheKey = request.ConversationId;
             ChatHistory history;
 
+            //Get Chat History From Cache if Available
             if (_cacheManager.TryGetChatHistory(cacheKey, out history))
                 _logger.LogInformation("History Found in Cache!");
 
+            //Retrieves Chat History from Database
             else
             {
                 history = await _chatHistoryManager.GetChatHistoryAsync(request);
-                _cacheManager.SetChatHistory(cacheKey, history);
+                _logger.LogInformation("History retrieved From Database");
             }
 
-            
+            //Add Latest User Message and System Message to Chat History
             history.AddSystemMessage(request.SystemMessage);
             history.AddUserMessage(request.Content);
+
 
             var response = await _connector.GetChatMessageContentsAsync(history, request);
 
             if (response.Count > 0)
             {
-                #region Save Chat Interaction
+                //Add LLM response to History and Save History to Cache
+                history.AddAssistantMessage(response[0].Content ?? string.Empty);
+                _cacheManager.SetChatHistory(cacheKey, history);
+
                 await _chatHistoryManager.SaveChatInteractionAsync(request, response);
                 return response[0].Content ?? string.Empty;
-                #endregion
             }
             return "No response from the assistant.";
         }
