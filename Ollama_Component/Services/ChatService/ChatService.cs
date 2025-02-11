@@ -9,53 +9,63 @@ using OllamaSharp;
 
 namespace Ollama_Component.Services.ChatService
 {
-    public class SemanticKernelService : ISemanticKernelService
+    public class ChatService : IChatService
     {
         private readonly IOllamaConnector _connector;
         private readonly IMemoryCache _cache;
-        private readonly ILogger<SemanticKernelService> _logger;
+        private readonly ILogger<ChatService> _logger;
         private readonly ChatHistoryManager _chatHistoryManager;
-        private string cacheKey;
+        private readonly ChatCacheManager _cacheManager;
+        private string? cacheKey;
 
-        public SemanticKernelService(
+        public ChatService(
             IOllamaConnector connector,
             IMemoryCache cache,
-            ILogger<SemanticKernelService> logger,
-            ChatHistoryManager chatHistoryManager)
+            ILogger<ChatService> logger,
+            ChatHistoryManager chatHistoryManager,
+            ChatCacheManager cacheManager)
         {
             _connector = connector;
             _cache = cache;
             _logger = logger;
             _chatHistoryManager = chatHistoryManager;
+            _cacheManager = cacheManager;
         }
 
         public async Task<string> GetModelResponse(PromptRequest request)
         {
-            cacheKey = request.ConversationId;
-
-            if (request is null)            
+            if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
 
-            if (_cache.TryGetValue(cacheKey, out ChatHistory history))
-                _logger.Log(LogLevel.Information, "History Found!");
+            cacheKey = request.ConversationId;
+            ChatHistory history;
 
+            //Get Chat History From Cache if Available
+            if (_cacheManager.TryGetChatHistory(cacheKey, out history))
+                _logger.LogInformation("History Found in Cache!");
+
+            //Retrieves Chat History from Database
             else
             {
                 history = await _chatHistoryManager.GetChatHistoryAsync(request);
-                _cache.Set(cacheKey, history, new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(200))
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                    .SetPriority(CacheItemPriority.High));
+                _logger.LogInformation("History retrieved From Database");
             }
+
+            //Add Latest User Message and System Message to Chat History
+            history.AddSystemMessage(request.SystemMessage);
+            history.AddUserMessage(request.Content);
+
 
             var response = await _connector.GetChatMessageContentsAsync(history, request);
 
             if (response.Count > 0)
             {
-                #region Save Chat Interaction
+                //Add LLM response to History and Save History to Cache
+                history.AddAssistantMessage(response[0].Content ?? string.Empty);
+                _cacheManager.SetChatHistory(cacheKey, history);
+
                 await _chatHistoryManager.SaveChatInteractionAsync(request, response);
                 return response[0].Content ?? string.Empty;
-                #endregion
             }
             return "No response from the assistant.";
         }

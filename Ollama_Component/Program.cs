@@ -52,7 +52,8 @@ public class Program
         builder.Services.AddScoped<Ollama_DB_layer.Helpers.GetMessages>();
         builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
         builder.Services.AddScoped<ChatHistoryManager>();
-        builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
+        builder.Services.AddScoped<ChatCacheManager>();
+        builder.Services.AddScoped<IChatService, ChatService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
 

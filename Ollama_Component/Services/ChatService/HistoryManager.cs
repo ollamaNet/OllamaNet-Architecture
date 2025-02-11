@@ -65,7 +65,7 @@ namespace Ollama_Component.Services.ChatService
                 // Create a new conversation
                 conv = HistoryMapper.ToConversation(request);
                 await _conversationRepo.AddAsync(conv);
-                
+                await _unitOfWork.SaveChangesAsync();
 
                 // Add system and user messages to chat history
                 chatHistory.AddSystemMessage(request.SystemMessage);
