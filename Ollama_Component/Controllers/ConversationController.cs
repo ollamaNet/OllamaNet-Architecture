@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.ChatService;
 using Ollama_Component.Services.ChatService.Models;
@@ -34,13 +35,11 @@ namespace Ollama_Component.Controllers
         }
 
         [HttpPost("streamChat")]
-        public async Task streamChat([FromBody] PromptRequest request)
+        public async Task<IActionResult> streamChat([FromBody] PromptRequest request)
         {
             if (request == null)
             {
-                HttpContext.Response.StatusCode = 400;
-                await HttpContext.Response.WriteAsync("Request body cannot be null.");
-                return;
+                return BadRequest();
             }
 
             if (!request.Stream)
@@ -48,25 +47,17 @@ namespace Ollama_Component.Controllers
                 var response = await _kernelService.GetModelResponse(request);
                 if (response == null)
                 {
-                    HttpContext.Response.StatusCode = 500;
-                    await HttpContext.Response.WriteAsync("Failed to process the chat request.");
-                    return;
+                    return StatusCode(500);
                 }
-                HttpContext.Response.ContentType = "application/json";
-                await HttpContext.Response.WriteAsync(response);
-                return;
+
+                return Ok(response) ;
             }
-
-            // Handle streaming response
-            HttpContext.Response.ContentType = "text/event-stream"; // Set for SSE
-            var stream = await _kernelService.GetStreamingModelResponse(request);
-
-            await foreach (var message in stream)
+            else
             {
-                // Write each message as a separate chunk
-                await HttpContext.Response.WriteAsync($"data: {message}\n\n");
-                await HttpContext.Response.Body.FlushAsync(); // Ensure the client receives it immediately
+                var stream = await _kernelService.GetStreamingModelResponse(request);
+                return Ok(stream);
             }
+
         }
 
 

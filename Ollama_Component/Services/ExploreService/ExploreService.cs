@@ -16,8 +16,6 @@ namespace Ollama_Component.Services.ExploreService
             _aiModelRepo = aIModelRepository;
         }
 
-
-
         public async Task<GetPagedModelsResponse> AvailableModels(GetPagedModelsRequest request)
         {
             var modelsPagedModels = await _aiModelRepo.AIModelPagination(request.PageNumber, request.Pagesize)
