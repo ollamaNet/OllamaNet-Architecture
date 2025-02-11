@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp.Models.Chat;
+using Ollama_DB_layer.UOW;
+using Ollama_DB_layer.Helpers;
 
 namespace Ollama_Component.Services.ChatService
 {
@@ -21,19 +23,22 @@ namespace Ollama_Component.Services.ChatService
         private readonly IAIResponseRepository _responseRepo;
         private readonly IConversationPromptResponseRepository _convPromptResRepo;
         private readonly ILogger<ChatHistoryManager> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ChatHistoryManager(
             IConversationRepository conversationRepo,
             IPromptRepository promptRepo,
             IAIResponseRepository responseRepo,
             IConversationPromptResponseRepository convPromptResRepo,
-            ILogger<ChatHistoryManager> logger)
+            ILogger<ChatHistoryManager> logger,
+            IUnitOfWork unitOfWork)
         {
             _conversationRepo = conversationRepo;
             _promptRepo = promptRepo;
             _responseRepo = responseRepo;
             _convPromptResRepo = convPromptResRepo;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -52,7 +57,7 @@ namespace Ollama_Component.Services.ChatService
                 // Create a new conversation
                 conv = DbMappers.ToConversation(request);
                 await _conversationRepo.AddAsync(conv);
-                await _conversationRepo.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 // Add system and user messages to chat history
                 chatHistory.AddSystemMessage(request.SystemMessage);
@@ -86,15 +91,8 @@ namespace Ollama_Component.Services.ChatService
                 var repoPrompt = DbMappers.ToPrompt(request);
                 var repoConvPromptRes = DbMappers.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-
-                await _responseRepo.AddAsync(repoResponse);
-                await _promptRepo.AddAsync(repoPrompt);
-                //Pending Edit
-                await _convPromptResRepo.AddAsync(request.ConversationId);
-
-                await _promptRepo.SaveChangesAsync();
-                await _responseRepo.SaveChangesAsync();
-                await _convPromptResRepo.SaveChangesAsync();
+                var addMessages = new AddMessages(_unitOfWork, _promptRepo, _responseRepo, _convPromptResRepo);
+                await addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);
