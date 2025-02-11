@@ -9,19 +9,19 @@ using OllamaSharp;
 
 namespace Ollama_Component.Services.ChatService
 {
-    public class SemanticKernelService : ISemanticKernelService
+    public class ChatService : IChatService
     {
         private readonly IOllamaConnector _connector;
         private readonly IMemoryCache _cache;
-        private readonly ILogger<SemanticKernelService> _logger;
+        private readonly ILogger<ChatService> _logger;
         private readonly ChatHistoryManager _chatHistoryManager;
         private readonly ChatCacheManager _cacheManager;
-        private string cacheKey;
+        private string? cacheKey;
 
-        public SemanticKernelService(
+        public ChatService(
             IOllamaConnector connector,
             IMemoryCache cache,
-            ILogger<SemanticKernelService> logger,
+            ILogger<ChatService> logger,
             ChatHistoryManager chatHistoryManager,
             ChatCacheManager cacheManager)
         {

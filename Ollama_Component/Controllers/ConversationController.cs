@@ -9,8 +9,8 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class ConversationController : ControllerBase
     {
-        public ISemanticKernelService _kernelService { get; set; }
-        public ConversationController(ISemanticKernelService Kernelinterface)
+        public IChatService _kernelService { get; set; }
+        public ConversationController(IChatService Kernelinterface)
         {
             _kernelService = Kernelinterface;
         }
