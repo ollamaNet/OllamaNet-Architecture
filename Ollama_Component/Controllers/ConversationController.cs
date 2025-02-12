@@ -10,13 +10,13 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class ConversationController : ControllerBase
     {
-        public IChatService _kernelService { get; set; }
-        public ConversationController(IChatService Kernelinterface)
+        public IChatService _chatService { get; set; }
+        public ConversationController(IChatService Chatinterface)
         {
-            _kernelService = Kernelinterface;
+            _chatService = Chatinterface;
         }
 
-        [HttpPost("chat")]
+        /*[HttpPost("chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
         {
             if (request == null)
@@ -32,7 +32,7 @@ namespace Ollama_Component.Controllers
                 return StatusCode(500, "Failed to process the chat request.");
             }
             return Ok(response);
-        }
+        }*/
 
         [HttpPost("streamChat")]
         public async Task<IActionResult> streamChat([FromBody] PromptRequest request)
@@ -44,7 +44,7 @@ namespace Ollama_Component.Controllers
 
             if (!request.Stream)
             {
-                var response = await _kernelService.GetModelResponse(request);
+                var response = await _chatService.GetModelResponse(request);
                 if (response == null)
                 {
                     return StatusCode(500);
@@ -54,7 +54,7 @@ namespace Ollama_Component.Controllers
             }
             else
             {
-                var stream = await _kernelService.GetStreamingModelResponse(request);
+                var stream = await _chatService.GetStreamingModelResponse(request);
                 return Ok(stream);
             }
 
