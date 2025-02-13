@@ -3,7 +3,7 @@ using Ollama_DB_layer.Entities;
 
 public static class HistoryMapper
 {
-    public static AIResponse ToAIResponse(this IReadOnlyList<ModelResponse> response)
+    public static AIResponse ToAIResponse(this IReadOnlyList<OllamaModelResponse> response)
     {
         return new AIResponse
         {

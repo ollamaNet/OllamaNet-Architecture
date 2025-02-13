@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
+using Ollama_Component.Mappers.ChatMappers;
 using Ollama_Component.Services.ChatService.Models;
 using Ollama_DB_layer.Repositories;
 using OllamaSharp;
@@ -32,7 +33,7 @@ namespace Ollama_Component.Services.ChatService
             _cacheManager = cacheManager;
         }
 
-        public async Task<IReadOnlyList<ModelResponse>> GetModelResponse(PromptRequest request)
+        public async Task<EndpointChatResponse> GetModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
@@ -56,17 +57,19 @@ namespace Ollama_Component.Services.ChatService
             history.AddUserMessage(request.Content);
 
 
-            var response = await _connector.GetChatMessageContentsAsync(history, request);
+            var ollamaResponse = await _connector.GetChatMessageContentsAsync(history, request);
 
-            if (response.Count > 0)
+            var response = ModelResponseMapper.ToModelResponse(ollamaResponse[0], request);
+
+            if (ollamaResponse.Count > 0)
             {
                 //Add LLM response to History and Save History to Cache
-                history.AddAssistantMessage(response[0].Content ?? string.Empty);
+                history.AddAssistantMessage(ollamaResponse[0].Content ?? string.Empty);
                 _cacheManager.SetChatHistory(cacheKey, history);
-
-                await _chatHistoryManager.SaveChatInteractionAsync(request, response);
+                await _chatHistoryManager.SaveChatInteractionAsync(request, ollamaResponse);
                 return response;
             }
+
             return response;
         }
 
