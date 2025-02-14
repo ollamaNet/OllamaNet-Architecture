@@ -11,12 +11,8 @@ namespace Ollama_Component.Services.ChatService.Models
         [JsonPropertyName("ConversationId")]
         public string ConversationId { get; set; }
 
-
         [JsonPropertyName("UserId")]
         public string UserId { get; set; }
-
-        [JsonPropertyName("PromptId")]
-        public string PromptId { get; set; }
 
         [JsonPropertyName("model")]
         public string Model { get; set; }

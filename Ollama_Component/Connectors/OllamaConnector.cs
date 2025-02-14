@@ -27,7 +27,7 @@ namespace Ollama_Component.Connectors
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
 
 
-        public async Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(
+        public async Task<IReadOnlyList<OllamaModelResponse>> GetChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -75,7 +75,7 @@ namespace Ollama_Component.Connectors
             }
 
             return
-            [ new ModelResponse{
+            [ new OllamaModelResponse{
                     Role = authorRole ?? AuthorRole.Assistant,
                     Content = content.ToString(),
                     InnerContent = innerContent,
@@ -90,7 +90,7 @@ namespace Ollama_Component.Connectors
             ];
         }
 
-        public async IAsyncEnumerable<ModelResponse> GetStreamedChatMessageContentsAsync(
+        public async IAsyncEnumerable<OllamaModelResponse> GetStreamedChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -107,7 +107,7 @@ namespace Ollama_Component.Connectors
                     continue;
                 }
 
-                yield return new ModelResponse
+                yield return new OllamaModelResponse
                 {
                     Role = GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
                     Content = response.Message.Content ?? string.Empty,

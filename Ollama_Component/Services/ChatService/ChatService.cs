@@ -33,7 +33,7 @@ namespace Ollama_Component.Services.ChatService
             _cacheManager = cacheManager;
         }
 
-        public async IAsyncEnumerable<ModelResponse> GetStreamedModelResponse(PromptRequest request)
+        public async IAsyncEnumerable<OllamaModelResponse> GetStreamedModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
@@ -56,7 +56,7 @@ namespace Ollama_Component.Services.ChatService
             history.AddSystemMessage(request.SystemMessage);
             history.AddUserMessage(request.Content);
 
-            List<ModelResponse> responses = new List<ModelResponse>();
+            List<OllamaModelResponse> responses = new List<OllamaModelResponse>();
             await foreach (var response in _connector.GetStreamedChatMessageContentsAsync(history, request))
             {
                 history.AddAssistantMessage(response.Content);
@@ -71,7 +71,7 @@ namespace Ollama_Component.Services.ChatService
 
 
 
-        public async Task<IReadOnlyList<ModelResponse>> GetModelResponse(PromptRequest request)
+        public async Task<EndpointChatResponse> GetModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));

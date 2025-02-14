@@ -100,7 +100,7 @@ namespace Ollama_Component.Services.ChatService
         /// <summary>
         /// Saves the user prompt and AI response into the database.
         /// </summary>
-        public async Task SaveStreamedChatInteractionAsync(PromptRequest request, List<ModelResponse> response)
+        public async Task SaveStreamedChatInteractionAsync(PromptRequest request, List<OllamaModelResponse> response)
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Ollama_Component.Services.ChatService
             }
         }
 
-        public async Task SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<ModelResponse> response)
+        public async Task SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<OllamaModelResponse> response)
         {
             try
             {

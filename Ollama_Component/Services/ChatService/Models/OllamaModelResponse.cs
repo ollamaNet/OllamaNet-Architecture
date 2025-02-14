@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Ollama_Component.Services.ChatService.Models
 {
-    public class ModelResponse
+    public class OllamaModelResponse
     {
 
         public AuthorRole Role { get; set; }

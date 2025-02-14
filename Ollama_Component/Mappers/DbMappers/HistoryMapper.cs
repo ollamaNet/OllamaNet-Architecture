@@ -3,23 +3,7 @@ using Ollama_DB_layer.Entities;
 
 public static class HistoryMapper
 {
-    public static AIResponse ToStreamedAIResponse(this List<ModelResponse> response)
-    {
-        return new AIResponse
-        {
-            Content = response[0].Content,
-            Role = response[0].Role.ToString(),
-            TotalDuration = response[0].TotalDuration.ToString(),
-            LoadDuration = response[0].LoadDuration.ToString(),
-            PromptEvalCount = response[0].PromptEvalCount.ToString(),
-            PromptEvalDuration = response[0].PromptEvalDuration.ToString(),
-            EvalCount = response[0].EvalCount.ToString(),
-            EvalDuration = response[0].EvalDuration.ToString(),
-            CreatedAt = DateTime.Now
-        };
-    }
-
-    public static AIResponse ToAIResponse(this IReadOnlyList<ModelResponse> response)
+    public static AIResponse ToStreamedAIResponse(this List<OllamaModelResponse> response)
     {
         return new AIResponse
         {
@@ -36,6 +20,21 @@ public static class HistoryMapper
     }
 
 
+    public static AIResponse ToAIResponse(this IReadOnlyList<OllamaModelResponse> response)
+    {
+        return new AIResponse
+        {
+            Content = response[0].Content,
+            Role = response[0].Role.ToString(),
+            TotalDuration = response[0].TotalDuration.ToString(),
+            LoadDuration = response[0].LoadDuration.ToString(),
+            PromptEvalCount = response[0].PromptEvalCount.ToString(),
+            PromptEvalDuration = response[0].PromptEvalDuration.ToString(),
+            EvalCount = response[0].EvalCount.ToString(),
+            EvalDuration = response[0].EvalDuration.ToString(),
+            CreatedAt = DateTime.Now
+        };
+    }
 
 
 
@@ -68,7 +67,6 @@ public static class HistoryMapper
     {
         return new Conversation
         {
-            Id = request.ConversationId,
             CreatedAt = DateTime.UtcNow,
             SystemMessage = request.SystemMessage,
             User_Id = request.UserId,

@@ -34,6 +34,8 @@ namespace Ollama_Component.Controllers
                 return Ok(response);
         }
 
+
+
         [HttpPost("StreamChat")]
         public async Task StreamChat([FromBody] PromptRequest request)
         {
