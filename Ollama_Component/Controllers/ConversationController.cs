@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.ChatService;
 using Ollama_Component.Services.ChatService.Models;
+using System.Text;
+using System.Text.Json;
 
 namespace Ollama_Component.Controllers
 {
@@ -35,27 +37,22 @@ namespace Ollama_Component.Controllers
         }*/
 
         [HttpPost("streamChat")]
-        public async Task<IActionResult> streamChat([FromBody] PromptRequest request)
+        public async Task StreamChat([FromBody] PromptRequest request)
         {
             if (request == null)
             {
-                return BadRequest();
+                Response.StatusCode = 400;
+                return;
             }
 
-            if (!request.Stream)
-            {
-                var response = await _chatService.GetModelResponse(request);
-                if (response == null)
-                {
-                    return StatusCode(500);
-                }
+            Response.ContentType = "text/event-stream";
 
-                return Ok(response) ;
-            }
-            else
+            await foreach (var response in _chatService.GetModelResponse(request))
             {
-                var stream = await _chatService.GetStreamingModelResponse(request);
-                return Ok(stream);
+                var json = JsonSerializer.Serialize(response);
+                var bytes = Encoding.UTF8.GetBytes($"data: {json}\n\n");
+                await Response.BodyWriter.WriteAsync(bytes);
+                await Response.BodyWriter.FlushAsync();
             }
 
         }
@@ -63,7 +60,7 @@ namespace Ollama_Component.Controllers
 
 
         [HttpPost("embeddings")]
-        public async Task<IActionResult> embeddings([FromBody] PromptRequest request)
+        public async Task<IActionResult> Embeddings([FromBody] PromptRequest request)
         {
             if (request == null)
             {

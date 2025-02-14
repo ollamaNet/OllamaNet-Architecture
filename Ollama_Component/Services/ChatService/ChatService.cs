@@ -32,7 +32,7 @@ namespace Ollama_Component.Services.ChatService
             _cacheManager = cacheManager;
         }
 
-        public async Task<IReadOnlyList<ModelResponse>> GetModelResponse(PromptRequest request)
+        public async IAsyncEnumerable<ModelResponse> GetModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
@@ -55,19 +55,17 @@ namespace Ollama_Component.Services.ChatService
             history.AddSystemMessage(request.SystemMessage);
             history.AddUserMessage(request.Content);
 
-
-            var response = await _connector.GetChatMessageContentsAsync(history, request);
-
-            if (response.Count > 0)
+            List<ModelResponse> responses = new List<ModelResponse>();
+            await foreach (var response in _connector.GetChatMessageContentsAsync(history, request))
             {
-                //Add LLM response to History and Save History to Cache
-                history.AddAssistantMessage(response[0].Content ?? string.Empty);
+                history.AddAssistantMessage(response.Content);
                 _cacheManager.SetChatHistory(cacheKey, history);
+                responses.Add(response);
 
-                await _chatHistoryManager.SaveChatInteractionAsync(request, response);
-                return response;
+                yield return response;
             }
-            return response;
+
+            await _chatHistoryManager.SaveChatInteractionAsync(request, responses);
         }
 
 

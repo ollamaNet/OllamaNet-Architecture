@@ -27,7 +27,7 @@ namespace Ollama_Component.Connectors
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
 
 
-        public async Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(
+        public async IAsyncEnumerable<ModelResponse> GetChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -37,16 +37,6 @@ namespace Ollama_Component.Connectors
         {
             var req = CreateChatRequest(chatHistory, request);
 
-            var content = new StringBuilder();
-            List<ChatResponseStream> innerContent = [];
-            AuthorRole? authorRole = null;
-            long duration = 0;
-            long loadDuration = 0;
-            int promptEvalCount = 0;
-            long promptEvalDuration = 0;
-            int evalCount = 0;
-            long evalDuration = 0;
-
             await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
                 if (response == null || response.Message == null)
@@ -54,40 +44,13 @@ namespace Ollama_Component.Connectors
                     continue;
                 }
 
-                innerContent.Add(response);
-
-                if (response.Message.Content is not null)
+                yield return new ModelResponse
                 {
-                    content.Append(response.Message.Content);
-                }
-
-                authorRole = GetAuthorRole(response.Message.Role);
-
-                if (response is ChatDoneResponseStream doneResponse)
-                {
-                    duration = doneResponse.TotalDuration;
-                    loadDuration = doneResponse.LoadDuration;
-                    promptEvalCount = doneResponse.PromptEvalCount;
-                    promptEvalDuration = doneResponse.PromptEvalDuration;
-                    evalCount = doneResponse.EvalCount;
-                    evalDuration = doneResponse.EvalDuration;
-                }
+                    Role = GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
+                    Content = response.Message.Content ?? string.Empty,
+                    ModelId = request.Model
+                };
             }
-
-            return
-            [ new ModelResponse{
-                    Role = authorRole ?? AuthorRole.Assistant,
-                    Content = content.ToString(),
-                    InnerContent = innerContent,
-                    ModelId = request.Model,
-                    TotalDuration = duration,
-                    LoadDuration = loadDuration,
-                    PromptEvalCount = promptEvalCount,
-                    PromptEvalDuration = promptEvalDuration,
-                    EvalCount = evalCount,
-                    EvalDuration = evalDuration
-            }
-            ];
         }
 
         public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
