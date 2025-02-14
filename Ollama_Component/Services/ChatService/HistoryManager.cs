@@ -76,6 +76,7 @@ namespace Ollama_Component.Services.ChatService
             else
             {
                 var messages = await _getmessages.GetMessagesByConversationIdAsync(request.ConversationId);
+
                 foreach (var message in messages)
                 {
                     if (message.Role == "Prompt")
@@ -86,12 +87,9 @@ namespace Ollama_Component.Services.ChatService
                     {
                         chatHistory.AddAssistantMessage(message.Content);
                     }
-                    else if (message.Role == "SYSTEM")
-                    {
-                        chatHistory.AddSystemMessage(message.Content);
-                    }
                 }
 
+                chatHistory.AddSystemMessage(conv.SystemMessage);
                 _logger.LogInformation("Retrieved {MessageCount} messages for conversation ID: {ConversationId}", chatHistory.Count, request.ConversationId);
             }
 
