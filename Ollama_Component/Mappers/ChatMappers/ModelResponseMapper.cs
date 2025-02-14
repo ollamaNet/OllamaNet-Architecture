@@ -6,7 +6,7 @@ namespace Ollama_Component.Mappers.ChatMappers
 {
     public static class ModelResponseMapper
     {
-        public static EndpointChatResponse ToModelResponse(this OllamaModelResponse ollamaResponse, PromptRequest prompt)
+        public static EndpointChatResponse ToModelResponse(this ModelResponse ollamaResponse, PromptRequest prompt)
         {
             if (ollamaResponse == null) throw new ArgumentNullException(nameof(ollamaResponse));
 

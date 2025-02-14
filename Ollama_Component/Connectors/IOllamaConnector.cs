@@ -11,8 +11,13 @@ namespace Ollama_Component.Connectors
     public interface IOllamaConnector
     {
         IReadOnlyDictionary<string, object?> Attributes { get; }
-        Task<IReadOnlyList<OllamaModelResponse>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
+<<<<<<< HEAD
+        Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
         IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
+=======
+        Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<ModelResponse> GetStreamedChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default);
+>>>>>>> ahmed
         Task<IEnumerable<Model>> GetInstalledModels();
         Task<ShowModelResponse> GetModelInfo(string modelName);
         Task<string> RemoveModel(string modelName);
