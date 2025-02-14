@@ -76,6 +76,7 @@ namespace Ollama_Component.Services.ChatService
             else
             {
                 var messages = await _getmessages.GetMessagesByConversationIdAsync(request.ConversationId);
+
                 foreach (var message in messages)
                 {
                     if (message.Role == "Prompt")
@@ -86,12 +87,9 @@ namespace Ollama_Component.Services.ChatService
                     {
                         chatHistory.AddAssistantMessage(message.Content);
                     }
-                    else if (message.Role == "SYSTEM")
-                    {
-                        chatHistory.AddSystemMessage(message.Content);
-                    }
                 }
 
+                chatHistory.AddSystemMessage(conv.SystemMessage);
                 _logger.LogInformation("Retrieved {MessageCount} messages for conversation ID: {ConversationId}", chatHistory.Count, request.ConversationId);
             }
 
@@ -102,7 +100,29 @@ namespace Ollama_Component.Services.ChatService
         /// <summary>
         /// Saves the user prompt and AI response into the database.
         /// </summary>
-        public async Task SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<ModelResponse> response)
+        public async Task SaveStreamedChatInteractionAsync(PromptRequest request, List<OllamaModelResponse> response)
+        {
+            try
+            {
+                var repoResponse = HistoryMapper.ToStreamedAIResponse(response);
+                var repoPrompt = HistoryMapper.ToPrompt(request);
+                var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
+
+
+                await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
+
+                _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
+                    repoPrompt.Id, repoResponse.Id);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving chat interaction for conversation ID {ConversationId}", request.ConversationId);
+                throw;
+            }
+        }
+
+        public async Task SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<OllamaModelResponse> response)
         {
             try
             {

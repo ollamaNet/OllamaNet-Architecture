@@ -4,7 +4,6 @@ using Azure.Core;
 using System.Threading;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Ollama_Component.Mappers;
 using Ollama_Component.Services.AdminServices.Models;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp;
@@ -12,6 +11,7 @@ using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using Model = OllamaSharp.Models.Model;
 using OpenTelemetry.Trace;
+using Ollama_Component.Mappers.ChatMappers;
 
 namespace Ollama_Component.Connectors
 {
@@ -27,7 +27,7 @@ namespace Ollama_Component.Connectors
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
 
 
-        public async Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(
+        public async Task<IReadOnlyList<OllamaModelResponse>> GetChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -75,7 +75,7 @@ namespace Ollama_Component.Connectors
             }
 
             return
-            [ new ModelResponse{
+            [ new OllamaModelResponse{
                     Role = authorRole ?? AuthorRole.Assistant,
                     Content = content.ToString(),
                     InnerContent = innerContent,
@@ -90,19 +90,29 @@ namespace Ollama_Component.Connectors
             ];
         }
 
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<OllamaModelResponse> GetStreamedChatMessageContentsAsync(
+            ChatHistory chatHistory,
+            PromptRequest request,
+            PromptExecutionSettings? executionSettings = null,
+            Kernel? kernel = null,
+            CancellationToken cancellationToken = default
+        )
         {
             var req = CreateChatRequest(chatHistory, request);
 
             await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
-                yield return new StreamingChatMessageContent(
-                    role: GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
-                    content: response.Message.Content,
-                    innerContent: response,
-                    modelId: request.Model
-                );
-                ;
+                if (response == null || response.Message == null)
+                {
+                    continue;
+                }
+
+                yield return new OllamaModelResponse
+                {
+                    Role = GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
+                    Content = response.Message.Content ?? string.Empty,
+                    ModelId = request.Model
+                };
             }
         }
 
