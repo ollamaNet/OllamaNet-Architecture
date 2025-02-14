@@ -27,7 +27,70 @@ namespace Ollama_Component.Connectors
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
 
 
-        public async IAsyncEnumerable<ModelResponse> GetChatMessageContentsAsync(
+        public async Task<IReadOnlyList<ModelResponse>> GetChatMessageContentsAsync(
+            ChatHistory chatHistory,
+            PromptRequest request,
+            PromptExecutionSettings? executionSettings = null,
+            Kernel? kernel = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var req = CreateChatRequest(chatHistory, request);
+
+            var content = new StringBuilder();
+            List<ChatResponseStream> innerContent = [];
+            AuthorRole? authorRole = null;
+            long duration = 0;
+            long loadDuration = 0;
+            int promptEvalCount = 0;
+            long promptEvalDuration = 0;
+            int evalCount = 0;
+            long evalDuration = 0;
+
+            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
+            {
+                if (response == null || response.Message == null)
+                {
+                    continue;
+                }
+
+                innerContent.Add(response);
+
+                if (response.Message.Content is not null)
+                {
+                    content.Append(response.Message.Content);
+                }
+
+                authorRole = GetAuthorRole(response.Message.Role);
+
+                if (response is ChatDoneResponseStream doneResponse)
+                {
+                    duration = doneResponse.TotalDuration;
+                    loadDuration = doneResponse.LoadDuration;
+                    promptEvalCount = doneResponse.PromptEvalCount;
+                    promptEvalDuration = doneResponse.PromptEvalDuration;
+                    evalCount = doneResponse.EvalCount;
+                    evalDuration = doneResponse.EvalDuration;
+                }
+            }
+
+            return
+            [ new ModelResponse{
+                    Role = authorRole ?? AuthorRole.Assistant,
+                    Content = content.ToString(),
+                    InnerContent = innerContent,
+                    ModelId = request.Model,
+                    TotalDuration = duration,
+                    LoadDuration = loadDuration,
+                    PromptEvalCount = promptEvalCount,
+                    PromptEvalDuration = promptEvalDuration,
+                    EvalCount = evalCount,
+                    EvalDuration = evalDuration
+            }
+            ];
+        }
+
+        public async IAsyncEnumerable<ModelResponse> GetStreamedChatMessageContentsAsync(
             ChatHistory chatHistory,
             PromptRequest request,
             PromptExecutionSettings? executionSettings = null,
@@ -50,22 +113,6 @@ namespace Ollama_Component.Connectors
                     Content = response.Message.Content ?? string.Empty,
                     ModelId = request.Model
                 };
-            }
-        }
-
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
-        {
-            var req = CreateChatRequest(chatHistory, request);
-
-            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
-            {
-                yield return new StreamingChatMessageContent(
-                    role: GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
-                    content: response.Message.Content,
-                    innerContent: response,
-                    modelId: request.Model
-                );
-                ;
             }
         }
 

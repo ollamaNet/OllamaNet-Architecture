@@ -18,25 +18,23 @@ namespace Ollama_Component.Controllers
             _chatService = Chatinterface;
         }
 
-        /*[HttpPost("chat")]
+        [HttpPost("Chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
         {
             if (request == null)
             {
-                return BadRequest("Request body cannot be null.");
+                return BadRequest();
             }
+                var response = await _chatService.GetModelResponse(request);
+                if (response == null)
+                {
+                    return StatusCode(500);
+                }
 
-            // Use the Ollama HTTP Client to send the request
-            var response = await _kernelService.GetModelResponse(request);
+                return Ok(response);
+        }
 
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-            return Ok(response);
-        }*/
-
-        [HttpPost("streamChat")]
+        [HttpPost("StreamChat")]
         public async Task StreamChat([FromBody] PromptRequest request)
         {
             if (request == null)
@@ -47,7 +45,7 @@ namespace Ollama_Component.Controllers
 
             Response.ContentType = "text/event-stream";
 
-            await foreach (var response in _chatService.GetModelResponse(request))
+            await foreach (var response in _chatService.GetStreamedModelResponse(request))
             {
                 var json = JsonSerializer.Serialize(response);
                 var bytes = Encoding.UTF8.GetBytes($"data: {json}\n\n");
@@ -57,9 +55,7 @@ namespace Ollama_Component.Controllers
 
         }
 
-
-
-        [HttpPost("embeddings")]
+        [HttpPost("Embeddings")]
         public async Task<IActionResult> Embeddings([FromBody] PromptRequest request)
         {
             if (request == null)
@@ -80,7 +76,7 @@ namespace Ollama_Component.Controllers
         }
 
 
-        [HttpPost("embeddings")]
+        [HttpPost("OpenConversation")]
         public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
         {
             if (request == null)
