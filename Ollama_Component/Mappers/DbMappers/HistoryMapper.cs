@@ -41,11 +41,17 @@ public static class HistoryMapper
 
     public static Prompt ToPrompt(this PromptRequest request)
     {
-        return new Prompt
+        Prompt prompt = new()
         {
             Content = request.Content,
-            Temprature = request.Options?.Temperature.ToString()
         };
+
+        if(request.Options != null)
+        {
+            if(request.Options.Temperature != null)
+                prompt.Temprature = request.Options.Temperature.ToString();
+        }
+        return prompt;
     }
 
     public static ConversationPromptResponse ToConversationPromptResponse(this PromptRequest request, Prompt repoPrompt, AIResponse repoResponse)

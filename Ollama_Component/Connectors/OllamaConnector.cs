@@ -90,19 +90,29 @@ namespace Ollama_Component.Connectors
             ];
         }
 
-        public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptRequest request, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<ModelResponse> GetStreamedChatMessageContentsAsync(
+            ChatHistory chatHistory,
+            PromptRequest request,
+            PromptExecutionSettings? executionSettings = null,
+            Kernel? kernel = null,
+            CancellationToken cancellationToken = default
+        )
         {
             var req = CreateChatRequest(chatHistory, request);
 
             await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
-                yield return new StreamingChatMessageContent(
-                    role: GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
-                    content: response.Message.Content,
-                    innerContent: response,
-                    modelId: request.Model
-                );
-                ;
+                if (response == null || response.Message == null)
+                {
+                    continue;
+                }
+
+                yield return new ModelResponse
+                {
+                    Role = GetAuthorRole(response.Message.Role) ?? AuthorRole.Assistant,
+                    Content = response.Message.Content ?? string.Empty,
+                    ModelId = request.Model
+                };
             }
         }
 

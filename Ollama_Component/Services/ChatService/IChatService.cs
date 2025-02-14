@@ -5,8 +5,8 @@ namespace Ollama_Component.Services.ChatService
 {
     public interface IChatService
     {
-        Task<EndpointChatResponse> GetModelResponse(PromptRequest request);
-        Task<IAsyncEnumerable<StreamingChatMessageContent>> GetStreamingModelResponse(PromptRequest request);
+        Task<IReadOnlyList<ModelResponse>> GetModelResponse(PromptRequest request);
+        IAsyncEnumerable<ModelResponse> GetStreamedModelResponse(PromptRequest request);
 
 
 
