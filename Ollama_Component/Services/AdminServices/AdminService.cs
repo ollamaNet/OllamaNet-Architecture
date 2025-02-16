@@ -15,13 +15,11 @@ namespace Ollama_Component.Services.AdminServices
     public class AdminService : IAdminService
     {
         public readonly IOllamaConnector _ollamaConnector;
-        public readonly IAIModelRepository _aiModelRepo;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AdminService(IOllamaConnector connector, IAIModelRepository modelRepo, IUnitOfWork unitOfWork)
+        public AdminService(IOllamaConnector connector,  IUnitOfWork unitOfWork)
         {
             _ollamaConnector = connector;
-            _aiModelRepo = modelRepo;
             _unitOfWork = unitOfWork;
         }
 
@@ -65,10 +63,10 @@ namespace Ollama_Component.Services.AdminServices
             if (dbModel == null)
                 throw new InvalidOperationException("Failed to create AI model.");
 
-            await _aiModelRepo.AddAsync(dbModel);
+            await _unitOfWork.AIModelRepo.AddAsync(dbModel);
             await _unitOfWork.SaveChangesAsync();
 
-            return await _aiModelRepo.GetByIdAsync(model.Name);
+            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name);
         }
 
 
@@ -85,7 +83,7 @@ namespace Ollama_Component.Services.AdminServices
                 return "Model removed from Ollama";
             }
                
-            return await _aiModelRepo.GetByIdAsync(model.ModelName) == null
+            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.ModelName) == null
                 ? "Model removed from Ollama and DB"
                 : "Model removed from Ollama but not from DB";
         }
@@ -96,11 +94,11 @@ namespace Ollama_Component.Services.AdminServices
             if (string.IsNullOrWhiteSpace(modelName))
                 throw new ArgumentException("Model name is required.", nameof(modelName));
 
-            var model = await _aiModelRepo.GetByIdAsync(modelName);
+            var model = await _unitOfWork.AIModelRepo.GetByIdAsync(modelName);
             if (model == null)
                 return "Model not found";
 
-            await _aiModelRepo.SoftDeleteAsync(modelName);
+            await _unitOfWork.AIModelRepo.SoftDeleteAsync(modelName);
             await _unitOfWork.SaveChangesAsync();
 
             return "Model soft deleted successfully";

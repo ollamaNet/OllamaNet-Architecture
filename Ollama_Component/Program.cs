@@ -37,20 +37,14 @@ public class Program
 
 
         // Add repositories
-        builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
-        builder.Services.AddScoped<IPromptRepository, PromptRepository>();
-        builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
-        builder.Services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
-        builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
-        builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
+
 
         // Add Ollama API client and Semantic Kernel configuration
         builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
-        builder.Services.AddScoped<Ollama_DB_layer.UOW.IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<Ollama_DB_layer.Helpers.GetMessages>();
-        builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
         builder.Services.AddScoped<ChatHistoryManager>();
         builder.Services.AddScoped<ChatCacheManager>();
         builder.Services.AddScoped<IChatService, ChatService>();

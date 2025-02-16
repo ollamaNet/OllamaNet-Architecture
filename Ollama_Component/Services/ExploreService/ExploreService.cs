@@ -3,22 +3,23 @@ using Ollama_Component.Services.ExploreService.Models;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Helpers;
 using Ollama_DB_layer.Repositories.AIModelRepo;
+using Ollama_DB_layer.UOW;
 using System.Security.Principal;
 
 namespace Ollama_Component.Services.ExploreService
 {
     public class ExploreService : IExploreService
     {
-        public readonly IAIModelRepository _aiModelRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ExploreService(IAIModelRepository aIModelRepository)
+        public ExploreService(IUnitOfWork unitOfWork)
         {
-            _aiModelRepo = aIModelRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<GetPagedModelsResponse> AvailableModels(GetPagedModelsRequest request)
         {
-            var modelsPagedModels = await _aiModelRepo.AIModelPagination(request.PageNumber, request.Pagesize)
+            var modelsPagedModels = await _unitOfWork.AIModelRepo.AIModelPagination(request.PageNumber, request.Pagesize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
             var modelsPagedList = new GetPagedModelsResponse 
@@ -35,7 +36,7 @@ namespace Ollama_Component.Services.ExploreService
 
         public async Task<ModelInfoResponse> ModelInfo(string modelID)
         {
-            var DBmodel = await _aiModelRepo.GetByIdAsync(modelID);
+            var DBmodel = await _unitOfWork.AIModelRepo.GetByIdAsync(modelID);
             if (DBmodel == null)
             {
                 throw new InvalidOperationException("Failed to retrieve model info.");

@@ -18,33 +18,13 @@ namespace Ollama_Component.Services.ChatService
 {
     public class ChatHistoryManager
     {
-        private readonly IConversationRepository _conversationRepo;
-        private readonly IPromptRepository _promptRepo;
-        private readonly IAIResponseRepository _responseRepo;
-        private readonly IConversationPromptResponseRepository _convPromptResRepo;
         private readonly ILogger<ChatHistoryManager> _logger;
-        private readonly GetMessages _getmessages;
         private readonly AddMessages _addMessages;
-
         private readonly IUnitOfWork _unitOfWork;
 
 
-        public ChatHistoryManager(
-            IConversationRepository conversationRepo,
-            IPromptRepository promptRepo,
-            IAIResponseRepository responseRepo,
-            IConversationPromptResponseRepository convPromptResRepo,
-            ILogger<ChatHistoryManager> logger,
-            GetMessages getmessages,
-            AddMessages addMessages,
-            IUnitOfWork unitOfWork)
+        public ChatHistoryManager(ILogger<ChatHistoryManager> logger, AddMessages addMessages, IUnitOfWork unitOfWork)
         {
-            _conversationRepo = conversationRepo;
-            _promptRepo = promptRepo;
-            _responseRepo = responseRepo;
-            _convPromptResRepo = convPromptResRepo;
-            _logger = logger;
-            _getmessages = getmessages;
             _unitOfWork = unitOfWork;
             _addMessages = addMessages;
         }
@@ -54,7 +34,7 @@ namespace Ollama_Component.Services.ChatService
         /// </summary>
         public async Task<ChatHistory> GetChatHistoryAsync(PromptRequest request)
         {
-            var conv = await _conversationRepo.GetByIdAsync(request.ConversationId);
+            var conv = await _unitOfWork.ConversationRepo.GetByIdAsync(request.ConversationId);
 
             ChatHistory chatHistory = new ChatHistory();
 
@@ -64,7 +44,7 @@ namespace Ollama_Component.Services.ChatService
 
                 // Create a new conversation
                 conv = HistoryMapper.ToConversation(request);
-                await _conversationRepo.AddAsync(conv);
+                await _unitOfWork.ConversationRepo.AddAsync(conv);
                 await _unitOfWork.SaveChangesAsync();
 
                 // Add system and user messages to chat history
@@ -75,7 +55,7 @@ namespace Ollama_Component.Services.ChatService
             }
             else
             {
-                var messages = await _getmessages.GetMessagesByConversationIdAsync(request.ConversationId);
+                var messages = await _unitOfWork.MessageHistoryRepo.GetMessagesByConversationIdAsync(request.ConversationId);
 
                 foreach (var message in messages)
                 {
