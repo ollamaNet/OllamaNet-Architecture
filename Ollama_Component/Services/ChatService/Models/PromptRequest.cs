@@ -2,6 +2,7 @@
 using OllamaSharp.Models.Chat;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Ollama_Component.Services.ChatService.Models
@@ -14,6 +15,7 @@ namespace Ollama_Component.Services.ChatService.Models
         [JsonPropertyName("UserId")]
         public string UserId { get; set; }
 
+        [NotMapped]
         [JsonPropertyName("model")]
         public string Model { get; set; }
 

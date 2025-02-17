@@ -37,7 +37,7 @@ public class Program
 
 
         // Add repositories
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<Ollama_DB_layer.UOW.IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
 
 
