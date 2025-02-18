@@ -13,10 +13,10 @@ namespace Ollama_Component.Controllers
         public IApplicationUserRepository _UserRepos { get; private set; }
         private readonly IUnitOfWork _unitOfWork;
 
-        public TEMP_AuthController(IApplicationUserRepository userRepository, IUnitOfWork _unitOfWork)
+        public TEMP_AuthController(IApplicationUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _UserRepos = userRepository;
-            _unitOfWork = _unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
 
