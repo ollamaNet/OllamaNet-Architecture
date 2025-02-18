@@ -27,6 +27,7 @@ namespace Ollama_Component.Services.ChatService
         {
             _unitOfWork = unitOfWork;
             _addMessages = addMessages;
+            _logger = logger;
         }
 
         /// <summary>
