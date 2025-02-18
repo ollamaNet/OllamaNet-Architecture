@@ -17,6 +17,12 @@ using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
 using Ollama_DB_layer.Repositories.ConversationRepo;
 using Ollama_DB_layer.UOW;
 using Ollama_Component.Services.ExploreService;
+using Ollama_DB_layer.Repositories.FeedbackRepo;
+using Ollama_DB_layer.Repositories.MessageHistoryRepository;
+using Ollama_DB_layer.Repositories.ModelTageRepo;
+using Ollama_DB_layer.Repositories.PaginationRepo;
+using Ollama_DB_layer.Repositories.SystemMessageRepo;
+using Ollama_DB_layer.Repositories.TagRepo;
 
 namespace Ollama_Component;
 
@@ -37,8 +43,24 @@ public class Program
 
 
         // Add repositories
-        builder.Services.AddScoped<Ollama_DB_layer.UOW.IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<Ollama_DB_layer.Helpers.AddMessages>();
+        builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
+        builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
+        builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+        builder.Services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
+        builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+        builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        builder.Services.AddScoped<IMessageHistoryRepository, MessageHistoryRepository>();
+        builder.Services.AddScoped<IModelTagRepository, ModelTagRepository>();
+        builder.Services.AddScoped<IPaginationRepository, PaginationRepository>();
+        builder.Services.AddScoped<IPromptRepository, PromptRepository>();
+        builder.Services.AddScoped<ISystemMessageRepository, SystemMessageRepository>();
+        builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+        // Register UnitOfWork
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 
         // Add Ollama API client and Semantic Kernel configuration
