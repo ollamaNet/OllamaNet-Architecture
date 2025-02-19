@@ -28,6 +28,7 @@ namespace Ollama_Component.Services.ConversationService
             };
             _unitOfWork.ConversationRepo.AddAsync(conversation);
             await _unitOfWork.SaveChangesAsync();
+
             var conv= await _unitOfWork.ConversationRepo.GetByIdAsync(conversation.Id);
 
             return new OpenConversationResponse

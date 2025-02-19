@@ -17,9 +17,10 @@ namespace Ollama_Component.Controllers
         public readonly IChatService _chatService;
         public readonly IConversationService _conversationService; 
 
-        public ConversationController(IChatService Chatinterface)
+        public ConversationController(IChatService Chatinterface, IConversationService conversationService)
         {
             _chatService = Chatinterface;
+            _conversationService = conversationService;
         }
 
         [HttpPost("Chat")]
@@ -71,7 +72,7 @@ namespace Ollama_Component.Controllers
                 return BadRequest("Request body cannot be null.");
             }
 
-            var response = _conversationService.CreateConversationAsync(request);
+            var response =await  _conversationService.CreateConversationAsync(request);
 
             if (response == null)
             {
