@@ -13,8 +13,6 @@ namespace Ollama_Component.Services.ConversationService
             _unitOfWork = unitOfWork;
         }
 
-
-
         public async Task<OpenConversationResponse> CreateConversationAsync(OpenConversationRequest request)
         {
             if (request == null)
@@ -30,12 +28,13 @@ namespace Ollama_Component.Services.ConversationService
             };
             _unitOfWork.ConversationRepo.AddAsync(conversation);
             await _unitOfWork.SaveChangesAsync();
-            _unitOfWork.ConversationRepo.GetByIdAsync(conversation.Id);
+
+            var conv= await _unitOfWork.ConversationRepo.GetByIdAsync(conversation.Id);
 
             return new OpenConversationResponse
             {
-                ConversationId = conversation.Id,
-                Modelname = conversation.AI_Id
+                ConversationId = conv.Id,
+                Modelname = conv.AI_Id
             };
         }
 
