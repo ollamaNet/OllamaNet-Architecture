@@ -98,7 +98,7 @@ namespace Ollama_Component.Connectors
             CancellationToken cancellationToken = default
         )
         {
-            var req = CreateChatRequest(chatHistory, request);
+            var req = CreateStreamedChatRequest(chatHistory, request);
 
             await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
             {
@@ -129,9 +129,15 @@ namespace Ollama_Component.Connectors
 
 
 
+        private static ChatRequest CreateStreamedChatRequest(ChatHistory chatHistory, PromptRequest request)
+        {
+            var chatRequest = request.ToChatRequest(chatHistory, true);
+
+            return chatRequest;
+        }
         private static ChatRequest CreateChatRequest(ChatHistory chatHistory, PromptRequest request)
         {
-            var chatRequest = request.ToChatRequest(chatHistory);
+            var chatRequest = request.ToChatRequest(chatHistory, false);
 
             return chatRequest;
         }

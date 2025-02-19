@@ -7,7 +7,7 @@ namespace Ollama_Component.Mappers.ChatMappers
 
     public static class ChatRequestMapper
     {
-        public static ChatRequest ToChatRequest(this PromptRequest request, ChatHistory chatHistory)
+        public static ChatRequest ToChatRequest(this PromptRequest request, ChatHistory chatHistory, bool stream)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             var messages = new List<Message>();
@@ -26,7 +26,7 @@ namespace Ollama_Component.Mappers.ChatMappers
             ChatRequest chatRequest = new()
             {
                 Messages = messages,
-                Stream = request.Stream,
+                Stream = stream,
                 Model = request.Model
             };
 

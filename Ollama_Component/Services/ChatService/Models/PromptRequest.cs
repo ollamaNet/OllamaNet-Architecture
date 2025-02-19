@@ -25,8 +25,8 @@ namespace Ollama_Component.Services.ChatService.Models
         [JsonPropertyName("Content")]
         public string Content { get; set; }
 
-        [JsonPropertyName("stream")]
-        public bool Stream { get; set; }
+        /*[JsonPropertyName("stream")]
+        public bool Stream { get; set; }*/
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("Options")]
