@@ -1,18 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.Entities;
-using Ollama_DB_layer.Repositories;
-using Ollama_DB_layer.Repositories.AIResponseRepo;
-using Ollama_DB_layer.Repositories.ConversationRepo;
-using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
-using Ollama_DB_layer.Repositories.PromptRepo;
-using Microsoft.SemanticKernel.ChatCompletion;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Ollama_DB_layer.UOW;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp.Models.Chat;
 using Ollama_DB_layer.Helpers;
-using Ollama_DB_layer.UOW;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Ollama_Component.Services.ChatService
 {
@@ -22,106 +17,118 @@ namespace Ollama_Component.Services.ChatService
         private readonly AddMessages _addMessages;
         private readonly IUnitOfWork _unitOfWork;
 
-
         public ChatHistoryManager(ILogger<ChatHistoryManager> logger, AddMessages addMessages, IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
-            _addMessages = addMessages;
-            _logger = logger;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _addMessages = addMessages ?? throw new ArgumentNullException(nameof(addMessages));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
         /// Retrieves chat history for a given conversation ID.
+        /// Returns null if no conversation is found.
         /// </summary>
-        public async Task<ChatHistory> GetChatHistoryAsync(PromptRequest request)
+        public async Task<ChatHistory?> GetChatHistoryAsync(PromptRequest request)
         {
+            if (request == null )
+            {
+                _logger.LogWarning("Invalid request: Conversation ID is missing or invalid.");
+                return null;
+            }
+
             var conv = await _unitOfWork.ConversationRepo.GetByIdAsync(request.ConversationId);
-
-            ChatHistory chatHistory = new ChatHistory();
-
             if (conv == null)
             {
-                _logger.LogWarning("No conversation found with the given ID: {ConversationId}. Creating a new conversation.", request.ConversationId);
-
-                // Create a new conversation
-                conv = HistoryMapper.ToConversation(request);
-                await _unitOfWork.ConversationRepo.AddAsync(conv);
-                await _unitOfWork.SaveChangesAsync();
-
-                // Add system and user messages to chat history
-                chatHistory.AddSystemMessage(request.SystemMessage);
-                chatHistory.AddUserMessage(request.Content);
-
-                _logger.LogInformation("New conversation created with ID: {ConversationId}. Initial messages added.", request.ConversationId);
+                _logger.LogWarning("No conversation found with ID: {ConversationId}", request.ConversationId);
+                return null;
             }
-            else
+
+            var messages = await _unitOfWork.MessageHistoryRepo.GetMessagesByConversationIdAsync(request.ConversationId);
+            var chatHistory = new ChatHistory();
+
+            foreach (var message in messages)
             {
-                var messages = await _unitOfWork.MessageHistoryRepo.GetMessagesByConversationIdAsync(request.ConversationId);
-
-                foreach (var message in messages)
+                switch (message.Role)
                 {
-                    if (message.Role == "Prompt")
-                    {
+                    case "Prompt":
                         chatHistory.AddUserMessage(message.Content);
-                    }
-                    else if (message.Role == "AIResponse")
-                    {
+                        break;
+                    case "AIResponse":
                         chatHistory.AddAssistantMessage(message.Content);
-                    }
+                        break;
+                    default:
+                        _logger.LogWarning("Unknown message role: {Role} in conversation {ConversationId}", message.Role, request.ConversationId);
+                        break;
                 }
-
-                chatHistory.AddSystemMessage(conv.SystemMessage);
-                _logger.LogInformation("Retrieved {MessageCount} messages for conversation ID: {ConversationId}", chatHistory.Count, request.ConversationId);
             }
+
+            chatHistory.AddSystemMessage(conv.SystemMessage);
+            _logger.LogInformation("Retrieved {MessageCount} messages for conversation ID: {ConversationId}", chatHistory.Count, request.ConversationId);
 
             return chatHistory;
         }
 
-
         /// <summary>
         /// Saves the user prompt and AI response into the database.
+        /// Returns true if successful, false otherwise.
         /// </summary>
-        public async Task SaveStreamedChatInteractionAsync(PromptRequest request, List<OllamaModelResponse> response)
+        public async Task<bool> SaveStreamedChatInteractionAsync(PromptRequest request, List<OllamaModelResponse> response)
         {
+            if (request == null || response == null || response.Count == 0)
+            {
+                _logger.LogWarning("Invalid request: Request or response is null/empty.");
+                return false;
+            }
+
             try
             {
                 var repoResponse = HistoryMapper.ToStreamedAIResponse(response);
                 var repoPrompt = HistoryMapper.ToPrompt(request);
                 var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-
                 await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);
-            }
 
+                return true;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving chat interaction for conversation ID {ConversationId}", request.ConversationId);
-                throw;
+                return false;
             }
         }
 
-        public async Task SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<OllamaModelResponse> response)
+        /// <summary>
+        /// Saves chat interaction data, including prompts and AI responses.
+        /// Returns true if successful, false otherwise.
+        /// </summary>
+        public async Task<bool> SaveChatInteractionAsync(PromptRequest request, IReadOnlyList<OllamaModelResponse> response)
         {
+            if (request == null || response == null || response.Count == 0)
+            {
+                _logger.LogWarning("Invalid request: Request or response is null/empty.");
+                return false;
+            }
+
             try
             {
                 var repoResponse = HistoryMapper.ToAIResponse(response);
                 var repoPrompt = HistoryMapper.ToPrompt(request);
                 var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-
                 await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);
-            }
 
+                return true;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving chat interaction for conversation ID {ConversationId}", request.ConversationId);
-                throw;
+                return false;
             }
         }
     }
