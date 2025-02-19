@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.SemanticKernel.ChatCompletion;
 
-namespace Ollama_Component.Services.ChatService
+namespace Ollama_Component.Services.CacheService
 {
-    // To be deleted after test
-
-    /*public class ChatCacheManager
+    public class CacheManager
     {
         private readonly IMemoryCache _cache;
 
-        public ChatCacheManager(IMemoryCache cache)
+        public CacheManager(IMemoryCache cache)
         {
             _cache = cache;
         }
@@ -28,5 +26,5 @@ namespace Ollama_Component.Services.ChatService
 
             _cache.Set(cacheKey, chatHistory, cacheEntryOptions);
         }
-    }*/
+    }
 }
