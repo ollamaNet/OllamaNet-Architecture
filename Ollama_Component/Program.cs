@@ -24,6 +24,7 @@ using Ollama_DB_layer.Repositories.PaginationRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
 using Ollama_DB_layer.Repositories.TagRepo;
 using Ollama_Component.Services.ConversationService;
+using Ollama_Component.Services.CacheService;
 
 namespace Ollama_Component;
 
@@ -69,7 +70,7 @@ public class Program
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
-        builder.Services.AddScoped<ChatCacheManager>();
+        builder.Services.AddScoped<CacheManager>();
         builder.Services.AddScoped<IChatService, ChatService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IConversationService, ConversationService>();

@@ -40,7 +40,7 @@ namespace Ollama_Component.Services.ChatService
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
 
             cacheKey = request.ConversationId;
-            ChatHistory history;
+            ChatHistory? history;
 
             //Get Chat History From Cache if Available
             if (_cacheManager.TryGetChatHistory(cacheKey, out history))
