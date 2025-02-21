@@ -32,13 +32,13 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPost("OllamaModelInfo")]
-        public async Task<IActionResult> OllamaModelInfo([FromBody] ModelInfoRequest request)
+        [HttpGet("OllamaModelInfo")]
+        public async Task<IActionResult> OllamaModelInfo(string ModelName)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.ModelName))
+            if (string.IsNullOrWhiteSpace(ModelName))
                 return BadRequest("Model name cannot be empty.");
 
-            var response = await AdminService.ModelInfoAsync(request.ModelName);
+            var response = await AdminService.ModelInfoAsync(ModelName);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 

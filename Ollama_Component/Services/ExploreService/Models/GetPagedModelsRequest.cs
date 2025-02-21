@@ -3,6 +3,6 @@
     public class GetPagedModelsRequest
     {
         public int PageNumber{ get; set; }
-        public int Pagesize{ get; set; }
+        public int PageSize { get; set; }
     }
 }
