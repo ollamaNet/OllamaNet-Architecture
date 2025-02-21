@@ -8,7 +8,7 @@ namespace Ollama_Component.Services.AdminServices
 {
     public interface IAdminService
     {
-        Task<IEnumerable<Model>> InstalledModelsAsync();
+        Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int PageSize);
         Task<ShowModelResponse> ModelInfoAsync(string modelName);
         Task<AIModel> AddModelAsync(AddModelRequest model);
         Task<string> UninstllModelAsync(RemoveModelRequest model);

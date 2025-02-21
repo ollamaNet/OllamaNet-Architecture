@@ -3,7 +3,6 @@ using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 using Ollama_Component.Services.ChatService.Models;
 using OllamaSharp.Models.Chat;
-using Ollama_DB_layer.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,13 +13,11 @@ namespace Ollama_Component.Services.ChatService
     public class ChatHistoryManager
     {
         private readonly ILogger<ChatHistoryManager> _logger;
-        private readonly AddMessages _addMessages;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ChatHistoryManager(ILogger<ChatHistoryManager> logger, AddMessages addMessages, IUnitOfWork unitOfWork)
+        public ChatHistoryManager(ILogger<ChatHistoryManager> logger, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            _addMessages = addMessages ?? throw new ArgumentNullException(nameof(addMessages));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -43,7 +40,7 @@ namespace Ollama_Component.Services.ChatService
                 return null;
             }
 
-            var messages = await _unitOfWork.MessageHistoryRepo.GetMessagesByConversationIdAsync(request.ConversationId);
+            var messages = await _unitOfWork.GetHistoryRepo.GetHistoryByConversationIdAsync(request.ConversationId);
             var chatHistory = new ChatHistory();
 
             foreach (var message in messages)
@@ -86,7 +83,7 @@ namespace Ollama_Component.Services.ChatService
                 var repoPrompt = HistoryMapper.ToPrompt(request);
                 var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-                await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
+                await _unitOfWork.SetHistoryRepo.SetHistoryAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);
@@ -118,7 +115,7 @@ namespace Ollama_Component.Services.ChatService
                 var repoPrompt = HistoryMapper.ToPrompt(request);
                 var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
-                await _addMessages.AddAsync(repoPrompt, repoResponse, repoConvPromptRes);
+                await _unitOfWork.SetHistoryRepo.SetHistoryAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
                     repoPrompt.Id, repoResponse.Id);

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ollama_Component.Services.AdminServices.Models;
 using OllamaSharp.Models;
 using Ollama_Component.Services.AdminServices;
@@ -22,47 +22,35 @@ namespace Ollama_Component.Controllers
             AdminService = adminService;
         }
 
-
         [HttpPost("AddModel")]
-        public async Task<IActionResult> AddModel(AddModelRequest model)
+        public async Task<IActionResult> AddModel([FromBody] AddModelRequest model)
         {
+            if (model == null)
+                return BadRequest("Request body cannot be null.");
 
             var response = await AdminService.AddModelAsync(model);
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-            return Ok(response);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-
-        [HttpPost("OllamaModelInfo")]
-        public async Task<IActionResult> OllamaModelInfo(ModelInfoRequest request)
+        [HttpGet("OllamaModelInfo")]
+        public async Task<IActionResult> OllamaModelInfo(string ModelName)
         {
-            var response = await AdminService.ModelInfoAsync(request.ModelName);
-
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-
-            return Ok(response);
-        }
-
-
-        [HttpPost("InstallModel'Buged'")]
-        public async Task<IActionResult> InstallModel(InstallModelRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.ModelName))
-            {
+            if (string.IsNullOrWhiteSpace(ModelName))
                 return BadRequest("Model name cannot be empty.");
-            }
 
-            // Handle streaming responses
+            var response = await AdminService.ModelInfoAsync(ModelName);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPost("InstallModel")]
+        public async Task<IActionResult> InstallModel([FromBody] InstallModelRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.ModelName))
+                return BadRequest("Model name cannot be empty.");
+
             if (request.Stream)
             {
-                var responseStream = Response.Body;
-                Response.Headers.Append("Content-Type", "text/event-stream");
+                Response.ContentType = "text/event-stream";
                 Response.Headers.Append("Cache-Control", "no-cache");
                 Response.Headers.Append("Connection", "keep-alive");
 
@@ -73,66 +61,49 @@ namespace Ollama_Component.Controllers
                         var json = JsonSerializer.Serialize(progressInfo);
                         var data = $"data: {json}\n\n";
                         var bytes = Encoding.UTF8.GetBytes(data);
-
-                        await responseStream.WriteAsync(bytes, 0, bytes.Length);
-                        await responseStream.FlushAsync();
+                        await Response.BodyWriter.WriteAsync(bytes);
+                        await Response.BodyWriter.FlushAsync();
                     }
                 });
 
                 await AdminService.InstallModelAsync(request.ModelName, progress);
-                return new EmptyResult(); // End the stream when complete
+                return new EmptyResult();
             }
             else
             {
-                // Non-streaming response
                 var response = await AdminService.InstallModelAsync(request.ModelName);
                 return response != null ? Ok(response) : StatusCode(500, "Failed to install model.");
             }
         }
 
-
-
-
         [HttpGet("InstalledModels")]
-        public async Task<IActionResult> InstalledModels()
+        public async Task<IActionResult> InstalledModels([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
+            if (pageNumber < 1 || pageSize < 1)
+                return BadRequest("Invalid pagination parameters.");
 
-            var response = await AdminService.InstalledModelsAsync();
-
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-            return Ok(response);
+            var response = await AdminService.InstalledModelsAsync(pageNumber, pageSize);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-
         [HttpDelete("SoftDeleteModel")]
-        public async Task<IActionResult> SoftDeleteModel(string modelName)
+        public async Task<IActionResult> SoftDeleteModel([FromQuery] string modelName)
         {
+            if (string.IsNullOrWhiteSpace(modelName))
+                return BadRequest("Model name cannot be empty.");
 
             var response = await AdminService.SoftDeleteAIModelAsync(modelName);
-
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-
-            return Ok(response);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
         [HttpDelete("UninstallModel")]
-        public async Task<IActionResult> UninstallModel(RemoveModelRequest model)
+        public async Task<IActionResult> UninstallModel([FromBody] RemoveModelRequest model)
         {
+            if (model == null || string.IsNullOrWhiteSpace(model.ModelName))
+                return BadRequest("Model name cannot be empty.");
+
             var response = await AdminService.UninstllModelAsync(model);
-
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the chat request.");
-            }
-
-            return Ok(response);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
-
     }
 }

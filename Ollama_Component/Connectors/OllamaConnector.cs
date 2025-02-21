@@ -151,6 +151,21 @@ namespace Ollama_Component.Connectors
             return response;
         }
 
+        public async Task<IEnumerable<Model>> GetInstalledModelsPaged(int pageNumber, int pageSize)
+        {
+            var response = await ollamaApiClient.ListLocalModelsAsync();
+
+            // Ensure pageNumber and pageSize are valid
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            // Calculate the items to skip and take for pagination
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedResponse = response.Skip(skip).Take(pageSize);
+
+            return pagedResponse;
+        }
+
         public async Task<ShowModelResponse> GetModelInfo(string modelName)
         {
             var modelInfo = await ollamaApiClient.ShowModelAsync(modelName);

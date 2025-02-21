@@ -23,9 +23,9 @@ namespace Ollama_Component.Services.AdminServices
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Model>> InstalledModelsAsync()
+        public async Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int PageSize)
         {
-            var models = await _ollamaConnector.GetInstalledModels()
+            var models = await _ollamaConnector.GetInstalledModelsPaged(pageNumber, PageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
             return models.Any() ? models : throw new InvalidOperationException("No models are installed.");
@@ -111,7 +111,7 @@ namespace Ollama_Component.Services.AdminServices
                 throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
 
             // Check if the model is already installed
-            var installedModels = await InstalledModelsAsync();
+            var installedModels = await _ollamaConnector.GetInstalledModels();
             if (installedModels.Any(model => model.Name == modelName))
                 return new InstallProgressInfo
                 {

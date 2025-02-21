@@ -10,42 +10,34 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class ModelsController : ControllerBase
     {
-        public IExploreService expolerService { get; set; }
+        private readonly IExploreService _exploreService;
 
-
-        public ModelsController(IExploreService expolre)
+        public ModelsController(IExploreService exploreService)
         {
-            expolerService = expolre;
+            _exploreService = exploreService ?? throw new ArgumentNullException(nameof(exploreService));
         }
-
-
 
         [HttpPost("Models")]
-        public async Task<IActionResult> Models(GetPagedModelsRequest request)
+        public async Task<IActionResult> Models([FromBody] GetPagedModelsRequest request)
         {
-            var response = await expolerService.AvailableModels(request);
+            if (request == null)
+                return BadRequest("Request body cannot be null.");
 
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the request.");
-            }
+            if (request.PageNumber < 1 || request.PageSize < 1)
+                return BadRequest("PageNumber and PageSize must be greater than zero.");
 
-            return Ok(response);
+            var response = await _exploreService.AvailableModels(request);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-
-
         [HttpGet("ModelInfo")]
-        public async Task<IActionResult> ModelInfo(string modelName)
+        public async Task<IActionResult> ModelInfo([FromQuery] string modelName)
         {
-            var response = await expolerService.ModelInfo(modelName);
+            if (string.IsNullOrWhiteSpace(modelName))
+                return BadRequest("Model name cannot be empty.");
 
-            if (response == null)
-            {
-                return StatusCode(500, "Failed to process the request.");
-            }
-
-            return Ok(response);
+            var response = await _exploreService.ModelInfo(modelName);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
     }
 }
