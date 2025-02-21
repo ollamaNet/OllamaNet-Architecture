@@ -16,7 +16,7 @@ namespace Ollama_Component.Services.ExploreService
 
         public async Task<GetPagedModelsResponse> AvailableModels(GetPagedModelsRequest request)
         {
-            var modelsPagedModels = await _unitOfWork.AIModelRepo.AIModelPagination(request.PageNumber, request.Pagesize)
+            var modelsPagedModels = await _unitOfWork.AIModelRepo.AIModelPagination(request.PageNumber, request.PageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
             var modelsPagedList = new GetPagedModelsResponse 
