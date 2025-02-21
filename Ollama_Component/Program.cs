@@ -28,8 +28,7 @@ using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_Component.Services.CacheService;
 using FluentValidation;
 using Ollama_Component.Controllers;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+
 
 //here ia commit from linux
 namespace Ollama_Component;
