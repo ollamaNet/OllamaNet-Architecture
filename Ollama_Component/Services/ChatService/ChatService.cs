@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
 using Ollama_Component.Mappers.ChatMappers;
+using Ollama_Component.Services.CacheService;
 using Ollama_Component.Services.ChatService.Models;
 using Ollama_DB_layer.Repositories;
 using OllamaSharp;
@@ -16,7 +17,7 @@ namespace Ollama_Component.Services.ChatService
         private readonly IMemoryCache _cache;
         private readonly ILogger<ChatService> _logger;
         private readonly ChatHistoryManager _chatHistoryManager;
-        private readonly ChatCacheManager _cacheManager;
+        private readonly CacheManager _cacheManager;
         private string? cacheKey;
 
         public ChatService(
@@ -24,7 +25,7 @@ namespace Ollama_Component.Services.ChatService
             IMemoryCache cache,
             ILogger<ChatService> logger,
             ChatHistoryManager chatHistoryManager,
-            ChatCacheManager cacheManager)
+            CacheManager cacheManager)
         {
             _connector = connector;
             _cache = cache;
@@ -39,7 +40,7 @@ namespace Ollama_Component.Services.ChatService
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));
 
             cacheKey = request.ConversationId;
-            ChatHistory history;
+            ChatHistory? history;
 
             //Get Chat History From Cache if Available
             if (_cacheManager.TryGetChatHistory(cacheKey, out history))
