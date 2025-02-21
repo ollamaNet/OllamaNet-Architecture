@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.36.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -26,6 +27,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Ollama-DB-layer\Ollama DB layer.csproj" />
     <ProjectReference Include="..\OllamaNet_Components.ServiceDefaults\OllamaNet_Components.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\Validators\" />
   </ItemGroup>
 
 </Project>

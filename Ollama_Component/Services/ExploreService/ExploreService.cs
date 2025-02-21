@@ -1,8 +1,5 @@
 ﻿using Ollama_Component.Mappers.DbMappers;
 using Ollama_Component.Services.ExploreService.Models;
-using Ollama_DB_layer.Entities;
-using Ollama_DB_layer.Helpers;
-using Ollama_DB_layer.Repositories.AIModelRepo;
 using Ollama_DB_layer.UOW;
 using System.Security.Principal;
 

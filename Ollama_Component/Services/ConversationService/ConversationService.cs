@@ -1,4 +1,5 @@
 ﻿using Ollama_Component.Services.ConversationService.Models;
+using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 
@@ -29,7 +30,7 @@ namespace Ollama_Component.Services.ConversationService
             _unitOfWork.ConversationRepo.AddAsync(conversation);
             await _unitOfWork.SaveChangesAsync();
 
-            var conv= await _unitOfWork.ConversationRepo.GetByIdAsync(conversation.Id);
+            var conv = await _unitOfWork.ConversationRepo.GetByIdAsync(conversation.Id);
 
             return new OpenConversationResponse
             {
@@ -38,5 +39,33 @@ namespace Ollama_Component.Services.ConversationService
             };
         }
 
+
+
+        public async Task<PagedResult<Conversation>> GetConversationsAsync(string UserId)
+        {
+            if (UserId == null)
+                throw new ArgumentNullException(nameof(UserId));
+
+            var ConversationList = await _unitOfWork.ConversationRepo.ConversationPagination(UserId, 1, 15);
+
+            return ConversationList;
+        }
+
+
+        public async Task<GetConversationInfoResponse> GetConversationInfoAsync(string ConversationId)
+        {
+            if (ConversationId == null)
+                throw new ArgumentNullException(nameof(ConversationId));
+
+            var ConversationList = await _unitOfWork.ConversationRepo.GetByIdAsync(ConversationId);
+
+            return new GetConversationInfoResponse
+            {
+                ConversationId = ConversationList.Id,
+                ModelName = ConversationList.AI_Id,
+                SystemMessage = ConversationList.SystemMessage,
+                CreatedAt = ConversationList.CreatedAt
+            };
+        }
     }
 }
