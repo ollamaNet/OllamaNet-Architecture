@@ -103,6 +103,15 @@ namespace Ollama_Component.Controllers
             var response = await _conversationService.GetConversationInfoAsync(conversationId);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
+
+        [HttpGet("GetConversationMessages/{conversationId}")]
+        public async Task<IActionResult> GetConversationMessages(string conversationId)
+        {
+            if (!Guid.TryParse(conversationId, out _)) return BadRequest(new { error = "Invalid ConversationId", details = "ConversationId must be a valid GUID" });
+
+            var response = await _conversationService.GetConversationMessagesAsync(conversationId);
+            return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
+        }
     }
 
     public class PromptRequestValidator : AbstractValidator<PromptRequest>
