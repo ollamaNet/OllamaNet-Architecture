@@ -133,7 +133,6 @@ namespace Ollama_Component.Controllers
         {
             RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.ModelName).NotEmpty();
-            RuleFor(x => x.CreatedAt).NotEmpty().LessThanOrEqualTo(DateTime.UtcNow).WithMessage("CreatedAt cannot be in the future");
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
     }
