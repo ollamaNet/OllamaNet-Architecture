@@ -32,17 +32,14 @@ namespace Ollama_Component.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var existingUser = await _userRepository.GetByIdAsync(user.Id);
+            var existingUser = await _userRepository.GetByUserNameAsync(user.UserName);
             if (existingUser != null)
-            {
                 return Conflict("User with this ID already exists.");
-            }
 
             var userModel = new ApplicationUser
             {
-                Id = user.Id,
-                UserName = user.Name,
-                PasswordHash = user.Password, // Consider hashing this password
+                UserName = user.UserName,
+                PasswordHash = user.Password,
                 Prefrences = "None"
             };
 
@@ -99,8 +96,7 @@ namespace Ollama_Component.Controllers
 
     public class UserDTO
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string UserName { get; set; }
         public string Password { get; set; }
     }
 
@@ -108,11 +104,7 @@ namespace Ollama_Component.Controllers
     {
         public UserDTOValidator()
         {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("User ID is required.")
-                .Matches("^[a-zA-Z0-9_-]+$").WithMessage("User ID can only contain letters, numbers, underscores, and hyphens.");
-
-            RuleFor(x => x.Name)
+            RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Name is required.")
                 .MinimumLength(3).WithMessage("Name must be at least 3 characters long.");
 
