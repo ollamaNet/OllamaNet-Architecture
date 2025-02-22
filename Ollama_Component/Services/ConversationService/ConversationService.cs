@@ -67,5 +67,11 @@ namespace Ollama_Component.Services.ConversationService
                 CreatedAt = ConversationList.CreatedAt
             };
         }
+
+        public async Task<List<History>> GetConversationMessagesAsync(string conversationId)
+        {
+            var ConversationMessages = await _unitOfWork.GetHistoryRepo.GetHistoryByConversationIdAsync(conversationId);
+            return ConversationMessages;
+        }
     }
 }
