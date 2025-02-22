@@ -31,6 +31,8 @@ namespace Ollama_Component.Services.ChatService.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("Options")]
         public Options? Options { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 
     public class Options

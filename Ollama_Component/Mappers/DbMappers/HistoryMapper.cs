@@ -43,6 +43,8 @@ public static class HistoryMapper
         Prompt prompt = new()
         {
             Content = request.Content,
+            CreatedAt = request.CreatedAt,
+
         };
 
         if(request.Options != null)
