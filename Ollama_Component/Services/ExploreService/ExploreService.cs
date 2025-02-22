@@ -1,6 +1,8 @@
 ﻿using Ollama_Component.Mappers;
 using Ollama_Component.Mappers.DbMappers;
 using Ollama_Component.Services.ExploreService.Models;
+using Ollama_DB_layer.DataBaseHelpers;
+using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.UOW;
 using System.Security.Principal;
 
@@ -15,14 +17,14 @@ namespace Ollama_Component.Services.ExploreService
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ModelCardsPaged> AvailableModels(int PageNumber, int PageSize)
+        public async Task<PagedResult<ModelCard>> AvailableModels(int PageNumber, int PageSize)
         {
             var ModelListPaged = await _unitOfWork.AIModelRepo.AIModelPagination(PageNumber, PageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
-            var ModelCardsPaged = ModelCardsMapper.ToModelCardsPaged(ModelListPaged);
+            //var ModelCardsPaged = ModelCardsMapper.ToModelCardsPaged(ModelListPaged);
 
-            return ModelCardsPaged;
+            return ModelListPaged;
         }
 
         public async Task<ModelInfoResponse> ModelInfo(string modelID)
