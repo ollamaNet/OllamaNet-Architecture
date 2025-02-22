@@ -9,8 +9,6 @@ using Ollama_Component.Services.AdminServices;
 using Ollama_Component.Services.ChatService;
 using Ollama_DB_layer.Repositories.AIModelRepo;
 using Ollama_DB_layer.Repositories.ApplicationUserRepo;
-using Ollama_DB_layer.Repositories;
-using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.AIResponseRepo;
 using Ollama_DB_layer.Repositories.ConversationUserPromptRepo;
@@ -76,9 +74,10 @@ public class Program
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
 
-        // alidators
-        builder.Services.AddScoped<IValidator<UserDTO>, UserDTOValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<UserDTOValidator>();
+        // Validators
+        builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+
         builder.Services.AddMemoryCache();
 
         builder.Services.AddCors(options =>

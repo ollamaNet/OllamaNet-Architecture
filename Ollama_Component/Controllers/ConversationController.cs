@@ -84,7 +84,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversations")]
+        [HttpGet("GetConversations/{userid}")]
         public async Task<IActionResult> GetConversations(string userId)
         {
             if (!Guid.TryParse(userId, out _))
@@ -94,7 +94,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("ConversationInfo")]
+        [HttpGet("ConversationInfo/{conversationId}")]
         public async Task<IActionResult> ConversationInfo(string conversationId)
         {
             if (!Guid.TryParse(conversationId, out _))
@@ -104,7 +104,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversationMessages/{conversationId}")]
+        [HttpGet("ConversationMessages/{conversationId}")]
         public async Task<IActionResult> GetConversationMessages(string conversationId)
         {
             if (!Guid.TryParse(conversationId, out _)) return BadRequest(new { error = "Invalid ConversationId", details = "ConversationId must be a valid GUID" });

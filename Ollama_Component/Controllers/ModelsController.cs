@@ -32,7 +32,7 @@ namespace Ollama_Component.Controllers
         }
 
 
-        [HttpGet("ModelInfo")]
+        [HttpGet("ModelInfo/{modelName}")]
         public async Task<IActionResult> ModelInfo([FromQuery] string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
