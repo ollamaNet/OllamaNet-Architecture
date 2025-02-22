@@ -12,41 +12,59 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class TEMP_AuthController : ControllerBase
     {
-        private readonly IApplicationUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<UserDTO> _userValidator;
+        private readonly IValidator<RegisterRequest> _userValidator;
 
-        public TEMP_AuthController(IApplicationUserRepository userRepository, IUnitOfWork unitOfWork, IValidator<UserDTO> userValidator)
+        public TEMP_AuthController(IUnitOfWork unitOfWork, IValidator<RegisterRequest> userValidator)
         {
-            _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _userValidator = userValidator;
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] UserDTO user)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest user)
         {
+            // Validate input
             var validationResult = await _userValidator.ValidateAsync(user);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(new
+                {
+                    Success = false,
+                    Errors = validationResult.Errors.Select(e => e.ErrorMessage)
+                });
             }
 
-            var existingUser = await _userRepository.GetByUserNameAsync(user.UserName);
-            if (existingUser != null)
-                return Conflict("User with this ID already exists.");
+            // Check if user already exists (by email instead of ID)
+            var existingUser = await _unitOfWork.ApplicationUserRepo.GetByUserNameAsync(user.UserName);
+            if (existingUser != false)
+            {
+                return Conflict(new
+                {
+                    Success = false,
+                    Message = "A user with this Username already exists."
+                });
+            }
 
             var userModel = new ApplicationUser
             {
+                Id = Guid.NewGuid().ToString(), // Generate a new GUID
                 UserName = user.UserName,
                 PasswordHash = user.Password,
                 Prefrences = "None"
             };
 
-            await _userRepository.AddAsync(userModel);
+            // Save user
+            await _unitOfWork.ApplicationUserRepo.AddAsync(userModel);
             await _unitOfWork.SaveChangesAsync();
 
-            return Ok("User registered successfully.");
+            // Return proper JSON response
+            return CreatedAtAction(nameof(Register), new
+            {
+                Success = true,
+                Message = "User registered successfully.",
+                UserId = userModel.Id
+            });
         }
 
         [HttpGet("UserInfo/{id}")]
@@ -57,7 +75,7 @@ namespace Ollama_Component.Controllers
                 return BadRequest("User ID is required.");
             }
 
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.ApplicationUserRepo.GetByIdAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -66,12 +84,14 @@ namespace Ollama_Component.Controllers
             return Ok(user);
         }
 
+
         [HttpGet("Users")]
         public async Task<IActionResult> Users()
         {
-            var users = await _userRepository.GetAllAsync();
+            var users = await _unitOfWork.ApplicationUserRepo.GetAllAsync();
             return Ok(users);
         }
+
 
         [HttpDelete("DeleteUser/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
@@ -81,28 +101,28 @@ namespace Ollama_Component.Controllers
                 return BadRequest("User ID is required.");
             }
 
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.ApplicationUserRepo.GetByIdAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            await _userRepository.DeleteAsync(id);
+            await _unitOfWork.ApplicationUserRepo.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
 
             return Ok("User deleted successfully.");
         }
     }
 
-    public class UserDTO
+    public class RegisterRequest
     {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
 
-    public class UserDTOValidator : AbstractValidator<UserDTO>
+    public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
-        public UserDTOValidator()
+        public RegisterRequestValidator()
         {
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Name is required.")
