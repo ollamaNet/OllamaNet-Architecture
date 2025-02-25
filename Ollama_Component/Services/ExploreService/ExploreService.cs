@@ -22,7 +22,6 @@ namespace Ollama_Component.Services.ExploreService
             var ModelListPaged = await _unitOfWork.AIModelRepo.AIModelPagination(PageNumber, PageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
-            //var ModelCardsPaged = ModelCardsMapper.ToModelCardsPaged(ModelListPaged);
 
             return ModelListPaged;
         }

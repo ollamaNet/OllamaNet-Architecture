@@ -84,7 +84,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversations/{userid}")]
+        [HttpGet("GetConversations/{userId}")]
         public async Task<IActionResult> GetConversations(string userId)
         {
             if (!Guid.TryParse(userId, out _))
