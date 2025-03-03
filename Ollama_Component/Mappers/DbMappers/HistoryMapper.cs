@@ -7,7 +7,7 @@ public static class HistoryMapper
     {
         return new AIResponse
         {
-            Content = response[0].Content,
+            Content = string.Join(" ", response.Select(r => r.Content)),
             Role = response[0].Role.ToString(),
             TotalDuration = response[0].TotalDuration.ToString(),
             LoadDuration = response[0].LoadDuration.ToString(),
