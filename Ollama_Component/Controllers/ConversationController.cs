@@ -122,7 +122,7 @@ namespace Ollama_Component.Controllers
             RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.Model).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
-            RuleFor(x => x.Options.Temperature).NotEmpty();
+            //RuleFor(x => x.Options.Temperature).NotEmpty();
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
     }
