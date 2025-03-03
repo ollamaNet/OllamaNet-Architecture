@@ -36,11 +36,12 @@ namespace Ollama_Component.Controllers
         [HttpPost("Chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
         {
+            request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
+
             var validationResult = await _promptValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
 
-            request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
 
             var response = await _chatService.GetModelResponse(request);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
@@ -49,6 +50,7 @@ namespace Ollama_Component.Controllers
         [HttpPost("StreamChat")]
         public async Task StreamChat([FromBody] PromptRequest request)
         {
+            request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
             var validationResult = await _promptValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
@@ -58,6 +60,7 @@ namespace Ollama_Component.Controllers
             }
 
             Response.ContentType = "text/event-stream";
+
             try
             {
                 await foreach (var response in _chatService.GetStreamedModelResponse(request))
