@@ -24,7 +24,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 Digest = addModelRequest.Digest,
                 Size = addModelRequest.Size,
                 ReleasedAt = addModelRequest.ReleasedAt,
-
+                ReferenceLink = addModelRequest.ReferenceLink,
                 //attributes taken from ollama/show model
                 Format = OllamaModel.Details.Format,
                 ParameterSize = OllamaModel.Details.ParameterSize,
@@ -61,7 +61,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 Digest = model.Digest,
                 Size = model.Size,
                 ReleasedAt = model.ReleasedAt,
-
+                ReferenceLink = model.ReferenceLink,
                 Format = model.Format,
                 ParameterSize = model.ParameterSize,
                 QuantizationLevel = model.QuantizationLevel,
@@ -99,6 +99,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 ParameterSize = DBmodel.ParameterSize,
                 QuantizationLevel = DBmodel.QuantizationLevel,
                 ReleasedAt = DBmodel.ReleasedAt,
+                ReferenceLink =DBmodel.ReferenceLink,
                 License = DBmodel.License,
                 ModelFile = DBmodel.ModelFile,
                 Template = DBmodel.Template,

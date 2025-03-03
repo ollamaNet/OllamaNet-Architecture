@@ -17,20 +17,22 @@ namespace Ollama_Component.Controllers
             _exploreService = exploreService ?? throw new ArgumentNullException(nameof(exploreService));
         }
 
+
         [HttpPost("Models")]
-        public async Task<IActionResult> Models([FromBody] GetPagedModelsRequest request)
+        public async Task<IActionResult> Models(int PageNumber, int PageSize)
         {
-            if (request == null)
+            if (PageSize == null || PageNumber == null )
                 return BadRequest("Request body cannot be null.");
 
-            if (request.PageNumber < 1 || request.PageSize < 1)
+            if (PageNumber < 1 || PageSize < 1)
                 return BadRequest("PageNumber and PageSize must be greater than zero.");
 
-            var response = await _exploreService.AvailableModels(request);
+            var response = await _exploreService.AvailableModels(PageNumber, PageSize);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpGet("ModelInfo")]
+
+        [HttpGet("ModelInfo/{modelName}")]
         public async Task<IActionResult> ModelInfo([FromQuery] string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))

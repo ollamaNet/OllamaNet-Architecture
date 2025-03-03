@@ -84,7 +84,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversations")]
+        [HttpGet("GetConversations/{userId}")]
         public async Task<IActionResult> GetConversations(string userId)
         {
             if (!Guid.TryParse(userId, out _))
@@ -94,7 +94,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("ConversationInfo")]
+        [HttpGet("ConversationInfo/{conversationId}")]
         public async Task<IActionResult> ConversationInfo(string conversationId)
         {
             if (!Guid.TryParse(conversationId, out _))
@@ -104,7 +104,7 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversationMessages/{conversationId}")]
+        [HttpGet("ConversationMessages/{conversationId}")]
         public async Task<IActionResult> GetConversationMessages(string conversationId)
         {
             if (!Guid.TryParse(conversationId, out _)) return BadRequest(new { error = "Invalid ConversationId", details = "ConversationId must be a valid GUID" });
@@ -122,7 +122,7 @@ namespace Ollama_Component.Controllers
             RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.Model).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
-            RuleFor(x => x.Options.Temperature).NotEmpty();
+            //RuleFor(x => x.Options.Temperature).NotEmpty();
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
     }
@@ -133,7 +133,6 @@ namespace Ollama_Component.Controllers
         {
             RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.ModelName).NotEmpty();
-            RuleFor(x => x.CreatedAt).NotEmpty().LessThanOrEqualTo(DateTime.UtcNow).WithMessage("CreatedAt cannot be in the future");
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
     }

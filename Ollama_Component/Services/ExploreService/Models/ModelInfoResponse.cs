@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Ollama_DB_layer.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Ollama_Component.Services.ExploreService.Models
 {
@@ -35,7 +36,7 @@ namespace Ollama_Component.Services.ExploreService.Models
         [Required]
         public DateTime ReleasedAt { get; set; }
 
-
+        public string ReferenceLink { get; set; }
         [MaxLength(int.MaxValue)]
         public string License { get; set; }
 
@@ -55,11 +56,7 @@ namespace Ollama_Component.Services.ExploreService.Models
         [MaxLength(100)]
         public string Family { get; set; }
 
-
-
         public List<string>? Families { get; set; } // JSON stored as string (Handled via serialization)
-
-
 
         public List<string>? Languages { get; set; } // JSON stored as string (Handled via serialization)
 
@@ -78,5 +75,6 @@ namespace Ollama_Component.Services.ExploreService.Models
 
         [MaxLength(50)]
         public string ModelType { get; set; }
+
     }
 }

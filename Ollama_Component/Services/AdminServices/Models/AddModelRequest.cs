@@ -24,14 +24,9 @@ namespace Ollama_Component.Services.AdminServices.Models
 
         public string QuantizationLevel { get; set; }
 
-        public bool IsDeleted { get; set; } = false;
-
-        public bool IsArchived { get; set; } = false;
 
         public DateTime ReleasedAt { get; set; }
-
-        public DateTime ModifiedAt { get; set; }
-
+        public string ReferenceLink { get; set; }
         public string License { get; set; }
 
         public string ModelFile { get; set; }

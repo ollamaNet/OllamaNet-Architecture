@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
 using Ollama_Component.Mappers.ChatMappers;
 using Ollama_Component.Services.CacheService;
 using Ollama_Component.Services.ChatService.Models;
-using Ollama_DB_layer.Repositories;
-using OllamaSharp;
 
 namespace Ollama_Component.Services.ChatService
 {

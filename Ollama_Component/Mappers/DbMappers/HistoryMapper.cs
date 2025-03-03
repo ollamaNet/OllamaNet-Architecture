@@ -5,6 +5,7 @@ public static class HistoryMapper
 {
     public static AIResponse ToStreamedAIResponse(this List<OllamaModelResponse> response)
     {
+
         return new AIResponse
         {
             Content = string.Join(" ", response.Select(r => r.Content)),
@@ -43,6 +44,8 @@ public static class HistoryMapper
         Prompt prompt = new()
         {
             Content = request.Content,
+            CreatedAt = request.CreatedAt,
+
         };
 
         if(request.Options != null)

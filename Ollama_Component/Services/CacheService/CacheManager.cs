@@ -1,30 +1,55 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.SemanticKernel.ChatCompletion;
+﻿using Microsoft.SemanticKernel.ChatCompletion;
+using StackExchange.Redis;
+using System;
+using System.Text.Json;
 
 namespace Ollama_Component.Services.CacheService
 {
     public class CacheManager
     {
-        private readonly IMemoryCache _cache;
+        private readonly IDatabase _redisDb;
 
-        public CacheManager(IMemoryCache cache)
+        public CacheManager(IConnectionMultiplexer redis)
         {
-            _cache = cache;
+            _redisDb = redis.GetDatabase();
         }
 
         public bool TryGetChatHistory(string cacheKey, out ChatHistory chatHistory)
         {
-            return _cache.TryGetValue(cacheKey, out chatHistory);
+            try
+            {
+                var cachedValue = _redisDb.StringGet(cacheKey);
+                if (cachedValue.HasValue)
+                {
+                    chatHistory = JsonSerializer.Deserialize<ChatHistory>(cachedValue);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error (you can use a logging framework like Serilog or NLog)
+                Console.Error.WriteLine($"Error retrieving chat history from Redis: {ex.Message}");
+            }
+
+            chatHistory = null;
+            return false;
         }
 
         public void SetChatHistory(string cacheKey, ChatHistory chatHistory)
         {
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromSeconds(200))
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                .SetPriority(CacheItemPriority.High);
+            try
+            {
+                var serializedValue = JsonSerializer.Serialize(chatHistory);
+                var cacheEntryOptions = new TimeSpan(0, 30, 0); // 30 minutes sliding expiration
+                var absoluteExpiration = DateTime.UtcNow.AddHours(24); // 24 hours absolute expiration
 
-            _cache.Set(cacheKey, chatHistory, cacheEntryOptions);
+                _redisDb.StringSet(cacheKey, serializedValue, absoluteExpiration - DateTime.UtcNow);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Console.Error.WriteLine($"Error setting chat history in Redis: {ex.Message}");
+            }
         }
     }
 }
