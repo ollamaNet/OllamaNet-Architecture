@@ -43,8 +43,7 @@ namespace Ollama_Component.Services.ConversationService
 
         public async Task<PagedResult<Conversation>> GetConversationsAsync(string UserId)
         {
-            if (UserId == null)
-                throw new ArgumentNullException(nameof(UserId));
+            ArgumentNullException.ThrowIfNull(UserId);
 
             var ConversationList = await _unitOfWork.ConversationRepo.ConversationPagination(UserId, 1, 15);
 
@@ -68,9 +67,9 @@ namespace Ollama_Component.Services.ConversationService
             };
         }
 
-        public async Task<List<History>> GetConversationMessagesAsync(string conversationId)
+        public async Task<List<MessageHistory>> GetConversationMessagesAsync(string conversationId)
         {
-            var ConversationMessages = await _unitOfWork.GetHistoryRepo.GetHistoryByConversationIdAsync(conversationId);
+            var ConversationMessages = await _unitOfWork.GetHistoryRepo.GetHistoryForUserAsync(conversationId);
             return ConversationMessages;
         }
     }

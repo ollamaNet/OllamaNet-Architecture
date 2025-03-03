@@ -36,7 +36,7 @@ namespace Ollama_Component.Services.ExploreService.Models
         [Required]
         public DateTime ReleasedAt { get; set; }
 
-
+        public string ReferenceLink { get; set; }
         [MaxLength(int.MaxValue)]
         public string License { get; set; }
 

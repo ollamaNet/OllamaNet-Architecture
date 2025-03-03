@@ -26,7 +26,7 @@ namespace Ollama_Component.Services.AdminServices.Models
 
 
         public DateTime ReleasedAt { get; set; }
-
+        public string ReferenceLink { get; set; }
         public string License { get; set; }
 
         public string ModelFile { get; set; }
