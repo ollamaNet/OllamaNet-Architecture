@@ -42,7 +42,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 QuantizationVersion = (int)OllamaModel.Info.QuantizationVersion,
                 SizeLabel = " ", //SizeLabel = OllamaModel.Info.SizeLabel,
                 ModelType = " ", // ModelType = OllamaModel.Info.ModelType,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
             };
 
             return DBModel;
@@ -78,7 +78,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 QuantizationVersion = model.QuantizationVersion,
                 SizeLabel = model.SizeLabel,
                 ModelType = model.ModelType,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
             };
 
             return DBModel;
@@ -99,7 +99,7 @@ namespace Ollama_Component.Mappers.DbMappers
                 ParameterSize = DBmodel.ParameterSize,
                 QuantizationLevel = DBmodel.QuantizationLevel,
                 ReleasedAt = DBmodel.ReleasedAt,
-                ReferenceLink =DBmodel.ReferenceLink,
+                ReferenceLink = DBmodel.ReferenceLink,
                 License = DBmodel.License,
                 ModelFile = DBmodel.ModelFile,
                 Template = DBmodel.Template,

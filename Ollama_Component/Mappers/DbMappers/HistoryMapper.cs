@@ -16,7 +16,7 @@ public static class HistoryMapper
             PromptEvalDuration = response[0].PromptEvalDuration.ToString(),
             EvalCount = response[0].EvalCount.ToString(),
             EvalDuration = response[0].EvalDuration.ToString(),
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
     }
 
@@ -33,7 +33,7 @@ public static class HistoryMapper
             PromptEvalDuration = response[0].PromptEvalDuration.ToString(),
             EvalCount = response[0].EvalCount.ToString(),
             EvalDuration = response[0].EvalDuration.ToString(),
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
     }
 
@@ -44,7 +44,8 @@ public static class HistoryMapper
         Prompt prompt = new()
         {
             Content = request.Content,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = request.CreatedAt,
+
         };
 
         if(request.Options != null)

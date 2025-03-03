@@ -25,7 +25,7 @@ namespace Ollama_Component.Services.ConversationService
                 User_Id = request.UserId,
                 AI_Id = request.ModelName,
                 SystemMessage = request.SystemMessage,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
             _unitOfWork.ConversationRepo.AddAsync(conversation);
             await _unitOfWork.SaveChangesAsync();

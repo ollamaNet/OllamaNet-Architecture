@@ -40,6 +40,8 @@ namespace Ollama_Component.Controllers
             if (!validationResult.IsValid)
                 return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
 
+            request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
+
             var response = await _chatService.GetModelResponse(request);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
