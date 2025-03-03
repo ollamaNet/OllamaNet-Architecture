@@ -44,8 +44,7 @@ public static class HistoryMapper
         Prompt prompt = new()
         {
             Content = request.Content,
-            CreatedAt = request.CreatedAt,
-
+            CreatedAt = DateTime.UtcNow
         };
 
         if(request.Options != null)

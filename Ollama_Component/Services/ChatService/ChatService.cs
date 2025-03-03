@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
 using Ollama_Component.Mappers.ChatMappers;
@@ -11,7 +10,6 @@ namespace Ollama_Component.Services.ChatService
     public class ChatService : IChatService
     {
         private readonly IOllamaConnector _connector;
-        private readonly IMemoryCache _cache;
         private readonly ILogger<ChatService> _logger;
         private readonly ChatHistoryManager _chatHistoryManager;
         private readonly CacheManager _cacheManager;
@@ -19,13 +17,11 @@ namespace Ollama_Component.Services.ChatService
 
         public ChatService(
             IOllamaConnector connector,
-            IMemoryCache cache,
             ILogger<ChatService> logger,
             ChatHistoryManager chatHistoryManager,
             CacheManager cacheManager)
         {
             _connector = connector;
-            _cache = cache;
             _logger = logger;
             _chatHistoryManager = chatHistoryManager;
             _cacheManager = cacheManager;

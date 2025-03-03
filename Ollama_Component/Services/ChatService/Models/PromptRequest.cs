@@ -32,6 +32,7 @@ namespace Ollama_Component.Services.ChatService.Models
         [JsonPropertyName("Options")]
         public Options? Options { get; set; }
 
+        [NotMapped]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 

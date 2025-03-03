@@ -1,13 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 using Ollama_Component.Services.ChatService.Models;
-using OllamaSharp.Models.Chat;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.OpenApi.Validations;
 
 namespace Ollama_Component.Services.ChatService
 {
