@@ -1,8 +1,8 @@
-﻿using Ollama_Component.Mappers;
-using Ollama_Component.Mappers.DbMappers;
+﻿using Ollama_Component.Mappers.DbMappers;
 using Ollama_Component.Services.ExploreService.Models;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
+using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 using System.Security.Principal;
 
@@ -22,7 +22,6 @@ namespace Ollama_Component.Services.ExploreService
             var ModelListPaged = await _unitOfWork.AIModelRepo.AIModelPagination(PageNumber, PageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
-            //var ModelCardsPaged = ModelCardsMapper.ToModelCardsPaged(ModelListPaged);
 
             return ModelListPaged;
         }
@@ -38,6 +37,17 @@ namespace Ollama_Component.Services.ExploreService
             var modelinfo = AIModelMapper.FromModelInfoResposne(DBmodel);
 
             return modelinfo;
+        }
+
+        public async Task<IEnumerable<AIModel>> GetTagModels(string tagId)
+        {
+            var modeList = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
+            if (modeList == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve model info.");
+            }
+
+            return modeList;
         }
 
     }

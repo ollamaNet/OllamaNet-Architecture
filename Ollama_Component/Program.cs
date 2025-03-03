@@ -26,6 +26,7 @@ using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_Component.Services.CacheService;
 using FluentValidation;
 using Ollama_Component.Controllers;
+using StackExchange.Redis;
 
 
 //here ia commit from linux
@@ -68,7 +69,6 @@ public class Program
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
-        builder.Services.AddScoped<CacheManager>();
         builder.Services.AddScoped<IChatService, ChatService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IConversationService, ConversationService>();
@@ -80,6 +80,13 @@ public class Program
 
         builder.Services.AddMemoryCache();
 
+
+        // Add Redis
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+
+        // Register CacheManager
+        builder.Services.AddScoped<CacheManager>();
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowSwagger", policy =>

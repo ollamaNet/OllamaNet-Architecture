@@ -9,7 +9,7 @@ namespace Ollama_Component.Services.ConversationService
         Task<OpenConversationResponse> CreateConversationAsync(OpenConversationRequest request);
         Task<PagedResult<Conversation>> GetConversationsAsync(string UserId);
         Task<GetConversationInfoResponse> GetConversationInfoAsync(string ConversationId);
-        Task<List<History>> GetConversationMessagesAsync(string conversationId);
+        Task<List<MessageHistory>> GetConversationMessagesAsync(string conversationId);
 
     }
 }

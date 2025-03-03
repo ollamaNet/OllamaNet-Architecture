@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.OpenApi.Validations;
 
 namespace Ollama_Component.Services.ChatService
 {
@@ -40,17 +41,17 @@ namespace Ollama_Component.Services.ChatService
                 return null;
             }
 
-            var messages = await _unitOfWork.GetHistoryRepo.GetHistoryByConversationIdAsync(request.ConversationId);
+            var messages = await _unitOfWork.GetHistoryRepo.GetHistoryForAIAsync(request.ConversationId);
             var chatHistory = new ChatHistory();
 
             foreach (var message in messages)
             {
                 switch (message.Role)
                 {
-                    case "Prompt":
+                    case "user":
                         chatHistory.AddUserMessage(message.Content);
                         break;
-                    case "AIResponse":
+                    case "Assistant":
                         chatHistory.AddAssistantMessage(message.Content);
                         break;
                     default:
@@ -83,6 +84,7 @@ namespace Ollama_Component.Services.ChatService
                 var repoPrompt = HistoryMapper.ToPrompt(request);
                 var repoConvPromptRes = HistoryMapper.ToConversationPromptResponse(request, repoPrompt, repoResponse);
 
+               
                 await _unitOfWork.SetHistoryRepo.SetHistoryAsync(repoPrompt, repoResponse, repoConvPromptRes);
 
                 _logger.LogInformation("Saved chat interaction: Prompt ID {PromptId}, Response ID {ResponseId}",
