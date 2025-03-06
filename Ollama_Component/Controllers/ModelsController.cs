@@ -33,7 +33,7 @@ namespace Ollama_Component.Controllers
 
 
         [HttpGet("ModelInfo/{modelName}")]
-        public async Task<IActionResult> ModelInfo([FromQuery] string modelName)
+        public async Task<IActionResult> ModelInfo(string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
                 return BadRequest("Model name cannot be empty.");

@@ -32,6 +32,8 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Validators\" />
+    <Folder Include="Services\AuthenticationService\DTOs\" />
+    <Folder Include="Services\AuthenticationService\Helpers\" />
   </ItemGroup>
 
 </Project>
