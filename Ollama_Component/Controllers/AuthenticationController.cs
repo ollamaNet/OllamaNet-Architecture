@@ -7,6 +7,6 @@ namespace Ollama_Component.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-
+        //
     }
 }
