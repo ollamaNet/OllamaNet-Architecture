@@ -63,7 +63,8 @@ namespace Ollama_Component.Services.ConversationService
                 ConversationId = ConversationList.Id,
                 ModelName = ConversationList.AI_Id,
                 SystemMessage = ConversationList.SystemMessage,
-                CreatedAt = ConversationList.CreatedAt
+                CreatedAt = ConversationList.CreatedAt,
+                TokenUsage = ConversationList.TokensUsed.ToString()
             };
         }
 
