@@ -27,6 +27,13 @@ using Ollama_Component.Services.CacheService;
 using FluentValidation;
 using Ollama_Component.Controllers;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Ollama_Component.Services.AuthService.Helpers;
+using Ollama_Component.Services.AuthService;
+using Microsoft.AspNetCore.Identity;
+using Ollama_DB_layer.Entities;
 
 
 //here ia commit from linux
@@ -46,6 +53,46 @@ public class Program
         builder.Services.AddDbContext<MyDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        // Identity Configuration
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<MyDbContext>();
+
+       
+
+        // JWT Configuration
+        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT")); 
+
+        // Register JWTManager
+        builder.Services.AddScoped<JWTManager>(); 
+
+        // Add AuthService 
+        builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = false;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+            };
+        });
+
+
+
+
         // Add repositories
         builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
         builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
@@ -60,6 +107,8 @@ public class Program
         builder.Services.AddScoped<ITagRepository, TagRepository>();
         builder.Services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
         builder.Services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
+      
+       
 
         // Register UnitOfWork
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
