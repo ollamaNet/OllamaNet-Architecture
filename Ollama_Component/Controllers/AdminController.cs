@@ -105,5 +105,16 @@ namespace Ollama_Component.Controllers
             var response = await AdminService.UninstllModelAsync(model);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
+
+        [HttpPost("AddTags")]
+        public async Task<IActionResult> AddTags([FromBody] List<string> tags)
+        {
+            if(tags == null || tags.Count == 0)
+                return BadRequest("Tags cannot be empty.");
+
+            var response = await AdminService.AddTags(tags);
+
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
     }
 }

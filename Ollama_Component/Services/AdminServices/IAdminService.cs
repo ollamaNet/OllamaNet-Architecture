@@ -14,5 +14,6 @@ namespace Ollama_Component.Services.AdminServices
         Task<string> UninstllModelAsync(RemoveModelRequest model);
         Task<string> SoftDeleteAIModelAsync(string modelName);
         Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null);
+        Task<List<Tag>> AddTags(List<string> tags);
     }
 }

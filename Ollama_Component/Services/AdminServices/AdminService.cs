@@ -8,6 +8,7 @@ using Model = OllamaSharp.Models.Model;
 using OllamaSharp;
 using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;
+using Ollama_DB_layer.Repositories.TagRepo;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -135,6 +136,17 @@ namespace Ollama_Component.Services.AdminServices
                 }
                 return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
             }
+        }
+
+        public async Task<List<Tag>> AddTags(List<string> tags)
+        {
+            var dbTags = tags.Select(tag => new Tag { Name = tag }).ToList();
+            foreach (var tag in dbTags)
+            {
+                await _unitOfWork.TagRepo.AddAsync(tag);
+            }
+            await _unitOfWork.SaveChangesAsync();
+            return dbTags;
         }
 
 
