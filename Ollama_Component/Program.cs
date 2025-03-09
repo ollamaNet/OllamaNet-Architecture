@@ -1,4 +1,4 @@
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
 using OllamaSharp;
@@ -87,13 +87,15 @@ public class Program
 
         // Register CacheManager
         builder.Services.AddScoped<CacheManager>();
+
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowSwagger", policy =>
+            options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:7006/swagger/index.html", "https://localhost:7006/swagger/index.html")
+                policy.WithOrigins("http://localhost:5173") // Allow only this origin
                       .AllowAnyHeader()
-                      .AllowAnyMethod();
+                      .AllowAnyMethod()
+                      .AllowCredentials(); // If using cookies or authentication
             });
         });
 
@@ -101,18 +103,23 @@ public class Program
 
         app.MapDefaultEndpoints();
 
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
             app.MapOpenApi();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
             app.MapScalarApiReference();
-            app.UseCors("AllowSwagger");
         }
 
         app.UseHttpsRedirection();
+
+        // ✅ Apply the CORS policy correctly
+        app.UseCors("AllowFrontend");
+
         app.UseAuthorization();
         app.MapControllers();
 
         app.Run();
+
+
     }
 }
