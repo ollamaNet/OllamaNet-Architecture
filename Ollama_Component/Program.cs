@@ -65,7 +65,7 @@ public class Program
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Add Ollama API client and Semantic Kernel configuration
-        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://69c3-34-125-142-214.ngrok-free.app"));
+        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://4a9a-34-126-150-3.ngrok-free.app"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
