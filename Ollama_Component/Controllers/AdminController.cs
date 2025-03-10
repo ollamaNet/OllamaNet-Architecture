@@ -116,5 +116,15 @@ namespace Ollama_Component.Controllers
 
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
+
+        [HttpPost("AddTagsToModel/{modelId}")]
+        public async Task<IActionResult> AddTagsToModel(string modelId, [FromBody] ICollection<AddTagToModelRequest> request)
+        {
+            if(request == null || request.Count == 0)
+                return BadRequest("Request body cannot be empty.");
+            var response = await AdminService.AddTagsToModel(modelId, request);
+
+            return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
+        }
     }
 }
