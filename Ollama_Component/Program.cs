@@ -54,10 +54,14 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         // Identity Configuration
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<MyDbContext>();
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+        })
+          .AddEntityFrameworkStores<MyDbContext>()
+          .AddDefaultTokenProviders(); // This ensures a token provider is registered
 
-       
+
 
         // JWT Configuration
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT")); 

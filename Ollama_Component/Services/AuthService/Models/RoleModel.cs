@@ -2,7 +2,7 @@
 
 namespace Ollama_Component.Services.AuthService.Models
 {
-    public class AddRoleModel
+    public class RoleModel
     {
         [Required]
         public string UserId { get; set; }

@@ -6,6 +6,11 @@ namespace Ollama_Component.Services.AuthService
     {
         Task<AuthModel> RegisterUserAsync(RegisterModel model);
         Task<AuthModel> LoginUserAsync(TokenRequestModel model);
-        Task<string> AssignRoleAsync(AddRoleModel model);
+        Task<string> UpdateProfileAsync(UpdateProfileModel model);
+        Task<string> ChangePasswordAsync(ChangePasswordModel model);
+        Task<ForgotPasswordModel> ForgotPasswordAsync(string email);
+        Task<string> ResetPasswordAsync(ResetPasswordModel model);
+         Task<string> AssignRoleAsync(RoleModel model);
+        Task<string> DeassignRoleAsync(RoleModel model);
     }
 }

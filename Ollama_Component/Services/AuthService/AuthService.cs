@@ -10,6 +10,7 @@
     using System.Threading.Tasks;
     using System.Linq;
     using System.Collections.Generic;
+    using System.Web;
 
     public class AuthService : IAuthService
     {
@@ -89,8 +90,107 @@
         }
 
 
-        // Assign Role
-        public async Task<string> AssignRoleAsync(AddRoleModel model)
+
+        // Update Profile service
+        public async Task<string> UpdateProfileAsync(UpdateProfileModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user is null)
+                return "User not found";
+
+            user.Email = model.Email;
+            user.UserName = model.Username;
+
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded ? "" : "Something went wrong";
+        }
+
+
+
+        // Change Password service
+        public async Task<string> ChangePasswordAsync(ChangePasswordModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user is null)
+                return "User not found";
+
+            // Verify the old password before attempting to change it
+            var passwordCheck = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+            if (!passwordCheck)
+                return "Incorrect old password";
+
+            // Prevent changing to the same password
+            if (model.OldPassword == model.NewPassword)
+                return "New password must be different from the old password";
+
+            // Attempt to change the password
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+            if (result.Succeeded)
+                return "";
+
+            // Check for specific password policy errors
+            if (result.Errors.Any())
+            {
+                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                return $"Password change failed: {errors}";
+            }
+
+            return "Password change failed due to an unknown error";
+        }
+
+
+
+
+        // Forgot Password service
+        public async Task<ForgotPasswordModel> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                return null; // Or throw an exception, depending on your error handling strategy
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = HttpUtility.UrlEncode(token);
+
+            return new ForgotPasswordModel
+            {
+                Email = email,
+                Token = encodedToken
+            };
+        }
+
+
+
+
+        // Reset Password service
+        public async Task<string> ResetPasswordAsync(ResetPasswordModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is null)
+                return "Error: User with this email does not exist.";
+
+            var decodedToken = HttpUtility.UrlDecode(model.Token);
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+
+            if (result.Succeeded)
+                return "";
+
+            var errors = result.Errors.Select(e => e.Description).ToList();
+
+            if (errors.Any(e => e.Contains("Invalid token")))
+                return "Error: Invalid or expired reset token.";
+
+            if (errors.Any(e => e.Contains("password")))
+                return "Error: New password does not meet security requirements.";
+
+            return "Password reset failed: " + string.Join(" | ", errors);
+        }
+
+
+
+
+         // Assign Role service
+        public async Task<string> AssignRoleAsync(RoleModel model)
         {
             var user = await _userManager.FindByIdAsync(model.UserId);
 
@@ -103,5 +203,21 @@
             var result = await _userManager.AddToRoleAsync(user, model.Role);
             return result.Succeeded ? "" : "Something went wrong";
         }
+
+
+        // Disassign Role service
+        public async Task<string> DeassignRoleAsync(RoleModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user is null || !await _roleManager.RoleExistsAsync(model.Role))
+                return "Invalid user ID or Role";
+
+            if (!await _userManager.IsInRoleAsync(user, model.Role))
+                return "User is not assigned to this role";
+
+            var result = await _userManager.RemoveFromRoleAsync(user, model.Role);
+            return result.Succeeded ? "" : "Something went wrong";
+        }
+
     }
 }
