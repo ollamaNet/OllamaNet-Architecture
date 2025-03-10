@@ -1,4 +1,5 @@
 ﻿using Ollama_Component.Services.AuthService.Models;
+using OllamaSharp.Models;
 
 namespace Ollama_Component.Services.AuthService
 {
@@ -12,5 +13,9 @@ namespace Ollama_Component.Services.AuthService
         Task<string> ResetPasswordAsync(ResetPasswordModel model);
          Task<string> AssignRoleAsync(RoleModel model);
         Task<string> DeassignRoleAsync(RoleModel model);
+        Task<AuthModel> RefreshTokenAsync(string refreshtoken);
+        Task<bool> LoggoutAsync(string refreshtoken);
+        Task<List<string>> GetRolesAsync(string userId);
+
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Ollama_DB_layer.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Ollama_Component.Services.AuthService.Helpers
@@ -46,5 +47,25 @@ namespace Ollama_Component.Services.AuthService.Helpers
                 signingCredentials: signingCredentials
             );
         }
+
+
+        public RefreshToken GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+
+            using var generator = new RNGCryptoServiceProvider();
+
+            generator.GetBytes(randomNumber);
+
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(10),
+                CreatedOn = DateTime.UtcNow
+            };
+
+        }
+
+
     }
 }
