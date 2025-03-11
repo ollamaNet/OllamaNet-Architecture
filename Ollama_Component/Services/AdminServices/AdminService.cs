@@ -8,6 +8,7 @@ using Model = OllamaSharp.Models.Model;
 using OllamaSharp;
 using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;
+using Ollama_DB_layer.Repositories.TagRepo;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -62,6 +63,18 @@ namespace Ollama_Component.Services.AdminServices
 
             if (dbModel == null)
                 throw new InvalidOperationException("Failed to create AI model.");
+
+            if(model.Tags != null)
+            {
+                foreach (var tag in model.Tags)
+                {
+                    var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(tag.TagId);
+                    if (dbTag == null)
+                        throw new InvalidOperationException("Tag not found.");
+
+                    await _unitOfWork.ModelTagRepo.AddAsync(new ModelTag { AIModel_Id = dbModel.Name, Tag_Id = tag.TagId });
+                }
+            }
 
             await _unitOfWork.AIModelRepo.AddAsync(dbModel);
             await _unitOfWork.SaveChangesAsync();
@@ -137,11 +150,34 @@ namespace Ollama_Component.Services.AdminServices
             }
         }
 
+        public async Task<List<Tag>> AddTags(List<string> tags)
+        {
+            var dbTags = tags.Select(tag => new Tag { Name = tag }).ToList();
+            foreach (var tag in dbTags)
+            {
+                await _unitOfWork.TagRepo.AddAsync(tag);
+            }
+            await _unitOfWork.SaveChangesAsync();
+            return dbTags;
+        }
 
+        public async Task<string> AddTagsToModel(string modelId, ICollection<AddTagToModelRequest> tags)
+        {
+            var model = await _unitOfWork.AIModelRepo.GetByIdAsync(modelId);
+            if(model == null)
+                throw new InvalidOperationException("Model not found.");
+            foreach (var tag in tags)
+            {
+                var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(tag.TagId);
+                if (dbTag == null)
+                    throw new InvalidOperationException("Tag not found.");
+                
+                await _unitOfWork.ModelTagRepo.AddAsync(new ModelTag { AIModel_Id = model.Name, Tag_Id = tag.TagId });
+            }
 
-
-
-
+            await _unitOfWork.SaveChangesAsync();
+            return "Tags added successfully";
+        }
 
 
     }
