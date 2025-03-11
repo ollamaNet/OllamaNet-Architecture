@@ -13,10 +13,11 @@ namespace Ollama_Component.Mappers.DbMappers
         public static AIModel FromOllamaToAIModel(this AddModelRequest addModelRequest, ShowModelResponse OllamaModel)
         {
             if (addModelRequest == null) throw new ArgumentNullException(nameof(addModelRequest));
+            if (OllamaModel == null) throw new ArgumentNullException(nameof(OllamaModel));
 
             AIModel DBModel = new()
             {
-                //attributes taken from the admin manually 
+                // Attributes taken from the admin manually
                 User_Id = addModelRequest.UserId,
                 Name = addModelRequest.Name,
                 Description = addModelRequest.Description,
@@ -25,28 +26,34 @@ namespace Ollama_Component.Mappers.DbMappers
                 Size = addModelRequest.Size,
                 ReleasedAt = addModelRequest.ReleasedAt,
                 ReferenceLink = addModelRequest.ReferenceLink,
-                //attributes taken from ollama/show model
-                Format = OllamaModel.Details.Format,
-                ParameterSize = OllamaModel.Details.ParameterSize,
-                QuantizationLevel = OllamaModel.Details.QuantizationLevel,
+
+                // Attributes taken from Ollama/show model
+                Format = OllamaModel.Details?.Format,
+                ParameterSize = OllamaModel.Details?.ParameterSize,
+                QuantizationLevel = OllamaModel.Details?.QuantizationLevel,
                 License = OllamaModel.License,
                 ModelFile = OllamaModel.Modelfile,
                 Template = OllamaModel.Template,
-                ParentModel = OllamaModel.Details.ParentModel,
-                Family = OllamaModel.Details.Family,
-                Families = OllamaModel.Details.Families != null ? new List<string>(OllamaModel.Details.Families) : new List<string>(),
-                //Languages = OllamaModel.Details.Languages != null ? new List<string>(OllamaModel.Details.Languages) : new List<string>(),
-                Architecture = OllamaModel.Info.Architecture,
-                FileType = (int)OllamaModel.Info.FileType,
-                ParameterCount = (long)OllamaModel.Info.ParameterCount,
-                QuantizationVersion = (int)OllamaModel.Info.QuantizationVersion,
-                SizeLabel = " ", //SizeLabel = OllamaModel.Info.SizeLabel,
-                ModelType = " ", // ModelType = OllamaModel.Info.ModelType,
-                CreatedAt = DateTime.UtcNow,
+                ParentModel = OllamaModel.Details?.ParentModel,
+                Family = OllamaModel.Details?.Family,
+                Families = OllamaModel.Details?.Families != null ? new List<string>(OllamaModel.Details.Families) : null,  // Allow null
+
+                Architecture = OllamaModel.Info?.Architecture,
+
+                // Nullable values remain nullable
+                FileType = (int)(OllamaModel.Info?.FileType),  // No forced default
+                ParameterCount = (long)(OllamaModel.Info?.ParameterCount), // No forced default
+                QuantizationVersion = (int)(OllamaModel.Info?.QuantizationVersion), // No forced default
+
+                SizeLabel = "sizelable" , 
+                ModelType = "modeltype ", 
+
+                CreatedAt = DateTime.UtcNow, // Always set this
             };
 
             return DBModel;
         }
+
 
         public static AIModel FromRequestToAIModel(this AddModelRequest model)
         {
