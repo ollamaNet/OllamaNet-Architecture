@@ -1,14 +1,10 @@
 ﻿using Ollama_Component.Connectors;
-using System.Globalization;
 using OllamaSharp.Models;
-using Ollama_DB_layer.Repositories.AIModelRepo;
 using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AdminServices.Models;
 using Model = OllamaSharp.Models.Model;
-using OllamaSharp;
 using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;
-using Ollama_DB_layer.Repositories.TagRepo;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -180,5 +176,10 @@ namespace Ollama_Component.Services.AdminServices
         }
 
 
+        public async Task<IEnumerable<ApplicationUser>> GetUsers()
+        {
+            var users = await _unitOfWork.ApplicationUserRepo.GetAllAsync();
+            return users;
+        }
     }
 }

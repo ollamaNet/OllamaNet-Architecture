@@ -126,5 +126,14 @@ namespace Ollama_Component.Controllers
 
             return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
         }
+
+
+
+        [HttpGet("Users")]
+        public async Task<IActionResult> Users()
+        {
+            var users = await AdminService.GetUsers();
+            return Ok(users);
+        }
     }
 }

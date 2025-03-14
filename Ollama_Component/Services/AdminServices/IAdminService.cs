@@ -17,5 +17,8 @@ namespace Ollama_Component.Services.AdminServices
         Task<List<Tag>> AddTags(List<string> tags);
 
         Task<string> AddTagsToModel(string modelId, ICollection<AddTagToModelRequest> tags);
+
+        Task<IEnumerable<ApplicationUser>> GetUsers();
+
     }
 }
