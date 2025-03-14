@@ -1,8 +1,8 @@
 ﻿namespace Ollama_Component.Services.AuthService.Models
 {
-    public class ForgotPasswordModel
+    public class ForgotPasswordResponseModel
     {
-        public string Email { get; set; }
         public string Token { get; set; }
+        public string ResetPasswordLink { get; set; }
     }
 }
