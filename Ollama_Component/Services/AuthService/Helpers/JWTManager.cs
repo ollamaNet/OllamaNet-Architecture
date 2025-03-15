@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Ollama_DB_layer.Entities;
+using System; // Added for TimeSpan
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,8 +18,7 @@ namespace Ollama_Component.Services.AuthService.Helpers
             _jwt = jwt.Value;
         }
 
-
-        // Tolen Generation Function
+        // Token Generation Function
         public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
         {
             var userClaims = await userManager.GetClaimsAsync(user);
@@ -26,12 +26,12 @@ namespace Ollama_Component.Services.AuthService.Helpers
             var roleClaims = roles.Select(role => new Claim("roles", role)).ToList();
 
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("uid", user.Id)
-        }
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("uid", user.Id)
+            }
             .Union(userClaims)
             .Union(roleClaims);
 
@@ -45,6 +45,40 @@ namespace Ollama_Component.Services.AuthService.Helpers
                 expires: DateTime.UtcNow.AddDays(_jwt.DurationInDays),
                 signingCredentials: signingCredentials
             );
+        }
+
+        public ClaimsPrincipal ValidateToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_jwt.Key);
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwt.Audience,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                return tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwt.Audience,
+                    ClockSkew = TimeSpan.Zero
+                }, out validatedToken);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,19 +1,21 @@
-﻿namespace Ollama_Component.Services.AuthService
-{
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.Extensions.Options;
-    using Ollama_DB_layer.Entities;
-    using Ollama_Component.Services.AuthService.Helpers;
-    using Ollama_Component.Services.AuthService.Models;
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Web;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Ollama_DB_layer.Entities;
+using Ollama_Component.Services.AuthService.Helpers;
+using Ollama_Component.Services.AuthService.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Collections.Generic;
+using System.Web;
 
+namespace Ollama_Component.Services.AuthService
+{
     public class AuthService : IAuthService
     {
+
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWTManager _jwtManager;
@@ -24,6 +26,29 @@
             _roleManager = roleManager;
             _jwtManager = jwtManager;
         }
+
+
+        // Get user by token
+        public async Task<ApplicationUser> GetUserByTokenAsync(string token)
+        {
+            var claimsPrincipal = _jwtManager.ValidateToken(token);
+            if (claimsPrincipal == null)
+            {
+                Console.WriteLine("Token validation failed.");
+                return null;
+            }
+
+            var userIdClaim = claimsPrincipal.FindFirst("uid");
+            if (userIdClaim == null)
+            {
+                Console.WriteLine("User ID claim not found in token.");
+                return null;
+            }
+
+            Console.WriteLine($"Extracted User ID: {userIdClaim.Value}");
+            return await _userManager.FindByIdAsync(userIdClaim.Value);
+        }
+
 
         // Register user service
         public async Task<AuthModel> RegisterUserAsync(RegisterModel model)
@@ -92,11 +117,14 @@
 
 
         // Update Profile service
-        public async Task<string> UpdateProfileAsync(UpdateProfileModel model)
+        public async Task<string> UpdateProfileAsync(UpdateProfileModel model, string token)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user is null)
+            var user = await GetUserByTokenAsync(token);
+
+            if (user == null)
+            {
                 return "User not found";
+            }
 
             user.Email = model.Email;
             user.UserName = model.Username;
@@ -107,12 +135,16 @@
 
 
 
+
         // Change Password service
-        public async Task<string> ChangePasswordAsync(ChangePasswordModel model)
+        public async Task<string> ChangePasswordAsync(ChangePasswordModel model, string token)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user is null)
+            var user = await GetUserByTokenAsync(token);
+
+            if (user == null)
+            {
                 return "User not found";
+            }
 
             // Verify the old password before attempting to change it
             var passwordCheck = await _userManager.CheckPasswordAsync(user, model.OldPassword);
@@ -141,24 +173,22 @@
 
 
 
-
         // Forgot Password service
-        public async Task<ForgotPasswordModel> ForgotPasswordAsync(string email)
+        public async Task<ForgotPasswordResponseModel> ForgotPasswordAsync(ForgotPasswordRequestModel model)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
                 return null; // Or throw an exception, depending on your error handling strategy
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = HttpUtility.UrlEncode(token);
 
-            return new ForgotPasswordModel
+            return new ForgotPasswordResponseModel
             {
-                Email = email,
-                Token = encodedToken
+                Token = encodedToken,
+                ResetPasswordLink = $"https://localhost:7006/resetpassword?token={encodedToken}"
             };
         }
-
 
 
 
@@ -168,6 +198,11 @@
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
                 return "Error: User with this email does not exist.";
+
+            // Check if the new password is the same as the old one
+            var isSamePassword = await _userManager.CheckPasswordAsync(user, model.NewPassword);
+            if (isSamePassword)
+                return "Error: You cannot reuse your old password. Please choose a new password.";
 
             var decodedToken = HttpUtility.UrlDecode(model.Token);
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
@@ -185,7 +220,6 @@
 
             return "Password reset failed: " + string.Join(" | ", errors);
         }
-
 
 
 
