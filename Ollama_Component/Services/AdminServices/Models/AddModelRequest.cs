@@ -56,5 +56,7 @@ namespace Ollama_Component.Services.AdminServices.Models
         [MaxLength(50)]
         public string ModelType { get; set; }
 
+        public ICollection<AddTagToModelRequest>? Tags { get; set; }
+
     }
 }

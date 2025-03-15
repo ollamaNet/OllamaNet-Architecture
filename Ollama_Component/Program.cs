@@ -1,4 +1,4 @@
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
 using OllamaSharp;
@@ -27,9 +27,15 @@ using Ollama_Component.Services.CacheService;
 using FluentValidation;
 using Ollama_Component.Controllers;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Ollama_Component.Services.AuthService.Helpers;
+using Ollama_Component.Services.AuthService;
+using Microsoft.AspNetCore.Identity;
+using Ollama_DB_layer.Entities;
+using Microsoft.OpenApi.Models;
 
-
-//here ia commit from linux
 namespace Ollama_Component;
 
 public class Program
@@ -39,14 +45,44 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
         builder.Services.AddDbContext<MyDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Add repositories
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+        })
+            .AddEntityFrameworkStores<MyDbContext>()
+            .AddDefaultTokenProviders();
+
+        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+        builder.Services.AddScoped<JWTManager>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = false;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+            };
+        });
+
         builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
         builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
         builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
@@ -61,11 +97,9 @@ public class Program
         builder.Services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
         builder.Services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
 
-        // Register UnitOfWork
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Add Ollama API client and Semantic Kernel configuration
-        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://4a9a-34-126-150-3.ngrok-free.app"));
+        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
@@ -74,42 +108,81 @@ public class Program
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
 
-        // Validators
-        builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
-
         builder.Services.AddMemoryCache();
 
-
-        // Add Redis
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 
-        // Register CacheManager
         builder.Services.AddScoped<CacheManager>();
+
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowSwagger", policy =>
+            options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:7006/swagger/index.html", "https://localhost:7006/swagger/index.html")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
+                policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
+
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Your API",
+                Version = "v1"
+            });
+
+            // ✅ Add JWT Authentication support in Swagger
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter 'Bearer {your token}' below:"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+        });
+
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
 
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
             app.MapOpenApi();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+                options.DisplayRequestDuration();
+            });
+
             app.MapScalarApiReference();
-            app.UseCors("AllowSwagger");
         }
 
         app.UseHttpsRedirection();
+        app.UseCors("AllowFrontend");
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
 
