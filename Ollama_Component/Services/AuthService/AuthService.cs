@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using System.Web;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ollama_Component.Services.AuthService
 {
@@ -76,6 +77,15 @@ namespace Ollama_Component.Services.AuthService
             await _userManager.AddToRoleAsync(user, "User");
             var jwtSecurityToken = await _jwtManager.CreateJwtToken(user, _userManager);
 
+            //refreshtoken
+
+            var refreshTokenre = _jwtManager.GenerateRefreshToken();
+
+            user.RefreshTokens.Add(refreshTokenre);
+
+            await _userManager.UpdateAsync(user);
+
+
             return new AuthModel
             {
                 Email = user.Email,
@@ -83,7 +93,10 @@ namespace Ollama_Component.Services.AuthService
                 IsAuthenticated = true,
                 Roles = new List<string> { "User" },
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                Username = user.UserName
+                Username = user.UserName,
+                 RefreshToken = refreshTokenre.Token,
+                RefreshTokenExpiration = refreshTokenre.ExpiresOn,
+
             };
         }
 
@@ -110,6 +123,24 @@ namespace Ollama_Component.Services.AuthService
             authModel.Username = user.UserName;
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
+
+                //refreshtoken
+            if (user.RefreshTokens.Any(t => t.IsActive))
+            {
+                var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
+                authModel.RefreshToken = activeRefreshToken.Token;
+                authModel.RefreshTokenExpiration = activeRefreshToken.ExpiresOn;
+            }
+            else
+            {
+                var refreshToken = _jwtManager.GenerateRefreshToken();
+                authModel.RefreshToken = refreshToken.Token;
+                authModel.RefreshTokenExpiration = refreshToken.ExpiresOn;
+                user.RefreshTokens.Add(refreshToken);
+                await _userManager.UpdateAsync(user);
+            }
+
+
 
             return authModel;
         }
@@ -253,5 +284,104 @@ namespace Ollama_Component.Services.AuthService
             return result.Succeeded ? "" : "Something went wrong";
         }
 
+
+
+
+          //refreshtoken service
+        public async Task<AuthModel> RefreshTokenAsync(string refreshtoken)
+        {
+            var authModel = new AuthModel();
+
+              var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
+
+
+            if (user == null)
+            {
+                // authModel.IsAuthenticated = false;
+                authModel.Message = "invalid token";
+                return authModel;
+
+            }
+
+            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
+
+            if (!rtoken.IsActive)
+            {
+                // authModel.IsAuthenticated = false;
+                authModel.Message = "inactive token";
+                return authModel;
+
+            }
+
+            rtoken.RevokedOn = DateTime.UtcNow;
+
+            var NewRToken = _jwtManager.GenerateRefreshToken();
+
+            user.RefreshTokens.Add(NewRToken);
+
+            await _userManager.UpdateAsync(user);
+
+            var NewJwtToken = await _jwtManager.CreateJwtToken(user, _userManager);
+
+            authModel.IsAuthenticated = true;
+            authModel.Token = new JwtSecurityTokenHandler().WriteToken(NewJwtToken);
+            authModel.Email = user.Email;
+            authModel.Username = user.UserName;
+            var roles = await _userManager.GetRolesAsync(user);
+            authModel.Roles = roles.ToList();
+            authModel.RefreshToken = NewRToken.Token;
+            authModel.RefreshTokenExpiration = NewRToken.ExpiresOn;
+
+            return authModel;
+
+
+        }
+
+
+
+          //logout service
+        public async Task<bool> LoggoutAsync(string refreshtoken)
+        {
+            var authModel = new AuthModel();
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
+            if (user == null)
+            {
+                return false;
+
+            }
+
+            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
+
+            if (!rtoken.IsActive)
+            {
+                return false;
+
+            }
+
+            rtoken.RevokedOn = DateTime.UtcNow;
+
+
+
+            await _userManager.UpdateAsync(user);
+
+
+            return true;
+        }
+
+
+
+        //getroles service
+        public async Task<List<string>> GetRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+       
+              if (user is null)
+              return new List<string>();
+
+             var roles = await _userManager.GetRolesAsync(user);
+                 return roles.ToList();
+        }
     }
 }

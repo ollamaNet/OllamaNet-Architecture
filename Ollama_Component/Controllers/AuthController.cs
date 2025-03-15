@@ -48,6 +48,8 @@ namespace Ollama_Component.Controllers
                 return BadRequest(result.Message);
             }
 
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
             return Ok(result);
         }
 
@@ -78,6 +80,9 @@ namespace Ollama_Component.Controllers
             {
                 return BadRequest(result.Message);
             }
+
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
             return Ok(result);
         }
@@ -275,5 +280,74 @@ namespace Ollama_Component.Controllers
 
             return Ok("Role deassigned successfully");
         }
+
+
+
+        //refreshtoken endpoint
+        [HttpGet("RefreshToken")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            var result = await _authService.RefreshTokenAsync(refreshToken);
+
+            if (!result.IsAuthenticated)
+                return BadRequest(result);
+
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
+            return Ok(result);
+        }
+
+
+
+        //logout
+        [HttpPost("logout")]
+        public async Task<IActionResult> LoggoutAsync([FromBody] logout model)
+        {
+            var token = model.RefreshToken ?? Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Token is required!");
+
+            var result = await _authService.LoggoutAsync(token);
+
+            if (!result)
+                return BadRequest("Token is invalid!");
+
+            return Ok(new { message = "Logged out successfully." });
+        }
+
+
+
+
+        //getrole
+        [HttpGet("getroles/{userId}")]
+        public async Task<IActionResult> GetRolesAsync(string userId)
+        {
+            var roles = await _authService.GetRolesAsync(userId);
+            return Ok(roles);
+        }
+
+
+
+
+        //retrive refreshtoken cookeied
+        private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
+
+
+
     }
 }
