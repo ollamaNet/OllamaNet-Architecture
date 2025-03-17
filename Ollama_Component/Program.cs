@@ -39,8 +39,6 @@ using System.Security.Claims;
 using Ollama_Component.Services.ChatService.Models;
 using Ollama_Component.Services.ConversationService.Models;
 
-
-//here ia commit from linux
 namespace Ollama_Component;
 
 public class Program
@@ -50,33 +48,44 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
         builder.Services.AddDbContext<MyDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Identity Configuration
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
             options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
         })
-          .AddEntityFrameworkStores<MyDbContext>()
-          .AddDefaultTokenProviders(); // This ensures a token provider is registered
+            .AddEntityFrameworkStores<MyDbContext>()
+            .AddDefaultTokenProviders();
 
-
-
-        // JWT Configuration
-        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT")); 
-
-        // Register JWTManager
-        builder.Services.AddScoped<JWTManager>(); 
-
-        // Add AuthService 
+        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+        builder.Services.AddScoped<JWTManager>();
         builder.Services.AddScoped<IAuthService, AuthService>();
 
 
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = false;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+            };
+        });
 
 
 
@@ -94,13 +103,10 @@ public class Program
         builder.Services.AddScoped<ITagRepository, TagRepository>();
         builder.Services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
         builder.Services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
-      
-       
 
-        // Register UnitOfWork
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         builder.Services.AddScoped<IOllamaApiClient>(Ollama_Host => new OllamaApiClient("http://localhost:11434"));
+        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
@@ -108,25 +114,21 @@ public class Program
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
-
         builder.Services.AddScoped<IValidator<PromptRequest>, PromptRequestValidator>();
         builder.Services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 
         builder.Services.AddMemoryCache();
 
-
-        // Add Redis
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 
-        // Register CacheManager
         builder.Services.AddScoped<CacheManager>();
 
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend", policy =>
-            {
                 policy.WithOrigins("http://localhost:5173") // Allow only this origin
                       .AllowAnyHeader()
                       .AllowAnyMethod()
@@ -179,6 +181,7 @@ public class Program
             options.AddPolicy("User", policy =>
             policy.RequireClaim(ClaimTypes.Role, "User"));
 
+            });
         });
 
 
@@ -190,18 +193,23 @@ public class Program
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
             app.MapOpenApi();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+                options.DisplayRequestDuration();
+            });
+
             app.MapScalarApiReference();
         }
 
 
         app.UseHttpsRedirection();
 
-        // ✅ Apply the CORS policy correctly
-        app.UseCors("AllowFrontend");
-
 
         app.UseAuthentication();
+
         app.UseAuthorization();
         
         
@@ -209,7 +217,5 @@ public class Program
 
 
         app.Run();
-
-
     }
 }

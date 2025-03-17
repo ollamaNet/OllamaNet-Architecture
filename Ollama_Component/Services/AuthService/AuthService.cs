@@ -1,19 +1,22 @@
-﻿namespace Ollama_Component.Services.AuthService
-{
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.Extensions.Options;
-    using Ollama_DB_layer.Entities;
-    using Ollama_Component.Services.AuthService.Helpers;
-    using Ollama_Component.Services.AuthService.Models;
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Web;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Ollama_DB_layer.Entities;
+using Ollama_Component.Services.AuthService.Helpers;
+using Ollama_Component.Services.AuthService.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Collections.Generic;
+using System.Web;
+using Microsoft.EntityFrameworkCore;
 
+namespace Ollama_Component.Services.AuthService
+{
     public class AuthService : IAuthService
     {
+
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWTManager _jwtManager;
@@ -24,6 +27,29 @@
             _roleManager = roleManager;
             _jwtManager = jwtManager;
         }
+
+
+        // Get user by token
+        public async Task<ApplicationUser> GetUserByTokenAsync(string token)
+        {
+            var claimsPrincipal = _jwtManager.ValidateToken(token);
+            if (claimsPrincipal == null)
+            {
+                Console.WriteLine("Token validation failed.");
+                return null;
+            }
+
+            var userIdClaim = claimsPrincipal.FindFirst("uid");
+            if (userIdClaim == null)
+            {
+                Console.WriteLine("User ID claim not found in token.");
+                return null;
+            }
+
+            Console.WriteLine($"Extracted User ID: {userIdClaim.Value}");
+            return await _userManager.FindByIdAsync(userIdClaim.Value);
+        }
+
 
         // Register user service
         public async Task<AuthModel> RegisterUserAsync(RegisterModel model)
@@ -51,6 +77,15 @@
             await _userManager.AddToRoleAsync(user, "User");
             var jwtSecurityToken = await _jwtManager.CreateJwtToken(user, _userManager);
 
+            //refreshtoken
+
+            var refreshTokenre = _jwtManager.GenerateRefreshToken();
+
+            user.RefreshTokens.Add(refreshTokenre);
+
+            await _userManager.UpdateAsync(user);
+
+
             return new AuthModel
             {
                 Email = user.Email,
@@ -58,7 +93,10 @@
                 IsAuthenticated = true,
                 Roles = new List<string> { "User" },
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                Username = user.UserName
+                Username = user.UserName,
+                 RefreshToken = refreshTokenre.Token,
+                RefreshTokenExpiration = refreshTokenre.ExpiresOn,
+
             };
         }
 
@@ -86,17 +124,38 @@
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
 
+                //refreshtoken
+            if (user.RefreshTokens.Any(t => t.IsActive))
+            {
+                var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
+                authModel.RefreshToken = activeRefreshToken.Token;
+                authModel.RefreshTokenExpiration = activeRefreshToken.ExpiresOn;
+            }
+            else
+            {
+                var refreshToken = _jwtManager.GenerateRefreshToken();
+                authModel.RefreshToken = refreshToken.Token;
+                authModel.RefreshTokenExpiration = refreshToken.ExpiresOn;
+                user.RefreshTokens.Add(refreshToken);
+                await _userManager.UpdateAsync(user);
+            }
+
+
+
             return authModel;
         }
 
 
 
         // Update Profile service
-        public async Task<string> UpdateProfileAsync(UpdateProfileModel model)
+        public async Task<string> UpdateProfileAsync(UpdateProfileModel model, string token)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user is null)
+            var user = await GetUserByTokenAsync(token);
+
+            if (user == null)
+            {
                 return "User not found";
+            }
 
             user.Email = model.Email;
             user.UserName = model.Username;
@@ -107,12 +166,16 @@
 
 
 
+
         // Change Password service
-        public async Task<string> ChangePasswordAsync(ChangePasswordModel model)
+        public async Task<string> ChangePasswordAsync(ChangePasswordModel model, string token)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user is null)
+            var user = await GetUserByTokenAsync(token);
+
+            if (user == null)
+            {
                 return "User not found";
+            }
 
             // Verify the old password before attempting to change it
             var passwordCheck = await _userManager.CheckPasswordAsync(user, model.OldPassword);
@@ -141,24 +204,22 @@
 
 
 
-
         // Forgot Password service
-        public async Task<ForgotPasswordModel> ForgotPasswordAsync(string email)
+        public async Task<ForgotPasswordResponseModel> ForgotPasswordAsync(ForgotPasswordRequestModel model)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
                 return null; // Or throw an exception, depending on your error handling strategy
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = HttpUtility.UrlEncode(token);
 
-            return new ForgotPasswordModel
+            return new ForgotPasswordResponseModel
             {
-                Email = email,
-                Token = encodedToken
+                Token = encodedToken,
+                ResetPasswordLink = $"https://localhost:7006/resetpassword?token={encodedToken}"
             };
         }
-
 
 
 
@@ -168,6 +229,11 @@
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
                 return "Error: User with this email does not exist.";
+
+            // Check if the new password is the same as the old one
+            var isSamePassword = await _userManager.CheckPasswordAsync(user, model.NewPassword);
+            if (isSamePassword)
+                return "Error: You cannot reuse your old password. Please choose a new password.";
 
             var decodedToken = HttpUtility.UrlDecode(model.Token);
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
@@ -185,7 +251,6 @@
 
             return "Password reset failed: " + string.Join(" | ", errors);
         }
-
 
 
 
@@ -219,5 +284,104 @@
             return result.Succeeded ? "" : "Something went wrong";
         }
 
+
+
+
+          //refreshtoken service
+        public async Task<AuthModel> RefreshTokenAsync(string refreshtoken)
+        {
+            var authModel = new AuthModel();
+
+              var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
+
+
+            if (user == null)
+            {
+                // authModel.IsAuthenticated = false;
+                authModel.Message = "invalid token";
+                return authModel;
+
+            }
+
+            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
+
+            if (!rtoken.IsActive)
+            {
+                // authModel.IsAuthenticated = false;
+                authModel.Message = "inactive token";
+                return authModel;
+
+            }
+
+            rtoken.RevokedOn = DateTime.UtcNow;
+
+            var NewRToken = _jwtManager.GenerateRefreshToken();
+
+            user.RefreshTokens.Add(NewRToken);
+
+            await _userManager.UpdateAsync(user);
+
+            var NewJwtToken = await _jwtManager.CreateJwtToken(user, _userManager);
+
+            authModel.IsAuthenticated = true;
+            authModel.Token = new JwtSecurityTokenHandler().WriteToken(NewJwtToken);
+            authModel.Email = user.Email;
+            authModel.Username = user.UserName;
+            var roles = await _userManager.GetRolesAsync(user);
+            authModel.Roles = roles.ToList();
+            authModel.RefreshToken = NewRToken.Token;
+            authModel.RefreshTokenExpiration = NewRToken.ExpiresOn;
+
+            return authModel;
+
+
+        }
+
+
+
+          //logout service
+        public async Task<bool> LoggoutAsync(string refreshtoken)
+        {
+            var authModel = new AuthModel();
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
+            if (user == null)
+            {
+                return false;
+
+            }
+
+            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
+
+            if (!rtoken.IsActive)
+            {
+                return false;
+
+            }
+
+            rtoken.RevokedOn = DateTime.UtcNow;
+
+
+
+            await _userManager.UpdateAsync(user);
+
+
+            return true;
+        }
+
+
+
+        //getroles service
+        public async Task<List<string>> GetRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+       
+              if (user is null)
+              return new List<string>();
+
+             var roles = await _userManager.GetRolesAsync(user);
+                 return roles.ToList();
+        }
     }
 }

@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Ollama_DB_layer.Entities;
+using System; // Added for TimeSpan
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Ollama_Component.Services.AuthService.Helpers
@@ -17,8 +19,7 @@ namespace Ollama_Component.Services.AuthService.Helpers
             _jwt = jwt.Value;
         }
 
-
-        // Tolen Generation Function
+        // Token Generation Function
         public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
         {
             var userClaims = await userManager.GetClaimsAsync(user);

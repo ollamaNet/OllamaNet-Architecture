@@ -1,4 +1,6 @@
-﻿namespace Ollama_Component.Services.AuthService.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Ollama_Component.Services.AuthService.Models
 {
     public class AuthModel
     {
@@ -9,5 +11,11 @@
         public List<string> Roles { get; set; }
         public string Token { get; set; }
         public DateTime ExpiresOn { get; set; }
+
+        //for refreshtoken
+        [JsonIgnore]
+        public string? RefreshToken { get; set; }
+
+        public DateTime RefreshTokenExpiration { get; set; }
     }
 }

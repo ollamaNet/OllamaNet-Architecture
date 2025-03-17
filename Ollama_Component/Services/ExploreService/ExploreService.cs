@@ -1,4 +1,5 @@
 ﻿using Ollama_Component.Mappers.DbMappers;
+using Ollama_Component.Services.ExploreService.Mappers;
 using Ollama_Component.Services.ExploreService.Models;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
@@ -48,6 +49,18 @@ namespace Ollama_Component.Services.ExploreService
             }
 
             return modeList;
+        }
+
+        public async Task<List<GetTagsResponse>> GetTags()
+        {
+            var tags = await _unitOfWork.TagRepo.GetAllAsync();
+            if (tags == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve tags.");
+            }
+            var mappedTags = tags.ToGetTagsResponse();
+
+            return mappedTags;
         }
 
     }
