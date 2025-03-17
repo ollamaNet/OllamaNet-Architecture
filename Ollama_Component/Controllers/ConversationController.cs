@@ -87,7 +87,7 @@ namespace Ollama_Component.Controllers
         [HttpPost("OpenConversation")]
         public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
             if (userId == null)
                 return Unauthorized();
 
@@ -146,7 +146,7 @@ namespace Ollama_Component.Controllers
     {
         public OpenConversationRequestValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
+            //RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.ModelName).NotEmpty();
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
