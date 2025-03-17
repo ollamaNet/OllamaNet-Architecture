@@ -8,9 +8,11 @@ using OllamaSharp.Models;
 using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ollama_Component.Controllers
 {
+    [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -104,6 +106,36 @@ namespace Ollama_Component.Controllers
 
             var response = await AdminService.UninstllModelAsync(model);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPost("AddTags")]
+        public async Task<IActionResult> AddTags([FromBody] List<string> tags)
+        {
+            if(tags == null || tags.Count == 0)
+                return BadRequest("Tags cannot be empty.");
+
+            var response = await AdminService.AddTags(tags);
+
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPost("AddTagsToModel/{modelId}")]
+        public async Task<IActionResult> AddTagsToModel(string modelId, [FromBody] ICollection<AddTagToModelRequest> request)
+        {
+            if(request == null || request.Count == 0)
+                return BadRequest("Request body cannot be empty.");
+            var response = await AdminService.AddTagsToModel(modelId, request);
+
+            return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
+        }
+
+
+
+        [HttpGet("Users")]
+        public async Task<IActionResult> Users()
+        {
+            var users = await AdminService.GetUsers();
+            return Ok(users);
         }
     }
 }

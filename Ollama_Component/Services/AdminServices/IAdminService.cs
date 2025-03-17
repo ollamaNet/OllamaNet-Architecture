@@ -10,9 +10,15 @@ namespace Ollama_Component.Services.AdminServices
     {
         Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int PageSize);
         Task<ShowModelResponse> ModelInfoAsync(string modelName);
-        Task<AIModel> AddModelAsync(AddModelRequest model);
+        Task<AIModel?> AddModelAsync(AddModelRequest model);
         Task<string> UninstllModelAsync(RemoveModelRequest model);
         Task<string> SoftDeleteAIModelAsync(string modelName);
         Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null);
+        Task<List<Tag>> AddTags(List<string> tags);
+
+        Task<string> AddTagsToModel(string modelId, ICollection<AddTagToModelRequest> tags);
+
+        Task<IEnumerable<ApplicationUser>> GetUsers();
+
     }
 }

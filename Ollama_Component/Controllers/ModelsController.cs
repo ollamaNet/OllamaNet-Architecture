@@ -41,5 +41,12 @@ namespace Ollama_Component.Controllers
             var response = await _exploreService.ModelInfo(modelName);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
+
+        [HttpGet("GetTags")]
+        public async Task<IActionResult> GetTags()
+        {
+            var response = await _exploreService.GetTags();
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
     }
 }
