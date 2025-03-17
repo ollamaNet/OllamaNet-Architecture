@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.UOW;
-using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ChatService.DTOs;
 using System;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;

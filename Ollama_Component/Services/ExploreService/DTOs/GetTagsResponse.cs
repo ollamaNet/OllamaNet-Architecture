@@ -1,4 +1,4 @@
-﻿namespace Ollama_Component.Services.ExploreService.Models
+﻿namespace Ollama_Component.Services.ExploreService.DTOs
 {
     public class GetTagsResponse
     {

@@ -1,4 +1,4 @@
-﻿namespace Ollama_Component.Services.ConversationService.Models
+﻿namespace Ollama_Component.Services.ConversationService.DTOs
 {
     public class OpenConversationResponse
     {

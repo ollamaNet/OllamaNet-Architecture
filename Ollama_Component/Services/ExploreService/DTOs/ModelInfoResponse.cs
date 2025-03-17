@@ -1,7 +1,7 @@
 ﻿using Ollama_DB_layer.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace Ollama_Component.Services.ExploreService.Models
+namespace Ollama_Component.Services.ExploreService.DTOs
 {
     public class ModelInfoResponse
     {

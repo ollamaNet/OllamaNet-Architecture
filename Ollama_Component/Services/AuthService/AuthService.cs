@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AuthService.Helpers;
-using Ollama_Component.Services.AuthService.Models;
+using Ollama_Component.Services.AuthService.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;

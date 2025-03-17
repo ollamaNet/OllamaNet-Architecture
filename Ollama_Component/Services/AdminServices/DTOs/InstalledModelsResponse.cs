@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Ollama_Component.Services.AdminServices.Models
+namespace Ollama_Component.Services.AdminServices.DTOs
 {
     public class InstalledModelsResponse
     {

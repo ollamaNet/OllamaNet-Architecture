@@ -1,4 +1,4 @@
-﻿using Ollama_Component.Services.ConversationService.Models;
+﻿using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.Entities;
 

@@ -1,4 +1,4 @@
-﻿namespace Ollama_Component.Services.AdminServices.Models
+﻿namespace Ollama_Component.Services.AdminServices.DTOs
 {
     public class AddTagToModelRequest
     {

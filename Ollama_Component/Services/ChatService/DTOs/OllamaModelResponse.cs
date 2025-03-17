@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace Ollama_Component.Services.ChatService.Models
+namespace Ollama_Component.Services.ChatService.DTOs
 {
     public class OllamaModelResponse
     {

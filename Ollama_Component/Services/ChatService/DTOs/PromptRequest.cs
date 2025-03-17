@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Ollama_Component.Services.ChatService.Models
+namespace Ollama_Component.Services.ChatService.DTOs
 {
     public class PromptRequest
     {

@@ -1,4 +1,4 @@
-﻿using Ollama_Component.Services.AuthService.Models;
+﻿using Ollama_Component.Services.AuthService.DTOs;
 using Ollama_DB_layer.Entities;
 
 namespace Ollama_Component.Services.AuthService

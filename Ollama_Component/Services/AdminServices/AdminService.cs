@@ -1,7 +1,7 @@
 ﻿using Ollama_Component.Connectors;
 using OllamaSharp.Models;
 using Ollama_DB_layer.Entities;
-using Ollama_Component.Services.AdminServices.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using Model = OllamaSharp.Models.Model;
 using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;

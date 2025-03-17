@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Controllers;
-using Ollama_Component.Services.AdminServices.Models;
-using Ollama_Component.Services.ExploreService.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
+using Ollama_Component.Services.ExploreService.DTOs;
 using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;

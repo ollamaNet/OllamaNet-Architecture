@@ -1,5 +1,5 @@
 ﻿using Microsoft.SemanticKernel.ChatCompletion;
-using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ChatService.DTOs;
 using OllamaSharp.Models.Chat;
 
 namespace Ollama_Component.Mappers.ChatMappers

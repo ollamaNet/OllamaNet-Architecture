@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Repositories.AIModelRepo;
-using Ollama_Component.Services.AdminServices.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using OllamaSharp.Models;
 using Ollama_Component.Services.AdminServices;
 using System.Text;

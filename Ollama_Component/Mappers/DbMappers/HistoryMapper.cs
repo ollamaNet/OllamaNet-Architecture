@@ -1,4 +1,4 @@
-﻿using Ollama_Component.Services.ChatService.Models;
+﻿using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_DB_layer.Entities;
 
 public static class HistoryMapper

@@ -1,4 +1,4 @@
-﻿namespace Ollama_Component.Services.AuthService.Models
+﻿namespace Ollama_Component.Services.AuthService.DTOs
 {
     public class logout
     {

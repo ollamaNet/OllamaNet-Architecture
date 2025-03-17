@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.ExploreService;
-using Ollama_Component.Services.ExploreService.Models;
+using Ollama_Component.Services.ExploreService.DTOs;
 using OllamaSharp.Models;
 
 namespace Ollama_Component.Controllers
