@@ -1,0 +1,9 @@
+﻿namespace Ollama_Component.Services.AdminServices.DTOs
+{
+    public class RemoveModelRequest
+    {
+        public string ModelName { get; set; }
+        public bool DeleteFromDB { get; set; }
+
+    }
+}

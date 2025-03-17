@@ -1,10 +1,10 @@
 ﻿using Ollama_Component.Connectors;
 using OllamaSharp.Models;
 using Ollama_DB_layer.Entities;
-using Ollama_Component.Services.AdminServices.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using Model = OllamaSharp.Models.Model;
-using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;
+using Ollama_Component.Services.AdminServices.Mappers;
 
 
 namespace Ollama_Component.Services.AdminServices
@@ -195,22 +195,6 @@ namespace Ollama_Component.Services.AdminServices
             if (model.ModelFile != null) dbModel.ModelFile = model.ModelFile;
             if (model.ReferenceLink != null) dbModel.ReferenceLink = model.ReferenceLink;
 
-            /*// Update tags if provided
-            if (model.Tags != null)
-            {
-                var tagDict = model.Tags.ToDictionary(tag => tag.Id, tag => tag.Name);
-
-                var updateTasks = dbModel.ModelTags
-                    .Where(t => tagDict.ContainsKey(t.Tag.Id))
-                    .Select(async t =>
-                    {
-                        var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(t.Tag.Id)
-                                   ?? throw new InvalidOperationException($"Tag {t.Tag.Id} not found.");
-                        dbTag.Name = tagDict[t.Tag.Id];
-                    });
-
-                await Task.WhenAll(updateTasks);
-            }*/
 
             await _unitOfWork.AIModelRepo.UpdateAsync(dbModel);
             await _unitOfWork.SaveChangesAsync();

@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using Ollama_DB_layer.Entities;
-using Ollama_DB_layer.Repositories.AIModelRepo;
-using Ollama_Component.Services.AdminServices.Models;
-using OllamaSharp.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ollama_Component.Controllers
 {
+    [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -32,7 +31,9 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpGet("OllamaModelInfo")]
+
+
+        [HttpGet("ModelInfoFromOllama")]
         public async Task<IActionResult> OllamaModelInfo(string ModelName)
         {
             if (string.IsNullOrWhiteSpace(ModelName))
@@ -42,8 +43,11 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPost("InstallModel")]
-        public async Task<IActionResult> InstallModel([FromBody] InstallModelRequest request)
+
+
+
+        [HttpPost("PullModel")]
+        public async Task<IActionResult> PullModel([FromBody] InstallModelRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.ModelName))
                 return BadRequest("Model name cannot be empty.");

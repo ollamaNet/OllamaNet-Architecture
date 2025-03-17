@@ -3,15 +3,17 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.ChatService;
-using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_Component.Services.ConversationService;
-using Ollama_Component.Services.ConversationService.Models;
+using Ollama_Component.Services.ConversationService.DTOs;
 
 namespace Ollama_Component.Controllers
 {
+    [Authorize("User")]
     [Route("api/[controller]")]
     [ApiController]
     public class ConversationController : ControllerBase

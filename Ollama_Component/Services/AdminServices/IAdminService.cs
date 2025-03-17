@@ -1,5 +1,5 @@
 ﻿
-using Ollama_Component.Services.AdminServices.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;

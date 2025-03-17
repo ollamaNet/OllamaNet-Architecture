@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.AuthService;
-using Ollama_Component.Services.AuthService.Models;
+using Ollama_Component.Services.AuthService.DTOs;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ollama_Component.Controllers
@@ -16,6 +16,14 @@ namespace Ollama_Component.Controllers
         {
             _authService = authService;
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult SecureEndpoint()
+        {
+            return Ok("You have Admin access!");
+        }
+
 
         // Register Endpoint
         [HttpPost("register")]
