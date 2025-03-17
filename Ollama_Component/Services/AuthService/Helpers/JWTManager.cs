@@ -23,15 +23,15 @@ namespace Ollama_Component.Services.AuthService.Helpers
         {
             var userClaims = await userManager.GetClaimsAsync(user);
             var roles = await userManager.GetRolesAsync(user);
-            var roleClaims = roles.Select(role => new Claim("roles", role)).ToList();
+            var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
 
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("uid", user.Id)
-        }
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("UserId", user.Id)
+            }
             .Union(userClaims)
             .Union(roleClaims);
 
@@ -46,5 +46,63 @@ namespace Ollama_Component.Services.AuthService.Helpers
                 signingCredentials: signingCredentials
             );
         }
+
+        public ClaimsPrincipal ValidateToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_jwt.Key);
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidAudience = _jwt.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    RoleClaimType = ClaimTypes.Role,
+                    ClockSkew = TimeSpan.Zero
+
+                }, out SecurityToken validatedToken);
+
+                return tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwt.Audience,
+                    ClockSkew = TimeSpan.Zero
+                }, out validatedToken);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+
+        public RefreshToken GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+
+            using var generator = new RNGCryptoServiceProvider();
+
+            generator.GetBytes(randomNumber);
+
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(10),
+                CreatedOn = DateTime.UtcNow
+            };
+
+        }
+
+
     }
 }

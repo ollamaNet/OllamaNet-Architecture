@@ -8,9 +8,11 @@ using OllamaSharp.Models;
 using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ollama_Component.Controllers
 {
+    [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase

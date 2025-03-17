@@ -34,6 +34,10 @@ using Ollama_Component.Services.AuthService.Helpers;
 using Ollama_Component.Services.AuthService;
 using Microsoft.AspNetCore.Identity;
 using Ollama_DB_layer.Entities;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
+using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ConversationService.Models;
 
 
 //here ia commit from linux
@@ -73,27 +77,6 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
 
 
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(o =>
-        {
-            o.RequireHttpsMetadata = false;
-            o.SaveToken = false;
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidIssuer = builder.Configuration["JWT:Issuer"],
-                ValidAudience = builder.Configuration["JWT:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
-            };
-        });
-
 
 
 
@@ -117,8 +100,7 @@ public class Program
         // Register UnitOfWork
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Add Ollama API client and Semantic Kernel configuration
-        builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
+        builder.Services.AddScoped<IOllamaApiClient>(Ollama_Host => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
         builder.Services.AddScoped<ChatHistoryManager>();
@@ -127,9 +109,9 @@ public class Program
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
 
-        // Validators
-        builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+        builder.Services.AddScoped<IValidator<PromptRequest>, PromptRequestValidator>();
+        builder.Services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+
 
         builder.Services.AddMemoryCache();
 
@@ -150,11 +132,60 @@ public class Program
                       .AllowAnyMethod()
                       .AllowCredentials(); // If using cookies or authentication
             });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
         });
+
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = false;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+
+            };
+        });
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+            policy.RequireClaim(ClaimTypes.Role, "Admin"));
+            options.AddPolicy("User", policy =>
+            policy.RequireClaim(ClaimTypes.Role, "User"));
+
+        });
+
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
 
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
@@ -163,13 +194,19 @@ public class Program
             app.MapScalarApiReference();
         }
 
+
         app.UseHttpsRedirection();
 
         // ✅ Apply the CORS policy correctly
         app.UseCors("AllowFrontend");
 
+
+        app.UseAuthentication();
         app.UseAuthorization();
+        
+        
         app.MapControllers();
+
 
         app.Run();
 
