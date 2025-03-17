@@ -34,7 +34,8 @@ namespace Ollama_Component.Services.ChatService
             if (conv == null)
             {
                 _logger.LogWarning("No conversation found with ID: {ConversationId}", request.ConversationId);
-                return null;
+                //return new ChatHistory { };
+                throw new InvalidOperationException($"No conversation found with ID: {request.ConversationId}");
             }
 
             var messages = await _unitOfWork.GetHistoryRepo.GetHistoryForAIAsync(request.ConversationId);

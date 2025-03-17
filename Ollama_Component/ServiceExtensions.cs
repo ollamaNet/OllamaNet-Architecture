@@ -31,6 +31,10 @@ using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
+using FluentValidation;
+using Ollama_Component.Controllers;
+using Ollama_Component.Services.ChatService.DTOs;
+using Ollama_Component.Services.ConversationService.DTOs;
 
 namespace Ollama_Component
 {
@@ -116,6 +120,9 @@ namespace Ollama_Component
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IExploreService, ExploreService>();
+            services.AddScoped<IValidator<PromptRequest>, PromptRequestValidator>();
+            services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+
         }
 
         // Register CORS
