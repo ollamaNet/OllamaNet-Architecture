@@ -127,7 +127,14 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
         }
 
-
+        [HttpPatch("UpdateModel")]
+        public async Task<IActionResult> UpdateModel(UpdateModelRequest request)
+        {
+            if (request == null)
+                return BadRequest("Request body cannot be null.");
+            var response = await AdminService.UpdateModel(request);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
 
         [HttpGet("Users")]
         public async Task<IActionResult> Users()

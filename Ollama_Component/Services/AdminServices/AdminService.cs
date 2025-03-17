@@ -181,5 +181,41 @@ namespace Ollama_Component.Services.AdminServices
             var users = await _unitOfWork.ApplicationUserRepo.GetAllAsync();
             return users;
         }
+
+        public async Task<string> UpdateModel(UpdateModelRequest model)
+        {
+            var dbModel = await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name)
+                          ?? throw new InvalidOperationException("Model not found.");
+
+            // Update properties if provided
+            if (model.Description != null) dbModel.Description = model.Description;
+            if (model.ReleasedAt != null) dbModel.ReleasedAt = (DateTime)model.ReleasedAt;
+            if (model.License != null) dbModel.License = model.License;
+            if (model.Template != null) dbModel.Template = model.Template;
+            if (model.ModelFile != null) dbModel.ModelFile = model.ModelFile;
+            if (model.ReferenceLink != null) dbModel.ReferenceLink = model.ReferenceLink;
+
+            /*// Update tags if provided
+            if (model.Tags != null)
+            {
+                var tagDict = model.Tags.ToDictionary(tag => tag.Id, tag => tag.Name);
+
+                var updateTasks = dbModel.ModelTags
+                    .Where(t => tagDict.ContainsKey(t.Tag.Id))
+                    .Select(async t =>
+                    {
+                        var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(t.Tag.Id)
+                                   ?? throw new InvalidOperationException($"Tag {t.Tag.Id} not found.");
+                        dbTag.Name = tagDict[t.Tag.Id];
+                    });
+
+                await Task.WhenAll(updateTasks);
+            }*/
+
+            await _unitOfWork.AIModelRepo.UpdateAsync(dbModel);
+            await _unitOfWork.SaveChangesAsync();
+
+            return "Model updated successfully";
+        }
     }
 }
