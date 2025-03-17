@@ -17,6 +17,14 @@ namespace Ollama_Component.Controllers
             _authService = authService;
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult SecureEndpoint()
+        {
+            return Ok("You have Admin access!");
+        }
+
+
         // Register Endpoint
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)

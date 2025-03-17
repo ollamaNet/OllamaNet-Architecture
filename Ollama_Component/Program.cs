@@ -35,6 +35,9 @@ using Ollama_Component.Services.AuthService;
 using Microsoft.AspNetCore.Identity;
 using Ollama_DB_layer.Entities;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
+using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ConversationService.Models;
 
 namespace Ollama_Component;
 
@@ -62,6 +65,7 @@ public class Program
         builder.Services.AddScoped<JWTManager>();
         builder.Services.AddScoped<IAuthService, AuthService>();
 
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,6 +87,9 @@ public class Program
             };
         });
 
+
+
+        // Add repositories
         builder.Services.AddScoped<IAIModelRepository, AIModelRepository>();
         builder.Services.AddScoped<IAIResponseRepository, AIResponseRepository>();
         builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
@@ -98,7 +105,7 @@ public class Program
         builder.Services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+        builder.Services.AddScoped<IOllamaApiClient>(Ollama_Host => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
         builder.Services.AddScoped<IOllamaConnector, OllamaConnector>();
         builder.Services.AddScoped<ChatHistory>();
@@ -107,6 +114,10 @@ public class Program
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
+        builder.Services.AddScoped<IValidator<PromptRequest>, PromptRequestValidator>();
+        builder.Services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+
 
         builder.Services.AddMemoryCache();
 
@@ -118,53 +129,66 @@ public class Program
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend", policy =>
-            {
-                policy.WithOrigins("http://localhost:5173")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        });
-
-        builder.Services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Your API",
-                Version = "v1"
-            });
-
-            // ✅ Add JWT Authentication support in Swagger
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Enter 'Bearer {your token}' below:"
+                policy.WithOrigins("http://localhost:5173") // Allow only this origin
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials(); // If using cookies or authentication
             });
 
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
                 }
-            },
-            new string[] {}
-        }
-    });
+            });
+        });
+
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = false;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+
+            };
+        });
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+            policy.RequireClaim(ClaimTypes.Role, "Admin"));
+            options.AddPolicy("User", policy =>
+            policy.RequireClaim(ClaimTypes.Role, "User"));
+
+            });
         });
 
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
 
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
@@ -180,11 +204,17 @@ public class Program
             app.MapScalarApiReference();
         }
 
+
         app.UseHttpsRedirection();
-        app.UseCors("AllowFrontend");
+
+
         app.UseAuthentication();
+
         app.UseAuthorization();
+        
+        
         app.MapControllers();
+
 
         app.Run();
     }
