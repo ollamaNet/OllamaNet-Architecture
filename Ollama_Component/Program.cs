@@ -108,8 +108,8 @@ public class Program
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<IExploreService, ExploreService>();
 
-        builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+        /*builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();*/
 
         builder.Services.AddMemoryCache();
 
