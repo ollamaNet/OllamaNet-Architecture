@@ -39,7 +39,7 @@ namespace Ollama_Component.Services.AuthService
                 return null;
             }
 
-            var userIdClaim = claimsPrincipal.FindFirst("uid");
+            var userIdClaim = claimsPrincipal.FindFirst("UserId");
             if (userIdClaim == null)
             {
                 Console.WriteLine("User ID claim not found in token.");

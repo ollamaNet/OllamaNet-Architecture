@@ -20,5 +20,7 @@ namespace Ollama_Component.Services.AdminServices
 
         Task<IEnumerable<ApplicationUser>> GetUsers();
 
+        Task<string> UpdateModel(UpdateModelRequest model);
+
     }
 }
