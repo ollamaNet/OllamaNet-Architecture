@@ -2,7 +2,7 @@
 using Ollama_Component.Services.ChatService.DTOs;
 using OllamaSharp.Models.Chat;
 
-namespace Ollama_Component.Mappers.ChatMappers
+namespace Ollama_Component.Services.ChatService.Mappers
 {
 
     public static class ChatRequestMapper

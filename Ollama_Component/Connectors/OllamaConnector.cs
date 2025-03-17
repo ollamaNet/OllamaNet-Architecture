@@ -11,7 +11,7 @@ using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using Model = OllamaSharp.Models.Model;
 using OpenTelemetry.Trace;
-using Ollama_Component.Mappers.ChatMappers;
+using Ollama_Component.Services.ChatService.Mappers;
 
 namespace Ollama_Component.Connectors
 {

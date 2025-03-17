@@ -1,12 +1,8 @@
-﻿using Microsoft.SemanticKernel.ChatCompletion;
-using Ollama_Component.Controllers;
-using Ollama_Component.Services.AdminServices.DTOs;
-using Ollama_Component.Services.ExploreService.DTOs;
+﻿using Ollama_Component.Services.AdminServices.DTOs;
 using Ollama_DB_layer.Entities;
 using OllamaSharp.Models;
-using OllamaSharp.Models.Chat;
 
-namespace Ollama_Component.Mappers.DbMappers
+namespace Ollama_Component.Services.AdminServices.Mappers
 {
     public static class AIModelMapper
     {
@@ -45,8 +41,8 @@ namespace Ollama_Component.Mappers.DbMappers
                 ParameterCount = (long)(OllamaModel.Info?.ParameterCount), // No forced default
                 QuantizationVersion = (int)(OllamaModel.Info?.QuantizationVersion), // No forced default
 
-                SizeLabel = "sizelable" , 
-                ModelType = "modeltype ", 
+                SizeLabel = "sizelable",
+                ModelType = "modeltype ",
 
                 CreatedAt = DateTime.UtcNow, // Always set this
             };
@@ -90,41 +86,6 @@ namespace Ollama_Component.Mappers.DbMappers
 
             return DBModel;
         }
-
-        public static ModelInfoResponse FromModelInfoResposne(this AIModel DBmodel)
-        {
-            if (DBmodel == null) throw new ArgumentNullException(nameof(DBmodel));
-
-            ModelInfoResponse model = new () 
-            {
-                Name = DBmodel.Name,
-                Description = DBmodel.Description,
-                Version = DBmodel.Version,
-                Size = DBmodel.Size,
-                Digest = DBmodel.Digest,
-                Format = DBmodel.Format,
-                ParameterSize = DBmodel.ParameterSize,
-                QuantizationLevel = DBmodel.QuantizationLevel,
-                ReleasedAt = DBmodel.ReleasedAt,
-                ReferenceLink = DBmodel.ReferenceLink,
-                License = DBmodel.License,
-                ModelFile = DBmodel.ModelFile,
-                Template = DBmodel.Template,
-                ParentModel = DBmodel.ParentModel,
-                Family = DBmodel.Family,
-                Families = DBmodel.Families,
-                Languages = DBmodel.Languages,
-                Architecture = DBmodel.Architecture,
-                FileType = DBmodel.FileType,
-                ParameterCount = DBmodel.ParameterCount,
-                QuantizationVersion = DBmodel.QuantizationVersion,
-                SizeLabel = DBmodel.SizeLabel,
-                ModelType = DBmodel.ModelType
-            };
-            return model;
-
-        }
-
 
     }
 }

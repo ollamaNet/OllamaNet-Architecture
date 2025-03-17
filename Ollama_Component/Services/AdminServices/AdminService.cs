@@ -3,8 +3,8 @@ using OllamaSharp.Models;
 using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AdminServices.DTOs;
 using Model = OllamaSharp.Models.Model;
-using Ollama_Component.Mappers.DbMappers;
 using Ollama_DB_layer.UOW;
+using Ollama_Component.Services.AdminServices.Mappers;
 
 
 namespace Ollama_Component.Services.AdminServices
