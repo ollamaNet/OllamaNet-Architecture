@@ -66,14 +66,4 @@ public static class HistoryMapper
         };
     }
 
-    public static Conversation ToConversation(this PromptRequest request)
-    {
-        return new Conversation
-        {
-            CreatedAt = DateTime.UtcNow,
-            SystemMessage = request.SystemMessage,
-            User_Id = request.UserId,
-            AI_Id = request.Model
-        };
-    }
 }

@@ -6,14 +6,13 @@ namespace Ollama_Component.Services.ChatService.Mappers
 {
     public static class ModelResponseMapper
     {
-        public static EndpointChatResponse ToModelResponse(this OllamaModelResponse ollamaResponse, PromptRequest prompt)
+        public static ChatResponse ToModelResponse(this OllamaModelResponse ollamaResponse, PromptRequest prompt)
         {
             if (ollamaResponse == null) throw new ArgumentNullException(nameof(ollamaResponse));
 
 
-            EndpointChatResponse response = new()
+            ChatResponse response = new()
             {
-                UserId = prompt.UserId,
                 ConversationId = prompt.ConversationId,
                 ResposneId = Guid.NewGuid().ToString(),
                 Content = ollamaResponse.Content,

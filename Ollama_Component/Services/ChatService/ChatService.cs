@@ -65,7 +65,7 @@ namespace Ollama_Component.Services.ChatService
 
 
 
-        public async Task<EndpointChatResponse> GetModelResponse(PromptRequest request)
+        public async Task<ChatResponse> GetModelResponse(PromptRequest request)
         {
             if (request is null)
                 throw new ArgumentException("Message cannot be null or empty.", nameof(request));

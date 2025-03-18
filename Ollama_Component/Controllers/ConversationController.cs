@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -22,22 +23,29 @@ namespace Ollama_Component.Controllers
         private readonly IConversationService _conversationService;
         private readonly IValidator<PromptRequest> _promptValidator;
         private readonly IValidator<OpenConversationRequest> _conversationValidator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ConversationController(
             IChatService chatService,
             IConversationService conversationService,
             IValidator<PromptRequest> promptValidator,
-            IValidator<OpenConversationRequest> conversationValidator)
+            IValidator<OpenConversationRequest> conversationValidator,
+            IHttpContextAccessor httpContextAccessor)
         {
             _chatService = chatService;
             _conversationService = conversationService;
             _promptValidator = promptValidator;
             _conversationValidator = conversationValidator;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("Chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
 
             var validationResult = await _promptValidator.ValidateAsync(request);
@@ -83,17 +91,25 @@ namespace Ollama_Component.Controllers
         [HttpPost("OpenConversation")]
         public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             var validationResult = await _conversationValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
 
-            var response = await _conversationService.CreateConversationAsync(request);
+            var response = await _conversationService.CreateConversationAsync(userId, request);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversations/{userId}")]
-        public async Task<IActionResult> GetConversations(string userId)
+        [HttpGet("GetConversations")]
+        public async Task<IActionResult> GetConversations()
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             if (!Guid.TryParse(userId, out _))
                 return BadRequest(new { error = "Invalid UserId", details = "UserId must be a valid GUID" });
 
@@ -126,7 +142,6 @@ namespace Ollama_Component.Controllers
         public PromptRequestValidator()
         {
             RuleFor(x => x.ConversationId).NotEmpty().Must(BeValidGuid).WithMessage("ConversationId must be a valid GUID");
-            RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.Model).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
             //RuleFor(x => x.Options.Temperature).NotEmpty();
@@ -138,7 +153,7 @@ namespace Ollama_Component.Controllers
     {
         public OpenConversationRequestValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
+            //RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.ModelName).NotEmpty();
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);

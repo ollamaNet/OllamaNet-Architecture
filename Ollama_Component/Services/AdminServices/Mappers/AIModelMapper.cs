@@ -6,7 +6,7 @@ namespace Ollama_Component.Services.AdminServices.Mappers
 {
     public static class AIModelMapper
     {
-        public static AIModel FromOllamaToAIModel(this AddModelRequest addModelRequest, ShowModelResponse OllamaModel)
+        public static AIModel FromOllamaToAIModel(this AddModelRequest addModelRequest, ShowModelResponse OllamaModel, string userId)
         {
             if (addModelRequest == null) throw new ArgumentNullException(nameof(addModelRequest));
             if (OllamaModel == null) throw new ArgumentNullException(nameof(OllamaModel));
@@ -14,7 +14,7 @@ namespace Ollama_Component.Services.AdminServices.Mappers
             AIModel DBModel = new()
             {
                 // Attributes taken from the admin manually
-                User_Id = addModelRequest.UserId,
+                User_Id = userId,
                 Name = addModelRequest.Name,
                 Description = addModelRequest.Description,
                 Version = addModelRequest.Version,
@@ -51,13 +51,13 @@ namespace Ollama_Component.Services.AdminServices.Mappers
         }
 
 
-        public static AIModel FromRequestToAIModel(this AddModelRequest model)
+        public static AIModel FromRequestToAIModel(this AddModelRequest model, string userId)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
 
             AIModel DBModel = new()
             {
-                User_Id = model.UserId,
+                User_Id = userId,
                 Name = model.Name,
                 Description = model.Description,
                 Version = model.Version,

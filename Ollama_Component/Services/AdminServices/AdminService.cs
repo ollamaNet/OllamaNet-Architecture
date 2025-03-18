@@ -20,6 +20,55 @@ namespace Ollama_Component.Services.AdminServices
             _unitOfWork = unitOfWork;
         }
 
+
+
+
+        public async Task<AIModel?> AddModelAsync(AddModelRequest model, string userId)
+        {
+
+            if (model == null || string.IsNullOrWhiteSpace(model.Name))
+                throw new ArgumentException("Invalid model data. Model name is required.");
+
+            AIModel? dbModel ;
+
+            if (!model.FromOllama)
+                dbModel = AIModelMapper.FromRequestToAIModel(model, userId);
+            else
+            {
+                var ollamaModelInfo = await ModelInfoAsync(model.Name);
+                if (ollamaModelInfo == null)
+                    throw new InvalidOperationException("Model not installed in Ollama.");
+
+                dbModel = AIModelMapper.FromOllamaToAIModel(model, ollamaModelInfo, userId);
+            }
+
+            if (dbModel == null)
+                throw new InvalidOperationException("Failed to create AI model.");
+
+            if (model.Tags != null)
+            {
+                foreach (var tag in model.Tags)
+                {
+                    var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(tag.TagId);
+                    if (dbTag == null)
+                        throw new InvalidOperationException("Tag not found.");
+
+                    await _unitOfWork.ModelTagRepo.AddAsync(new ModelTag { AIModel_Id = dbModel.Name, Tag_Id = tag.TagId });
+                }
+            }
+
+            await _unitOfWork.AIModelRepo.AddAsync(dbModel);
+            await _unitOfWork.SaveChangesAsync();
+
+            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name);
+        }
+
+
+
+
+
+
+
         public async Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int PageSize)
         {
             var models = await _ollamaConnector.GetInstalledModelsPaged(pageNumber, PageSize)
@@ -39,44 +88,6 @@ namespace Ollama_Component.Services.AdminServices
         }
 
 
-        public async Task<AIModel?> AddModelAsync(AddModelRequest model)
-        {
-            if (model == null || string.IsNullOrWhiteSpace(model.Name))
-                throw new ArgumentException("Invalid model data. Model name is required.");
-
-            AIModel? dbModel = null;
-
-            if (!model.FromOllama)
-                dbModel = AIModelMapper.FromRequestToAIModel(model);
-            else
-            {
-                var ollamaModelInfo = await ModelInfoAsync(model.Name);
-                if (ollamaModelInfo == null)
-                    throw new InvalidOperationException("Model not installed in Ollama.");
-
-                dbModel = AIModelMapper.FromOllamaToAIModel(model, ollamaModelInfo);
-            }
-
-            if (dbModel == null)
-                throw new InvalidOperationException("Failed to create AI model.");
-
-            if(model.Tags != null)
-            {
-                foreach (var tag in model.Tags)
-                {
-                    var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(tag.TagId);
-                    if (dbTag == null)
-                        throw new InvalidOperationException("Tag not found.");
-
-                    await _unitOfWork.ModelTagRepo.AddAsync(new ModelTag { AIModel_Id = dbModel.Name, Tag_Id = tag.TagId });
-                }
-            }
-
-            await _unitOfWork.AIModelRepo.AddAsync(dbModel);
-            await _unitOfWork.SaveChangesAsync();
-
-            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name);
-        }
 
 
         public async Task<string> UninstllModelAsync(RemoveModelRequest model)
@@ -176,7 +187,7 @@ namespace Ollama_Component.Services.AdminServices
         }
 
 
-        public async Task<IEnumerable<ApplicationUser>> GetUsers()
+        public async Task<IEnumerable<ApplicationUser>> GetAllUsers()
         {
             var users = await _unitOfWork.ApplicationUserRepo.GetAllAsync();
             return users;
