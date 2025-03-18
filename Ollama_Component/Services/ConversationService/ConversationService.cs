@@ -1,4 +1,4 @@
-﻿using Ollama_Component.Services.ConversationService.Models;
+﻿using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
@@ -14,7 +14,7 @@ namespace Ollama_Component.Services.ConversationService
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OpenConversationResponse> CreateConversationAsync(OpenConversationRequest request)
+        public async Task<OpenConversationResponse> CreateConversationAsync(string userId, OpenConversationRequest request)
         {
             if (request == null)
             {
@@ -22,7 +22,7 @@ namespace Ollama_Component.Services.ConversationService
             }
             var conversation = new Conversation
             {
-                User_Id = request.UserId,
+                User_Id = userId,
                 AI_Id = request.ModelName,
                 SystemMessage = request.SystemMessage,
                 CreatedAt = DateTime.UtcNow

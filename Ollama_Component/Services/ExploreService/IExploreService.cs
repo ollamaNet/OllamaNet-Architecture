@@ -1,4 +1,4 @@
-﻿using Ollama_Component.Services.ExploreService.Models;
+﻿using Ollama_Component.Services.ExploreService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;

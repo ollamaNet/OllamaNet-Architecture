@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Ollama_DB_layer.Entities;
 using Ollama_Component.Services.AuthService.Helpers;
-using Ollama_Component.Services.AuthService.Models;
+using Ollama_Component.Services.AuthService.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -39,7 +39,7 @@ namespace Ollama_Component.Services.AuthService
                 return null;
             }
 
-            var userIdClaim = claimsPrincipal.FindFirst("uid");
+            var userIdClaim = claimsPrincipal.FindFirst("UserId");
             if (userIdClaim == null)
             {
                 Console.WriteLine("User ID claim not found in token.");
