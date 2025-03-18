@@ -38,6 +38,9 @@ namespace Ollama_Component.Services.ExploreService.DTOs
 
         public string ReferenceLink { get; set; }
 
+        public string ImageUrl { get; set; }
+
+
         [MaxLength(int.MaxValue)]
         public string License { get; set; }
 

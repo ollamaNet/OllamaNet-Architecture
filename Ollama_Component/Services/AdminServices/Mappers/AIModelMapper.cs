@@ -6,7 +6,7 @@ namespace Ollama_Component.Services.AdminServices.Mappers
 {
     public static class AIModelMapper
     {
-        public static AIModel FromOllamaToAIModel(this AddModelRequest addModelRequest, ShowModelResponse OllamaModel)
+        public static AIModel FromOllamaToAIModel(this AddModelRequest addModelRequest, ShowModelResponse OllamaModel, string userId)
         {
             if (addModelRequest == null) throw new ArgumentNullException(nameof(addModelRequest));
             if (OllamaModel == null) throw new ArgumentNullException(nameof(OllamaModel));
@@ -14,7 +14,7 @@ namespace Ollama_Component.Services.AdminServices.Mappers
             AIModel DBModel = new()
             {
                 // Attributes taken from the admin manually
-                User_Id = addModelRequest.UserId,
+                User_Id = userId,
                 Name = addModelRequest.Name,
                 Description = addModelRequest.Description,
                 Version = addModelRequest.Version,
@@ -22,6 +22,9 @@ namespace Ollama_Component.Services.AdminServices.Mappers
                 Size = addModelRequest.Size,
                 ReleasedAt = addModelRequest.ReleasedAt,
                 ReferenceLink = addModelRequest.ReferenceLink,
+                ImageUrl = addModelRequest.ImageUrl,
+                SizeLabel = addModelRequest.SizeLabel,
+                ModelType = addModelRequest.ModelType,
 
                 // Attributes taken from Ollama/show model
                 Format = OllamaModel.Details?.Format,
@@ -41,8 +44,6 @@ namespace Ollama_Component.Services.AdminServices.Mappers
                 ParameterCount = (long)(OllamaModel.Info?.ParameterCount), // No forced default
                 QuantizationVersion = (int)(OllamaModel.Info?.QuantizationVersion), // No forced default
 
-                SizeLabel = "sizelable",
-                ModelType = "modeltype ",
 
                 CreatedAt = DateTime.UtcNow, // Always set this
             };
@@ -51,36 +52,37 @@ namespace Ollama_Component.Services.AdminServices.Mappers
         }
 
 
-        public static AIModel FromRequestToAIModel(this AddModelRequest model)
+        public static AIModel FromRequestToAIModel(this AddModelRequest addModelRequest, string userId)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (addModelRequest == null) throw new ArgumentNullException(nameof(addModelRequest));
 
             AIModel DBModel = new()
             {
-                User_Id = model.UserId,
-                Name = model.Name,
-                Description = model.Description,
-                Version = model.Version,
-                Digest = model.Digest,
-                Size = model.Size,
-                ReleasedAt = model.ReleasedAt,
-                ReferenceLink = model.ReferenceLink,
-                Format = model.Format,
-                ParameterSize = model.ParameterSize,
-                QuantizationLevel = model.QuantizationLevel,
-                License = model.License,
-                ModelFile = model.ModelFile,
-                Template = model.Template,
-                ParentModel = model.ParentModel,
-                Family = model.Family,
-                Families = model.Families != null ? new List<string>(model.Families) : new List<string>(),
-                Languages = model.Languages != null ? new List<string>(model.Languages) : new List<string>(),
-                Architecture = model.Architecture,
-                FileType = model.FileType,
-                ParameterCount = model.ParameterCount,
-                QuantizationVersion = model.QuantizationVersion,
-                SizeLabel = model.SizeLabel,
-                ModelType = model.ModelType,
+                User_Id = userId,
+                Name = addModelRequest.Name,
+                Description = addModelRequest.Description,
+                Version = addModelRequest.Version,
+                Digest = addModelRequest.Digest,
+                Size = addModelRequest.Size,
+                ReleasedAt = addModelRequest.ReleasedAt,
+                ReferenceLink = addModelRequest.ReferenceLink,
+                ImageUrl = addModelRequest.ImageUrl,
+                Format = addModelRequest.Format,
+                ParameterSize = addModelRequest.ParameterSize,
+                QuantizationLevel = addModelRequest.QuantizationLevel,
+                License = addModelRequest.License,
+                ModelFile = addModelRequest.ModelFile,
+                Template = addModelRequest.Template,
+                ParentModel = addModelRequest.ParentModel,
+                Family = addModelRequest.Family,
+                Families = addModelRequest.Families != null ? new List<string>(addModelRequest.Families) : new List<string>(),
+                Languages = addModelRequest.Languages != null ? new List<string>(addModelRequest.Languages) : new List<string>(),
+                Architecture = addModelRequest.Architecture,
+                FileType = addModelRequest.FileType,
+                ParameterCount = addModelRequest.ParameterCount,
+                QuantizationVersion = addModelRequest.QuantizationVersion,
+                SizeLabel = addModelRequest.SizeLabel,
+                ModelType = addModelRequest.ModelType,
                 CreatedAt = DateTime.UtcNow,
             };
 

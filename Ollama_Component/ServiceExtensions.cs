@@ -123,9 +123,9 @@ namespace Ollama_Component
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IExploreService, ExploreService>();
-
             services.AddScoped<IValidator<PromptRequest>, PromptRequestValidator>();
             services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+
         }
 
         // Register CORS

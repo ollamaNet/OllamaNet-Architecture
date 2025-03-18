@@ -5,16 +5,18 @@ namespace Ollama_Component.Services.AdminServices.DTOs
 
     public class AddModelRequest
     {
-
-        public string UserId { get; set; }
-        public bool FromOllama { get; set; }
-        public string Name { get; set; }    
+        public string Name { get; set; }
 
         public string Description { get; set; }
 
         public string Version { get; set; }
 
         public string Size { get; set; }
+
+        public DateTime ReleasedAt { get; set; }
+        public string ReferenceLink { get; set; }
+        public string ImageUrl { get; set; }
+        public bool FromOllama { get; set; }
 
         public string Digest { get; set; }
 
@@ -24,9 +26,6 @@ namespace Ollama_Component.Services.AdminServices.DTOs
 
         public string QuantizationLevel { get; set; }
 
-
-        public DateTime ReleasedAt { get; set; }
-        public string ReferenceLink { get; set; }
         public string License { get; set; }
 
         public string ModelFile { get; set; }

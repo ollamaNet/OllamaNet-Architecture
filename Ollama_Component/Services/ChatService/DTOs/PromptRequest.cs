@@ -12,8 +12,6 @@ namespace Ollama_Component.Services.ChatService.DTOs
         [JsonPropertyName("ConversationId")]
         public string ConversationId { get; set; }
 
-        [JsonPropertyName("UserId")]
-        public string UserId { get; set; }
 
         [NotMapped]
         [JsonPropertyName("model")]

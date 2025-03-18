@@ -6,6 +6,7 @@ using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Ollama_Component.Controllers
 {
@@ -15,19 +16,25 @@ namespace Ollama_Component.Controllers
     public class AdminController : ControllerBase
     {
         public IAdminService AdminService { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IHttpContextAccessor httpContextAccessor)
         {
             AdminService = adminService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("AddModel")]
         public async Task<IActionResult> AddModel([FromBody] AddModelRequest model)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             if (model == null)
                 return BadRequest("Request body cannot be null.");
 
-            var response = await AdminService.AddModelAsync(model);
+            var response = await AdminService.AddModelAsync(model, userId);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
@@ -143,7 +150,7 @@ namespace Ollama_Component.Controllers
         [HttpGet("Users")]
         public async Task<IActionResult> Users()
         {
-            var users = await AdminService.GetUsers();
+            var users = await AdminService.GetAllUsers();
             return Ok(users);
         }
     }

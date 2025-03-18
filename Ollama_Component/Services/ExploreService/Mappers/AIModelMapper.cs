@@ -21,6 +21,7 @@ namespace Ollama_Component.Services.ExploreService.Mappers
                 QuantizationLevel = DBmodel.QuantizationLevel,
                 ReleasedAt = DBmodel.ReleasedAt,
                 ReferenceLink = DBmodel.ReferenceLink,
+                ImageUrl = DBmodel.ImageUrl,
                 License = DBmodel.License,
                 ModelFile = DBmodel.ModelFile,
                 Template = DBmodel.Template,
@@ -29,9 +30,10 @@ namespace Ollama_Component.Services.ExploreService.Mappers
                 Families = DBmodel.Families,
                 Languages = DBmodel.Languages,
                 Architecture = DBmodel.Architecture,
-                FileType = DBmodel.FileType ?? 0, // Fix for CS0266 and CS8629
-                ParameterCount = DBmodel.ParameterCount ?? 0,
-                QuantizationVersion = DBmodel.QuantizationVersion ?? 0,
+
+                FileType = (int)DBmodel.FileType,
+                ParameterCount = (long)DBmodel.ParameterCount,
+                QuantizationVersion = (int)DBmodel.QuantizationVersion,
                 SizeLabel = DBmodel.SizeLabel,
                 ModelType = DBmodel.ModelType,
                 Tags = DBmodel.ModelTags.Select(modelTag => new GetTagsResponse { Id = modelTag.Tag.Id, Name = modelTag.Tag.Name }).ToList()
