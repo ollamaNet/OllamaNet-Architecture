@@ -35,6 +35,7 @@ using FluentValidation;
 using Ollama_Component.Controllers;
 using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_Component.Services.ConversationService.DTOs;
+using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 
 namespace Ollama_Component
 {
@@ -105,6 +106,8 @@ namespace Ollama_Component
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
+
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
