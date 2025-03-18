@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -22,17 +23,20 @@ namespace Ollama_Component.Controllers
         private readonly IConversationService _conversationService;
         private readonly IValidator<PromptRequest> _promptValidator;
         private readonly IValidator<OpenConversationRequest> _conversationValidator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ConversationController(
             IChatService chatService,
             IConversationService conversationService,
             IValidator<PromptRequest> promptValidator,
-            IValidator<OpenConversationRequest> conversationValidator)
+            IValidator<OpenConversationRequest> conversationValidator,
+            IHttpContextAccessor httpContextAccessor)
         {
             _chatService = chatService;
             _conversationService = conversationService;
             _promptValidator = promptValidator;
             _conversationValidator = conversationValidator;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("Chat")]
@@ -83,11 +87,15 @@ namespace Ollama_Component.Controllers
         [HttpPost("OpenConversation")]
         public async Task<IActionResult> OpenConversation([FromBody] OpenConversationRequest request)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             var validationResult = await _conversationValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
 
-            var response = await _conversationService.CreateConversationAsync(request);
+            var response = await _conversationService.CreateConversationAsync(userId, request);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
@@ -138,7 +146,7 @@ namespace Ollama_Component.Controllers
     {
         public OpenConversationRequestValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
+            //RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.ModelName).NotEmpty();
         }
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
