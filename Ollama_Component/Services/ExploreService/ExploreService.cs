@@ -1,10 +1,9 @@
-﻿using Ollama_Component.Mappers.DbMappers;
-using Ollama_Component.Services.ExploreService.Models;
+﻿using Ollama_Component.Services.ExploreService.Mappers;
+using Ollama_Component.Services.ExploreService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
-using System.Security.Principal;
 
 namespace Ollama_Component.Services.ExploreService
 {
@@ -34,7 +33,7 @@ namespace Ollama_Component.Services.ExploreService
                 throw new InvalidOperationException("Failed to retrieve model info.");
             }
 
-            var modelinfo = AIModelMapper.FromModelInfoResposne(DBmodel);
+            var modelinfo = ModelMapper.FromModelInfoResposne(DBmodel);
 
             return modelinfo;
         }
@@ -48,6 +47,18 @@ namespace Ollama_Component.Services.ExploreService
             }
 
             return modeList;
+        }
+
+        public async Task<List<GetTagsResponse>> GetTags()
+        {
+            var tags = await _unitOfWork.TagRepo.GetAllAsync();
+            if (tags == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve tags.");
+            }
+            var mappedTags = tags.ToGetTagsResponse();
+
+            return mappedTags;
         }
 
     }

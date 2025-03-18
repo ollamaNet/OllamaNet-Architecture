@@ -4,14 +4,14 @@ using Azure.Core;
 using System.Threading;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Ollama_Component.Services.AdminServices.Models;
-using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
+using Ollama_Component.Services.ChatService.DTOs;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using Model = OllamaSharp.Models.Model;
 using OpenTelemetry.Trace;
-using Ollama_Component.Mappers.ChatMappers;
+using Ollama_Component.Services.ChatService.Mappers;
 
 namespace Ollama_Component.Connectors
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ollama_Component.Services.ExploreService;
-using Ollama_Component.Services.ExploreService.Models;
+using Ollama_Component.Services.ExploreService.DTOs;
 using OllamaSharp.Models;
 
 namespace Ollama_Component.Controllers
@@ -39,6 +39,13 @@ namespace Ollama_Component.Controllers
                 return BadRequest("Model name cannot be empty.");
 
             var response = await _exploreService.ModelInfo(modelName);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpGet("GetTags")]
+        public async Task<IActionResult> GetTags()
+        {
+            var response = await _exploreService.GetTags();
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
     }
