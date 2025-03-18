@@ -19,7 +19,7 @@ namespace Ollama_Component.Services.AuthService.Helpers
         }
 
 
-        // Tolen Generation Function
+        // Token Generation Function
         public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
         {
             var userClaims = await userManager.GetClaimsAsync(user);
