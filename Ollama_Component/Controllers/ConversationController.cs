@@ -42,6 +42,10 @@ namespace Ollama_Component.Controllers
         [HttpPost("Chat")]
         public async Task<IActionResult> Chat([FromBody] PromptRequest request)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             request.CreatedAt = DateTime.UtcNow; // Set the CreatedAt property to the current UTC time
 
             var validationResult = await _promptValidator.ValidateAsync(request);
@@ -99,9 +103,13 @@ namespace Ollama_Component.Controllers
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
         }
 
-        [HttpGet("GetConversations/{userId}")]
-        public async Task<IActionResult> GetConversations(string userId)
+        [HttpGet("GetConversations")]
+        public async Task<IActionResult> GetConversations()
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             if (!Guid.TryParse(userId, out _))
                 return BadRequest(new { error = "Invalid UserId", details = "UserId must be a valid GUID" });
 
@@ -134,7 +142,6 @@ namespace Ollama_Component.Controllers
         public PromptRequestValidator()
         {
             RuleFor(x => x.ConversationId).NotEmpty().Must(BeValidGuid).WithMessage("ConversationId must be a valid GUID");
-            RuleFor(x => x.UserId).NotEmpty().Must(BeValidGuid).WithMessage("UserId must be a valid GUID");
             RuleFor(x => x.Model).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
             //RuleFor(x => x.Options.Temperature).NotEmpty();

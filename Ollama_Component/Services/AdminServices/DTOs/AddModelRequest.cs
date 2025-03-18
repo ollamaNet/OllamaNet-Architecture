@@ -5,10 +5,9 @@ namespace Ollama_Component.Services.AdminServices.DTOs
 
     public class AddModelRequest
     {
+        public string Name { get; set; }
 
-        public string UserId { get; set; }
         public bool FromOllama { get; set; }
-        public string Name { get; set; }    
 
         public string Description { get; set; }
 
