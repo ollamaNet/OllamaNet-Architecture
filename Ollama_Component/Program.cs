@@ -11,6 +11,8 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
+
+
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
@@ -24,6 +26,9 @@ public class Program
         builder.Services.ConfigureSwagger();
 
         var app = builder.Build();
+
+
+
 
         app.MapDefaultEndpoints();
 
@@ -47,6 +52,7 @@ public class Program
         app.UseAuthentication();
         app.UseMiddleware<TokenValidationMiddleware>(); 
         app.UseAuthorization();
+
 
         app.MapControllers();
 

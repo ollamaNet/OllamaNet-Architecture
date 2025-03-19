@@ -38,6 +38,7 @@ namespace Ollama_Component.Services.ExploreService
             return modelinfo;
         }
 
+
         public async Task<IEnumerable<ModelCard>> GetTagModels(string tagId)
         {
             var modeList = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
@@ -46,9 +47,10 @@ namespace Ollama_Component.Services.ExploreService
                 throw new InvalidOperationException("Failed to retrieve model info.");
             }
 
-        //    return modeList;
-        //}
+            return modeList;
+        }
 
+       
         public async Task<List<GetTagsResponse>> GetTags()
         {
             var tags = await _unitOfWork.TagRepo.GetAllAsync();

@@ -67,6 +67,10 @@ namespace Ollama_Component.Services.AuthService
                 Email = model.Email,
             };
 
+
+            user.TokenVersion = 1; // Set tokenversion 
+            await _userManager.UpdateAsync(user);
+
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
@@ -102,8 +106,7 @@ namespace Ollama_Component.Services.AuthService
         }
 
 
-
-        // Login service
+          //login service
         public async Task<AuthModel> LoginUserAsync(TokenRequestModel model)
         {
             var authModel = new AuthModel();
@@ -125,7 +128,7 @@ namespace Ollama_Component.Services.AuthService
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
 
-                //refreshtoken
+            //refreshtoken
             if (user.RefreshTokens.Any(t => t.IsActive))
             {
                 var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
@@ -288,58 +291,53 @@ namespace Ollama_Component.Services.AuthService
 
 
 
-          //refreshtoken service
+         //refreshtoken service
         public async Task<AuthModel> RefreshTokenAsync(string refreshtoken)
         {
             var authModel = new AuthModel();
 
-              var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
-
+            var user = await _userManager.Users
+                .SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
 
             if (user == null)
             {
-                // authModel.IsAuthenticated = false;
-                authModel.Message = "invalid token";
+                authModel.Message = "Invalid token";
                 return authModel;
-
             }
 
             var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
 
             if (!rtoken.IsActive)
             {
-                // authModel.IsAuthenticated = false;
-                authModel.Message = "inactive token";
+                authModel.Message = "Inactive token";
                 return authModel;
-
             }
 
-            rtoken.RevokedOn = DateTime.UtcNow;
+            // Remove old refresh token and invalidate previous access tokens
+            user.RefreshTokens.Remove(rtoken);
 
-            //  Increment TokenVersion (invalidates old access tokens)
-            user.TokenVersion++;
+            user.TokenVersion++; //  Ensure old access tokens are invalid
 
+            // Generate a new refresh token
             var NewRToken = _jwtManager.GenerateRefreshToken();
-
             user.RefreshTokens.Add(NewRToken);
 
-            await _userManager.UpdateAsync(user);
+            await _userManager.UpdateAsync(user); // 🔹 Save user before generating a new JWT
 
             var NewJwtToken = await _jwtManager.CreateJwtToken(user, _userManager);
 
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(NewJwtToken);
-           // authModel.Email = user.Email;
-           // authModel.Username = user.UserName;
-          //  var roles = await _userManager.GetRolesAsync(user);
-          // authModel.Roles = roles.ToList();
+            authModel.Email = user.Email;
+            authModel.Username = user.UserName;
+            var roles = await _userManager.GetRolesAsync(user);
+            authModel.Roles = roles.ToList();
             authModel.RefreshToken = NewRToken.Token;
             authModel.RefreshTokenExpiration = NewRToken.ExpiresOn;
 
             return authModel;
-
-
         }
+
 
 
 
@@ -362,7 +360,11 @@ namespace Ollama_Component.Services.AuthService
                 return false;
             }
 
+             
+
             rtoken.RevokedOn = DateTime.UtcNow;
+
+            user.TokenVersion++;
 
             await _userManager.UpdateAsync(user);
 

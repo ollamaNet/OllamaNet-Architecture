@@ -11,15 +11,14 @@ namespace Ollama_Component.Services.AuthService.Helpers
     public class TokenValidationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly JwtSecurityTokenHandler _tokenHandler;
-
         private readonly JWT _jwt;
 
-        public TokenValidationMiddleware(RequestDelegate next, UserManager<ApplicationUser> userManager, IOptions<JWT> jwt)
+        public TokenValidationMiddleware(RequestDelegate next, IServiceScopeFactory scopeFactory, IOptions<JWT> jwt)
         {
             _next = next;
-            _userManager = userManager;
+            _scopeFactory = scopeFactory;
             _tokenHandler = new JwtSecurityTokenHandler();
             _jwt = jwt.Value;
         }
@@ -34,20 +33,30 @@ namespace Ollama_Component.Services.AuthService.Helpers
 
                 if (principal != null)
                 {
-                    var userId = principal.FindFirst("uid")?.Value;
+                    var userId = principal.FindFirst("UserId")?.Value;
                     var tokenVersionFromJwt = int.Parse(principal.FindFirst("token_version")?.Value ?? "0");
 
-                    var user = await _userManager.FindByIdAsync(userId);
+                   
+                    using var scope = _scopeFactory.CreateScope();
+                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-                    if (user == null || user.TokenVersion != tokenVersionFromJwt)
+                    var user = await userManager.FindByIdAsync(userId);
+
+                    if (user == null || user.TokenVersion > tokenVersionFromJwt)
                     {
-                        context.Response.StatusCode = 401;
-                        await context.Response.WriteAsync("Invalid token. Please log in again.");
+                        
+                        if (!context.Response.HasStarted)
+                        {
+                            context.Response.StatusCode = 401;
+                            await context.Response.WriteAsync("Token has been invalidated");
+                        }
                         return;
                     }
+
+
                 }
             }
-
+            
             await _next(context);
         }
 
@@ -80,6 +89,7 @@ namespace Ollama_Component.Services.AuthService.Helpers
             }
         }
     }
+
 
 
 

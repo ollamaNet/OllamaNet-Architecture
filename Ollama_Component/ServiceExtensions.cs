@@ -53,11 +53,16 @@ namespace Ollama_Component
             })
             .AddEntityFrameworkStores<MyDbContext>()
             .AddDefaultTokenProviders();
+
+
         }
+
 
         // Register Authentication & Authorization
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
+          
+
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddScoped<JWTManager>();
             services.AddScoped<IAuthService, AuthService>();
