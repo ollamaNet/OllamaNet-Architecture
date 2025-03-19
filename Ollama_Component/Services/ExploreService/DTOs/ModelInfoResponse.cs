@@ -80,5 +80,7 @@ namespace Ollama_Component.Services.ExploreService.DTOs
         [MaxLength(50)]
         public string ModelType { get; set; }
 
+        public ICollection<GetTagsResponse> Tags { get; set; }
+
     }
 }

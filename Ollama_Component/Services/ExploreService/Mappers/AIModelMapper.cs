@@ -9,7 +9,7 @@ namespace Ollama_Component.Services.ExploreService.Mappers
         {
             if (DBmodel == null) throw new ArgumentNullException(nameof(DBmodel));
 
-            ModelInfoResponse model = new () 
+            ModelInfoResponse model = new()
             {
                 Name = DBmodel.Name,
                 Description = DBmodel.Description,
@@ -30,16 +30,15 @@ namespace Ollama_Component.Services.ExploreService.Mappers
                 Families = DBmodel.Families,
                 Languages = DBmodel.Languages,
                 Architecture = DBmodel.Architecture,
+
                 FileType = (int)DBmodel.FileType,
                 ParameterCount = (long)DBmodel.ParameterCount,
                 QuantizationVersion = (int)DBmodel.QuantizationVersion,
                 SizeLabel = DBmodel.SizeLabel,
-                ModelType = DBmodel.ModelType
+                ModelType = DBmodel.ModelType,
+                Tags = DBmodel.ModelTags.Select(modelTag => new GetTagsResponse { Id = modelTag.Tag.Id, Name = modelTag.Tag.Name }).ToList()
             };
             return model;
-
         }
-
-
     }
 }

@@ -38,13 +38,13 @@ namespace Ollama_Component.Services.ExploreService
             return modelinfo;
         }
 
-        //public async Task<IEnumerable<AIModel>> GetTagModels(string tagId)
-        //{
-        //    var modeList = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
-        //    if (modeList == null)
-        //    {
-        //        throw new InvalidOperationException("Failed to retrieve model info.");
-        //    }
+        public async Task<IEnumerable<ModelCard>> GetTagModels(string tagId)
+        {
+            var modeList = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
+            if (modeList == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve model info.");
+            }
 
         //    return modeList;
         //}
