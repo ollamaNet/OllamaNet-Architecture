@@ -1,38 +1,46 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using Ollama_DB_layer.Entities;
-using Ollama_DB_layer.Repositories.AIModelRepo;
-using Ollama_Component.Services.AdminServices.Models;
-using OllamaSharp.Models;
+using Ollama_Component.Services.AdminServices.DTOs;
 using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Ollama_Component.Controllers
 {
+    [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
     {
         public IAdminService AdminService { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IHttpContextAccessor httpContextAccessor)
         {
             AdminService = adminService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("AddModel")]
         public async Task<IActionResult> AddModel([FromBody] AddModelRequest model)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
             if (model == null)
                 return BadRequest("Request body cannot be null.");
 
-            var response = await AdminService.AddModelAsync(model);
+            var response = await AdminService.AddModelAsync(model, userId);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpGet("OllamaModelInfo")]
+
+
+        [HttpGet("ModelInfoFromOllama")]
         public async Task<IActionResult> OllamaModelInfo(string ModelName)
         {
             if (string.IsNullOrWhiteSpace(ModelName))
@@ -42,8 +50,11 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPost("InstallModel")]
-        public async Task<IActionResult> InstallModel([FromBody] InstallModelRequest request)
+
+
+
+        [HttpPost("PullModel")]
+        public async Task<IActionResult> PullModel([FromBody] InstallModelRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.ModelName))
                 return BadRequest("Model name cannot be empty.");
@@ -104,6 +115,43 @@ namespace Ollama_Component.Controllers
 
             var response = await AdminService.UninstllModelAsync(model);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPost("AddTags")]
+        public async Task<IActionResult> AddTags([FromBody] List<string> tags)
+        {
+            if(tags == null || tags.Count == 0)
+                return BadRequest("Tags cannot be empty.");
+
+            var response = await AdminService.AddTags(tags);
+
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPost("AddTagsToModel/{modelId}")]
+        public async Task<IActionResult> AddTagsToModel(string modelId, [FromBody] ICollection<AddTagToModelRequest> request)
+        {
+            if(request == null || request.Count == 0)
+                return BadRequest("Request body cannot be empty.");
+            var response = await AdminService.AddTagsToModel(modelId, request);
+
+            return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpPatch("UpdateModel")]
+        public async Task<IActionResult> UpdateModel(UpdateModelRequest request)
+        {
+            if (request == null)
+                return BadRequest("Request body cannot be null.");
+            var response = await AdminService.UpdateModel(request);
+            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+        }
+
+        [HttpGet("Users")]
+        public async Task<IActionResult> Users()
+        {
+            var users = await AdminService.GetAllUsers();
+            return Ok(users);
         }
     }
 }

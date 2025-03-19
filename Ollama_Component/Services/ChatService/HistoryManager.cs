@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.UOW;
-using Ollama_Component.Services.ChatService.Models;
+using Ollama_Component.Services.ChatService.DTOs;
 using System;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -34,7 +34,8 @@ namespace Ollama_Component.Services.ChatService
             if (conv == null)
             {
                 _logger.LogWarning("No conversation found with ID: {ConversationId}", request.ConversationId);
-                return null;
+                //return new ChatHistory { };
+                throw new InvalidOperationException($"No conversation found with ID: {request.ConversationId}");
             }
 
             var messages = await _unitOfWork.GetHistoryRepo.GetHistoryForAIAsync(request.ConversationId);
