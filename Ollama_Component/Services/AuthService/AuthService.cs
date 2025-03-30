@@ -147,6 +147,38 @@ namespace Ollama_Component.Services.AuthService
 
 
 
+        //logout service
+        public async Task<bool> LoggoutAsync(string refreshtoken)
+        {
+            var authModel = new AuthModel();
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
+            if (user == null)
+            {
+                return false;
+
+            }
+
+            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
+
+            if (!rtoken.IsActive)
+            {
+                return false;
+
+            }
+
+            rtoken.RevokedOn = DateTime.UtcNow;
+
+
+
+            await _userManager.UpdateAsync(user);
+
+
+            return true;
+        }
+
+
+
         // Update Profile service
         public async Task<string> UpdateProfileAsync(UpdateProfileModel model, string token)
         {
@@ -156,6 +188,9 @@ namespace Ollama_Component.Services.AuthService
             {
                 return "User not found";
             }
+
+            if (await _userManager.FindByNameAsync(model.Username) is not null)
+                return  "Username is already registered!";
 
             user.Email = model.Email;
             user.UserName = model.Username;
@@ -285,9 +320,21 @@ namespace Ollama_Component.Services.AuthService
         }
 
 
+        //getroles service
+        public async Task<List<string>> GetRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
 
 
-          //refreshtoken service
+            if (user is null)
+                return new List<string>();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
+
+
+        //refreshtoken service
         public async Task<AuthModel> RefreshTokenAsync(string refreshtoken)
         {
             var authModel = new AuthModel();
@@ -335,53 +382,6 @@ namespace Ollama_Component.Services.AuthService
             return authModel;
 
 
-        }
-
-
-
-          //logout service
-        public async Task<bool> LoggoutAsync(string refreshtoken)
-        {
-            var authModel = new AuthModel();
-
-            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshtoken));
-            if (user == null)
-            {
-                return false;
-
-            }
-
-            var rtoken = user.RefreshTokens.Single(t => t.Token == refreshtoken);
-
-            if (!rtoken.IsActive)
-            {
-                return false;
-
-            }
-
-            rtoken.RevokedOn = DateTime.UtcNow;
-
-
-
-            await _userManager.UpdateAsync(user);
-
-
-            return true;
-        }
-
-
-
-        //getroles service
-        public async Task<List<string>> GetRolesAsync(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-       
-              if (user is null)
-              return new List<string>();
-
-             var roles = await _userManager.GetRolesAsync(user);
-                 return roles.ToList();
         }
     }
 }
