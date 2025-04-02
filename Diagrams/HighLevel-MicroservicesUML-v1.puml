@@ -1,0 +1,96 @@
+@startuml
+!theme plain
+skinparam componentStyle uml2
+
+package "API Gateway" {
+    [API Gateway] as gateway
+}
+
+package "Authentication Service" {
+    [Auth Service] as auth
+    [JWT Service] as jwt
+    [User Management] as user
+}
+
+package "Chat Services" {
+    [Chat Service] as chat
+    [Conversation Service] as conv
+    [Message Service] as msg
+}
+
+package "Explore Service" {
+    [Explore Service] as explore
+    [Discovery Service] as disc
+}
+
+package "Admin Services" {
+    [Admin Service] as admin
+    [Audit Service] as audit
+}
+
+package "Infrastructure" {
+    [Service Registry] as registry
+    [Config Server] as config
+    [Message Queue] as mq
+    [Distributed Cache] as cache
+    [Monitoring] as monitor
+}
+
+package "Databases" {
+    [Auth DB] as authdb
+    [Chat DB] as chatdb
+    [Explore DB] as exploredb
+    [Admin DB] as admindb
+}
+
+' External Systems
+[Ollama LLM] as ollama
+[External APIs] as external
+
+' Connections
+User -> gateway
+gateway --> auth
+gateway --> chat
+gateway --> explore
+gateway --> admin
+
+auth --> authdb
+chat --> chatdb
+explore --> exploredb
+admin --> admindb
+
+auth --> jwt
+chat --> conv
+conv --> msg
+explore --> disc
+
+' Service Discovery
+registry --> gateway
+registry --> auth
+registry --> chat
+registry --> explore
+registry --> admin
+
+' Message Queue Connections
+mq --> chat
+mq --> conv
+mq --> msg
+mq --> explore
+
+' Monitoring
+monitor --> gateway
+monitor --> auth
+monitor --> chat
+monitor --> explore
+monitor --> admin
+
+' External Connections
+chat --> ollama
+explore --> external
+
+' Cache Connections
+cache --> chat
+cache --> explore
+cache --> auth
+
+@enduml
