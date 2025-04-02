@@ -1,0 +1,32 @@
+@startuml
+!theme plain
+skinparam componentStyle uml2
+
+package "Chat Service" {
+    [Controller Layer] as controller
+    [Service Layer] as service
+    [Repository Layer] as repo
+    [Domain Layer] as domain
+    [Infrastructure Layer] as infra
+}
+
+package "External Dependencies" {
+    [Message Queue] as mq
+    [Service Registry] as registry
+    [Config Server] as config
+    [Database] as db
+}
+
+controller --> service
+service --> repo
+service --> domain
+repo --> domain
+repo --> db
+service --> mq
+service --> registry
+service --> config
+infra --> mq
+infra --> registry
+infra --> config
+
+@enduml

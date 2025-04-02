@@ -1,0 +1,57 @@
+@startuml
+!theme plain
+skinparam node {
+    BackgroundColor #EEEEEE
+    BorderColor #666666
+}
+
+cloud "Kubernetes Cluster" {
+    node "Service Pods" {
+        [API Gateway] as gateway
+        [Auth Service] as auth
+        [Chat Service] as chat
+        [Explore Service] as explore
+        [Admin Service] as admin
+    }
+    
+    node "Infrastructure" {
+        [Service Registry] as registry
+        [Config Server] as config
+        [Message Queue] as mq
+        [Monitoring] as monitor
+    }
+    
+    node "Databases" {
+        [Auth DB] as authdb
+        [Chat DB] as chatdb
+        [Explore DB] as exploredb
+        [Admin DB] as admindb
+    }
+}
+
+cloud "External Services" {
+    [Ollama LLM] as ollama
+    [External APIs] as external
+}
+
+gateway --> auth
+gateway --> chat
+gateway --> explore
+gateway --> admin
+
+registry --> gateway
+registry --> auth
+registry --> chat
+registry --> explore
+registry --> admin
+
+mq --> chat
+mq --> explore
+
+monitor --> gateway
+monitor --> auth
+monitor --> chat
+monitor --> explore
+monitor --> admin
+
+@enduml
