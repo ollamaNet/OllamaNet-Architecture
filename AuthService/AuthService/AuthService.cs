@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Ollama_DB_layer.Entities;
-using Ollama_Component.Services.AuthService.Helpers;
-using Ollama_Component.Services.AuthService.DTOs;
+using AuthenticationService.Helpers;
+using AuthenticationService.DTOs;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ollama_Component.Services.AuthService
+namespace AuthenticationService
 {
     public class AuthService : IAuthService
     {

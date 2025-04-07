@@ -1,10 +1,5 @@
-
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerUI;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 
 namespace Gateway;
 
