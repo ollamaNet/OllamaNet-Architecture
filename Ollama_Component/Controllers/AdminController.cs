@@ -13,7 +13,7 @@ namespace Ollama_Component.Controllers
     [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class AdminController : Controller
     {
         public IAdminService AdminService { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
