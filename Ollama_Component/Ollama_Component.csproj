@@ -21,11 +21,11 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.36.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.45.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="OllamaSharp" Version="5.0.6" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.0.12" />
+    <PackageReference Include="OllamaSharp" Version="5.1.10" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.1.7" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
