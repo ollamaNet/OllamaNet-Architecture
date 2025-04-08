@@ -366,3 +366,4 @@ FodyWeavers.xsd
 DesignIdea.md
 /ExploreService/appsettings.json
 /Gateway/appsettings.json
+/AdminService/appsettings.json
