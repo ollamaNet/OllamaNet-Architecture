@@ -29,6 +29,7 @@ The OllamaNet Components project provides a framework for integrating Ollama's l
    - Response handling
 
 ## Target Users
+- Develpoers who wants to try LLMS with advance promt options settings
 [To be defined with project owner]
 
 ## Integration Points
@@ -39,4 +40,4 @@ The OllamaNet Components project provides a framework for integrating Ollama's l
 [To be defined with project owner]
 
 ## Security Requirements
-[To be defined with project owner] 
+[To be defined with project owner]

@@ -1,31 +1,97 @@
 # Active Context
 
 ## Current Focus
-- Initializing project documentation
-- Setting up Memory Bank structure
-- Understanding project architecture
+- Finalizing microservices architecture design
+- Implementing message queue integration
+- Developing LLM Inference Service
+- Establishing service communication patterns
 
 ## Recent Changes
-- Created Memory Bank structure
-- Initialized core documentation files
-- [Additional recent changes to be tracked]
+1. **Architecture Updates**
+   - Defined clear service boundaries
+   - Established synchronous vs asynchronous communication patterns
+   - Added LLM Inference Service to architecture
+   - Updated system patterns documentation
+
+2. **Technical Decisions**
+   - Selected RabbitMQ for message queue implementation
+   - Defined database separation strategy
+   - Established service discovery approach
+   - Implemented caching strategy
 
 ## Next Steps
-1. Review and update project brief with project owner
-2. Analyze codebase to document system patterns
-3. Define technical requirements and constraints
-4. Document development workflow
-5. [Additional next steps to be defined]
+1. **Immediate Tasks**
+   - Implement message queue infrastructure
+   - Develop LLM Inference Service
+   - Set up service discovery
+   - Configure monitoring and logging
 
-## Active Decisions
-[To be tracked as decisions are made]
+2. **Short-term Goals**
+   - Complete service communication patterns
+   - Implement caching strategy
+   - Set up CI/CD pipeline
+   - Establish testing framework
+    
+3. **Long-term Goals**
+   - Implement horizontal scaling
+   - Optimize performance
+   - Enhance monitoring capabilities
+   - Improve deployment process
 
-## Current Considerations
-1. Project scope and goals
-2. Technical requirements
-3. Development workflow
-4. Documentation needs
-5. [Additional considerations to be tracked]
+## Active Decisions and Considerations
+
+### Message Queue Implementation
+- Using RabbitMQ for asynchronous communication
+- Focus on admin and background tasks
+- Implementing progress tracking for long-running operations
+
+### Service Communication
+- Synchronous communication for real-time operations
+- Asynchronous communication for background tasks
+- Event-driven architecture for cross-service notifications
+
+### Database Strategy
+- **Shared Database Approach**
+  - Single database instance for all services
+  - Unified data access layer
+  - Shared schema for common entities
+  - Service-specific schemas where needed
+  - Centralized data consistency
+  - Simplified transaction management
+  - Reduced operational complexity
+  - Caching for performance optimization
+
+### Security Considerations
+- Implementing JWT-based authentication
+- Role-based authorization
+- Secure service-to-service communication
+- Data encryption at rest
+
+## Current Challenges
+1. **Technical**
+   - Ensuring reliable message delivery
+   - Managing service dependencies
+   - Implementing effective monitoring
+   - Handling distributed transactions
+
+2. **Architectural**
+   - Balancing synchronous vs asynchronous operations
+   - Managing service boundaries
+   - Ensuring scalability
+   - Maintaining consistency
+
+## Risk Mitigation
+1. **Technical Risks**
+   - Implementing circuit breakers
+   - Setting up monitoring and alerts
+   - Establishing backup and recovery procedures
+   - Implementing graceful degradation
+
+2. **Architectural Risks**
+   - Documenting service contracts
+   - Implementing versioning strategy
+   - Establishing rollback procedures
+   - Setting up testing environments
 
 ## Open Questions
 1. What are the specific goals of the project?

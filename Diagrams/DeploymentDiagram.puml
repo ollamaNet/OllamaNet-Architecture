@@ -12,6 +12,7 @@ cloud "Kubernetes Cluster" {
         [Chat Service] as chat
         [Explore Service] as explore
         [Admin Service] as admin
+        [LLM Inference Service] as llm
     }
     
     node "Infrastructure" {
@@ -19,18 +20,15 @@ cloud "Kubernetes Cluster" {
         [Config Server] as config
         [Message Queue] as mq
         [Monitoring] as monitor
+        [Distributed Cache] as cache
     }
     
-    node "Databases" {
-        [Auth DB] as authdb
-        [Chat DB] as chatdb
-        [Explore DB] as exploredb
-        [Admin DB] as admindb
+    node "Database" {
+        [Shared Database] as db
     }
 }
 
 cloud "External Services" {
-    [Ollama LLM] as ollama
     [External APIs] as external
 }
 
@@ -44,14 +42,30 @@ registry --> auth
 registry --> chat
 registry --> explore
 registry --> admin
+registry --> llm
 
-mq --> chat
-mq --> explore
+mq --> admin
+mq --> llm
 
 monitor --> gateway
 monitor --> auth
 monitor --> chat
 monitor --> explore
 monitor --> admin
+monitor --> llm
+
+cache --> chat
+cache --> explore
+cache --> auth
+
+chat --> llm
+explore --> llm
+admin --> llm
+
+auth --> db
+chat --> db
+explore --> db
+admin --> db
+llm --> db
 
 @enduml

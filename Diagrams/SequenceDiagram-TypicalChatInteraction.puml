@@ -13,8 +13,7 @@ participant "API Gateway" as gateway
 participant "Auth Service" as auth
 participant "Chat Service" as chat
 participant "Conversation Service" as conv
-participant "Message Queue" as mq
-participant "Ollama LLM" as ollama
+participant "LLM Inference Service" as llm
 participant "Cache Service" as cache
 
 User -> gateway: Send Message Request
@@ -29,14 +28,10 @@ chat -> conv: Get Conversation Context
 activate conv
 conv --> chat: Context Data
 deactivate conv
-chat -> mq: Queue Message
-activate mq
-mq --> chat: Message Queued
-deactivate mq
-chat -> ollama: Generate Response
-activate ollama
-ollama --> chat: Response
-deactivate ollama
+chat -> llm: Generate Response
+activate llm
+llm --> chat: Response
+deactivate llm
 chat -> cache: Cache Response
 activate cache
 cache --> chat: Cached

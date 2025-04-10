@@ -26,6 +26,12 @@ package "Explore Service" {
 package "Admin Services" {
     [Admin Service] as admin
     [Audit Service] as audit
+    [Background Tasks] as bgtasks
+}
+
+package "LLM Inference Service" {
+    [Inference Engine] as llm
+    [Model Management] as modelmgmt
 }
 
 package "Infrastructure" {
@@ -44,21 +50,31 @@ package "Databases" {
 }
 
 ' External Systems
-[Ollama LLM] as ollama
 [External APIs] as external
 
-' Connections
+' Direct API Calls (Synchronous)
 User -> gateway
-gateway --> auth
-gateway --> chat
-gateway --> explore
-gateway --> admin
+gateway --> auth : sync
+gateway --> chat : sync
+gateway --> explore : sync
+gateway --> admin : sync
+chat --> llm : sync
+explore --> llm : sync
 
+' Message Queue Connections (Asynchronous)
+mq --> admin : async
+mq --> bgtasks : async
+mq --> audit : async
+admin --> modelmgmt : async
+modelmgmt --> llm : async
+
+' Database Connections
 auth --> authdb
 chat --> chatdb
 explore --> exploredb
 admin --> admindb
 
+' Service Components
 auth --> jwt
 chat --> conv
 conv --> msg
@@ -70,12 +86,7 @@ registry --> auth
 registry --> chat
 registry --> explore
 registry --> admin
-
-' Message Queue Connections
-mq --> chat
-mq --> conv
-mq --> msg
-mq --> explore
+registry --> llm
 
 ' Monitoring
 monitor --> gateway
@@ -83,10 +94,7 @@ monitor --> auth
 monitor --> chat
 monitor --> explore
 monitor --> admin
-
-' External Connections
-chat --> ollama
-explore --> external
+monitor --> llm
 
 ' Cache Connections
 cache --> chat
