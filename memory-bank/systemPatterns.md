@@ -5,13 +5,17 @@
 ### Service Components
 1. **API Gateway**
    - Entry point for all client requests
-   - Routes requests to appropriate services
-   - Handles authentication and authorization
+   - JWT token validation and caching
+   - Rate limiting implementation
+   - Request routing using Ocelot
+   - Redis-based token caching
+   - Distributed rate limiting
 
 2. **Authentication Service**
    - User authentication and authorization
-   - JWT token management
+   - JWT token generation
    - User profile management
+   - Token validation endpoint
 
 3. **Chat Services**
    - Real-time chat processing
@@ -70,6 +74,8 @@
    - Event distribution
 
 4. **Distributed Cache (Redis)**
+   - Token caching
+   - Rate limiting counters
    - Performance optimization
    - Session management
    - Data caching
@@ -83,6 +89,8 @@
    - Logging and tracing
    - Cache hit/miss ratios
    - Redis connection status
+   - Rate limit monitoring
+   - Authentication metrics
 
 ### Database Architecture
 - **Shared Database Approach**
@@ -108,6 +116,8 @@
    - Single entry point
    - Request routing
    - Authentication/Authorization
+   - Rate limiting
+   - Token caching
 
 2. **Service Discovery Pattern**
    - Dynamic service registration
@@ -158,10 +168,13 @@
 - Caching strategies
 - Database sharding
 - Redis clustering
+- Distributed rate limiting
 
 ## Security Patterns
 - JWT authentication
 - Role-based authorization
 - Data encryption
 - Secure communication
-- Cache security 
+- Cache security
+- Rate limiting
+- Token blacklisting 

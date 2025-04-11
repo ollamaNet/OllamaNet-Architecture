@@ -10,109 +10,170 @@
 - **Redis** - Distributed caching
 - **RabbitMQ** - Message queue for asynchronous communication
 
-### Infrastructure
-- **Docker** - Containerization
-- **Service Registry** - Service discovery and load balancing
-- **Config Server** - Centralized configuration management
-- **Monitoring Tools** - System health and performance monitoring
+### Development Tools
+- Visual Studio 2022
+- Docker
+- Redis CLI
+- Postman
+- Git
 
 ### Authentication & Authorization
 - **JWT** - Token-based authentication
 - **Identity Framework** - User management
 
-### API Documentation
-- **Swagger/OpenAPI** - API documentation and testing
-- **Postman** - API testing and documentation
+### Required Services
+1. Redis
+   - Token caching
+   - Rate limiting
+   - Session management
+   - Configuration: appsettings.json
 
-## Development Setup
+2. Ocelot Gateway
+   - Request routing
+   - Load balancing
+   - Configuration: ocelot.json
 
-### Local Development
-1. **Prerequisites**
-   - .NET Core SDK
-   - Docker Desktop
-   - SQL Server
-   - Redis
-   - RabbitMQ
+3. Authentication Service
+   - JWT token generation
+   - User management
+   - Token validation
 
-2. **Development Tools**
-   - Visual Studio/VS Code
-   - Git
-   - Postman
-   - Docker
+### Configuration Files
+1. appsettings.json
+   ```json
+   {
+     "TokenCaching": {
+       "Redis": {
+         "ConnectionString": "localhost:6379",
+         "Database": 1
+       },
+       "Options": {
+         "SlidingExpiration": "00:30:00",
+         "AbsoluteExpiration": "01:00:00",
+         "CachePrefix": "token:"
+       }
+     },
+     "RateLimiting": {
+       "Redis": {
+         "ConnectionString": "localhost:6379",
+         "Database": 0
+       },
+       "GlobalRules": [
+         {
+           "Endpoint": "*",
+           "Period": "1s",
+           "Limit": 100
+         }
+       ]
+     }
+   }
+   ```
 
-### Environment Configuration
-- Development
-- Staging
-- Production
+2. ocelot.json
+   ```json
+   {
+     "GlobalConfiguration": {
+       "BaseUrl": "https://localhost:7270",
+       "RateLimitOptions": {
+         "ClientIdHeader": "ClientId",
+         "QuotaExceededMessage": "Rate limit exceeded",
+         "HttpStatusCode": 429
+       }
+     },
+     "Routes": [
+       {
+         "UpstreamPathTemplate": "/gateway/{service}/{everything}",
+         "DownstreamPathTemplate": "/api/{service}/{everything}",
+         "DownstreamScheme": "https",
+         "RateLimitOptions": {
+           "EnableRateLimiting": true
+         }
+       }
+     ]
+   }
+   ```
 
 ## Technical Constraints
 
-### Performance Requirements
-- Response time < 500ms for synchronous operations
-- Asynchronous operations with progress tracking
-- Scalable to handle multiple concurrent users
-- Redis cache hit ratio > 80%
-
-### Security Requirements
-- HTTPS everywhere
-- JWT-based authentication
+### Authentication
+- JWT token validation at Gateway
+- Redis-based token caching
+- Token blacklisting support
 - Role-based authorization
-- Data encryption at rest
-- Secure communication between services
 
-### Scalability Requirements
-- Horizontal scaling of services
-- Load balancing
-- Caching strategy with Redis
-- Database sharding where needed
+### Rate Limiting
+- Distributed rate limiting using Redis
+- Configurable limits per endpoint
+- Client-based rate limiting
+- IP-based rate limiting
+
+### Caching
+- Redis-based token caching
+- Sliding expiration for tokens
+- Absolute expiration as fallback
+- Cache invalidation strategies
+
+### Security
+- HTTPS required
+- JWT token validation
+- Rate limiting
+- Request validation
+- CORS configuration
 
 ## Dependencies
 
+### NuGet Packages
+```xml
+<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
+<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+<PackageReference Include="Ocelot" Version="18.0.0" />
+<PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
+```
+
 ### External Services
-- LLM Inference Service
-- External APIs (as needed)
-
-### Internal Services
+- Redis Server
 - Authentication Service
-- Chat Services
-- Explore Service (with Redis caching)
-- Admin Services
-- API Gateway
-
-### Database Dependencies
-- **Shared Database**
-  - Single SQL Server instance
-  - Entity Framework Core for data access
-  - Shared data access layer
-  - Unified schema management
-  - Centralized data consistency
-
-### Cache Dependencies
-- **Redis Cache**
-  - Distributed caching
-  - Cache invalidation strategies
-  - Health monitoring
-  - Performance metrics
-  - Connection management
+- Microservices (Auth, Admin, Explore, Conversation)
 
 ## Development Guidelines
 
 ### Code Organization
-- Clean Architecture principles
-- Domain-Driven Design
-- SOLID principles
-- Microservices best practices
-- Caching patterns and strategies
+- Middleware for authentication
+- Middleware for rate limiting
+- Services for token validation
+- Services for Redis caching
+- Configuration classes
+- Extension methods for setup
 
-### Testing Strategy
+### Best Practices
+- Async/await throughout
+- Proper error handling
+- Comprehensive logging
 - Unit testing
-- Integration testing
-- End-to-end testing
-- Performance testing
-- Cache testing
+- Documentation
+- Configuration validation
 
-### Deployment Strategy
-- CI/CD pipeline
-- Blue-Green deployment
-- Canary releases
-- Feature flags 
+### Performance Considerations
+- Redis connection pooling
+- Token cache optimization
+- Rate limit counter optimization
+- Request/response transformation
+- Connection management
+
+## Monitoring and Logging
+
+### Metrics to Track
+- Authentication success/failure rates
+- Token cache hit/miss ratios
+- Rate limit violations
+- Request latency
+- Redis connection status
+- Service health
+
+### Logging Strategy
+- Structured logging
+- Correlation IDs
+- Request tracing
+- Error logging
+- Performance metrics
+- Security events 

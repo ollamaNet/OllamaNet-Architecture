@@ -1,136 +1,111 @@
 # Active Context
 
 ## Current Focus
-- Finalizing microservices architecture design
-- Implementing message queue integration
-- Developing LLM Inference Service
-- Establishing service communication patterns
-- Implementing Redis caching for the Explore microservice
-- Enhancing performance through distributed caching
-- Implementing cache invalidation strategies
-- Setting up monitoring for cache performance
+Implementing the API Gateway service with the following priorities:
+1. JWT token validation and caching
+2. Rate limiting implementation
+3. Request routing configuration
+4. Monitoring and logging setup
 
 ## Recent Changes
-1. **Architecture Updates**
-   - Defined clear service boundaries
-   - Established synchronous vs asynchronous communication patterns
-   - Added LLM Inference Service to architecture
-   - Updated system patterns documentation
-- Added Redis caching implementation plan
-- Defined cache patterns and strategies
-- Created sequence diagrams for cached operations
-- Updated technical documentation
+- Created detailed Gateway implementation plan
+- Defined core classes and their responsibilities
+- Designed authentication flow with Redis caching
+- Planned rate limiting strategy
+- Created configuration templates
 
-2. **Technical Decisions**
-   - Selected RabbitMQ for message queue implementation
-   - Defined database separation strategy
-   - Established service discovery approach
-   - Implemented caching strategy
+## Active Decisions
+1. **Authentication**
+   - JWT validation at Gateway level
+   - Redis-based token caching
+   - Token blacklisting support
+   - Role-based authorization
+
+2. **Rate Limiting**
+   - Distributed implementation using Redis
+   - Configurable per endpoint
+   - Client and IP-based limits
+   - Monitoring and metrics
+
+3. **Caching Strategy**
+   - Redis for token caching
+   - Sliding expiration
+   - Absolute expiration fallback
+   - Cache invalidation
+
+4. **Configuration**
+   - Centralized in appsettings.json
+   - Environment-specific settings
+   - Ocelot routing configuration
+   - Redis connection settings
 
 ## Next Steps
-1. **Immediate Tasks**
-   - Implement message queue infrastructure
-   - Develop LLM Inference Service
-   - Set up service discovery
-   - Configure monitoring and logging
-2. Implement RedisCacheService
-3. Create CacheManager
-4. Integrate caching with ExploreService
-5. Implement health checks
-6. Set up monitoring
-7. Test cache performance
-8. Document implementation
+1. Implement core authentication middleware
+2. Set up Redis token caching
+3. Configure Ocelot routing
+4. Add rate limiting middleware
+5. Set up monitoring and logging
 
-## Active Decisions and Considerations
+## Current Considerations
+1. **Performance**
+   - Redis connection pooling
+   - Token cache optimization
+   - Rate limit counter efficiency
+   - Request/response transformation
 
-### Message Queue Implementation
-- Using RabbitMQ for asynchronous communication
-- Focus on admin and background tasks
-- Implementing progress tracking for long-running operations
+2. **Security**
+   - JWT validation
+   - Rate limiting
+   - Request validation
+   - CORS configuration
 
-### Service Communication
-- Synchronous communication for real-time operations
-- Asynchronous communication for background tasks
-- Event-driven architecture for cross-service notifications
-
-### Database Strategy
-- **Shared Database Approach**
-  - Single database instance for all services
-  - Unified data access layer
-  - Shared schema for common entities
-  - Service-specific schemas where needed
-  - Centralized data consistency
-  - Simplified transaction management
-  - Reduced operational complexity
-  - Caching for performance optimization
-
-### Security Considerations
-- Implementing JWT-based authentication
-- Role-based authorization
-- Secure service-to-service communication
-- Data encryption at rest
-
-## Current Challenges
-1. **Technical**
-   - Ensuring reliable message delivery
-   - Managing service dependencies
-   - Implementing effective monitoring
-   - Handling distributed transactions
-
-2. **Architectural**
-   - Balancing synchronous vs asynchronous operations
-   - Managing service boundaries
-   - Ensuring scalability
-   - Maintaining consistency
-
-## Risk Mitigation
-1. **Technical Risks**
-   - Implementing circuit breakers
-   - Setting up monitoring and alerts
-   - Establishing backup and recovery procedures
-   - Implementing graceful degradation
-
-2. **Architectural Risks**
-   - Documenting service contracts
-   - Implementing versioning strategy
-   - Establishing rollback procedures
-   - Setting up testing environments
+3. **Monitoring**
+   - Authentication metrics
+   - Cache hit/miss ratios
+   - Rate limit violations
+   - Service health
 
 ## Open Questions
-1. What are the specific goals of the project?
-2. What are the key requirements and success criteria?
-3. Who are the main stakeholders?
-4. What are the timeline expectations?
-5. [Additional questions to be answered]
+1. Rate limit thresholds for different endpoints
+2. Cache expiration times
+3. Monitoring dashboard requirements
+4. Logging strategy details
 
-## Current Tasks
-1. Redis Caching Implementation
-   - Core caching functionality
-   - Cache management
-   - Health monitoring
-   - Performance optimization
+## Implementation Order
+1. Core authentication
+2. Token caching
+3. Rate limiting
+4. Monitoring
+5. Testing
+6. Documentation
 
-2. Documentation
-   - Implementation details
-   - Cache patterns
-   - Monitoring setup
-   - Testing procedures
+## Dependencies
+- Redis server
+- Authentication service
+- Microservices (Auth, Admin, Explore, Conversation)
+- Ocelot configuration
+- Monitoring tools
 
-3. Testing
-   - Unit tests
-   - Integration tests
-   - Performance tests
-   - Cache invalidation tests
+## Risks and Mitigations
+1. **Performance Impact**
+   - Mitigation: Redis optimization
+   - Mitigation: Connection pooling
+   - Mitigation: Cache strategies
 
-## Technical Debt
-- Cache warming strategies to be implemented
-- Advanced monitoring features to be added
-- Cache compression to be evaluated
-- Redis clustering to be considered
+2. **Security Risks**
+   - Mitigation: Proper token validation
+   - Mitigation: Rate limiting
+   - Mitigation: Request validation
 
-## Risks
-- Cache consistency issues
-- Memory pressure
-- Connection failures
-- Performance degradation
-- Cache invalidation complexity
+3. **Scalability**
+   - Mitigation: Distributed caching
+   - Mitigation: Load balancing
+   - Mitigation: Monitoring
+
+## Success Criteria
+1. Successful JWT validation
+2. Efficient token caching
+3. Effective rate limiting
+4. Proper request routing
+5. Comprehensive monitoring
+6. Complete test coverage
