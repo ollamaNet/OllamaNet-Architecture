@@ -51,6 +51,7 @@
 - Response time < 500ms for synchronous operations
 - Asynchronous operations with progress tracking
 - Scalable to handle multiple concurrent users
+- Redis cache hit ratio > 80%
 
 ### Security Requirements
 - HTTPS everywhere
@@ -62,7 +63,7 @@
 ### Scalability Requirements
 - Horizontal scaling of services
 - Load balancing
-- Caching strategy
+- Caching strategy with Redis
 - Database sharding where needed
 
 ## Dependencies
@@ -74,7 +75,7 @@
 ### Internal Services
 - Authentication Service
 - Chat Services
-- Explore Service
+- Explore Service (with Redis caching)
 - Admin Services
 - API Gateway
 
@@ -86,6 +87,14 @@
   - Unified schema management
   - Centralized data consistency
 
+### Cache Dependencies
+- **Redis Cache**
+  - Distributed caching
+  - Cache invalidation strategies
+  - Health monitoring
+  - Performance metrics
+  - Connection management
+
 ## Development Guidelines
 
 ### Code Organization
@@ -93,12 +102,14 @@
 - Domain-Driven Design
 - SOLID principles
 - Microservices best practices
+- Caching patterns and strategies
 
 ### Testing Strategy
 - Unit testing
 - Integration testing
 - End-to-end testing
 - Performance testing
+- Cache testing
 
 ### Deployment Strategy
 - CI/CD pipeline

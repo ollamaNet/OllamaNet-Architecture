@@ -23,6 +23,8 @@
    - Model discovery and search
    - Available models listing
    - Synchronous communication with LLM Inference Service
+   - Redis caching for performance optimization
+   - Cache invalidation strategies
 
 5. **Admin Services**
    - System administration
@@ -67,15 +69,20 @@
    - Task queuing
    - Event distribution
 
-4. **Distributed Cache**
+4. **Distributed Cache (Redis)**
    - Performance optimization
    - Session management
    - Data caching
+   - Cache invalidation
+   - Health monitoring
+   - Connection management
 
 5. **Monitoring**
    - System health monitoring
    - Performance metrics
    - Logging and tracing
+   - Cache hit/miss ratios
+   - Redis connection status
 
 ### Database Architecture
 - **Shared Database Approach**
@@ -122,6 +129,12 @@
    - Loose coupling
    - Scalability
 
+6. **Cache-Aside Pattern**
+   - Lazy loading
+   - Cache invalidation
+   - Write-through caching
+   - Read-through caching
+
 ## Component Relationships
 
 ### Direct Dependencies
@@ -131,6 +144,7 @@
 - API Gateway → Admin Services
 - Chat Services → LLM Inference Service
 - Explore Service → LLM Inference Service
+- Explore Service → Redis Cache
 
 ### Message Queue Dependencies
 - Admin Services → Message Queue
@@ -139,7 +153,15 @@
 - Model Management → Message Queue
 
 ## Scalability Patterns
-[To be defined based on code analysis]
+- Horizontal scaling
+- Load balancing
+- Caching strategies
+- Database sharding
+- Redis clustering
 
 ## Security Patterns
-[To be defined based on code analysis] 
+- JWT authentication
+- Role-based authorization
+- Data encryption
+- Secure communication
+- Cache security 
