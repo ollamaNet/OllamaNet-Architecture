@@ -36,4 +36,4 @@ OllamaNet Components is a .NET-based microservices architecture project that app
 [To be defined with project owner]
 
 ## Risks
-[To be defined with project owner] 
+[To be defined with project owner]
