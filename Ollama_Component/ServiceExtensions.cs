@@ -115,7 +115,7 @@ namespace Ollama_Component
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://f328-34-125-60-98.ngrok-free.app"));
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://6fc0-35-197-29-150.ngrok-free.app"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
             services.AddScoped<ChatHistory>();
             services.AddScoped<ChatHistoryManager>();
