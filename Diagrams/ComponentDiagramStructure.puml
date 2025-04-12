@@ -1,0 +1,72 @@
+@startuml
+!theme plain
+skinparam componentStyle uml2
+
+package "Service Components" {
+    [API Gateway] as gateway
+    [Auth Service] as auth
+    [Chat Service] as chat
+    [Explore Service] as explore
+    [Admin Service] as admin
+    [LLM Inference Service] as llm
+}
+
+package "Infrastructure" {
+    [Message Queue] as mq
+    [Service Registry] as registry
+    [Config Server] as config
+    [Shared Database] as db
+    [Distributed Cache] as cache
+    [Monitoring] as monitor
+}
+
+package "External" {
+    [External APIs] as external
+}
+
+' Service Dependencies
+gateway --> auth
+gateway --> chat
+gateway --> explore
+gateway --> admin
+
+' Infrastructure Dependencies
+auth --> registry
+auth --> config
+auth --> db
+auth --> cache
+auth --> monitor
+
+chat --> registry
+chat --> config
+chat --> db
+chat --> cache
+chat --> monitor
+chat --> llm
+
+explore --> registry
+explore --> config
+explore --> db
+explore --> cache
+explore --> monitor
+explore --> llm
+
+admin --> registry
+admin --> config
+admin --> db
+admin --> monitor
+admin --> mq
+admin --> llm
+
+llm --> registry
+llm --> config
+llm --> db
+llm --> monitor
+llm --> mq
+
+' External Dependencies
+chat --> external
+explore --> external
+admin --> external
+
+@enduml

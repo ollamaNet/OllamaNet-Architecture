@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using Ollama_Component.Services.AdminServices.DTOs;
-using Ollama_Component.Services.AdminServices;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using AdminService.DTOs;
 
-namespace Ollama_Component.Controllers
+namespace AdminService.Controllers
 {
-    [Authorize("Admin")]
+    //[Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : Controller
@@ -40,7 +39,7 @@ namespace Ollama_Component.Controllers
 
 
 
-        [HttpGet("ModelInfoFromOllama")]
+        [HttpGet("OllamaModelInfo")]
         public async Task<IActionResult> OllamaModelInfo(string ModelName)
         {
             if (string.IsNullOrWhiteSpace(ModelName))
@@ -87,7 +86,7 @@ namespace Ollama_Component.Controllers
             }
         }
 
-        [HttpGet("InstalledModels")]
+        [HttpGet("Installed")]
         public async Task<IActionResult> InstalledModels([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             if (pageNumber < 1 || pageSize < 1)
@@ -97,7 +96,7 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpDelete("SoftDeleteModel")]
+        [HttpDelete("SoftDelete")]
         public async Task<IActionResult> SoftDeleteModel([FromQuery] string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
@@ -107,7 +106,7 @@ namespace Ollama_Component.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpDelete("UninstallModel")]
+        [HttpDelete("Uninstall")]
         public async Task<IActionResult> UninstallModel([FromBody] RemoveModelRequest model)
         {
             if (model == null || string.IsNullOrWhiteSpace(model.ModelName))
