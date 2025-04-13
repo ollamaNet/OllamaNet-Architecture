@@ -45,7 +45,7 @@ namespace Ollama_Component.Services.ConversationService
         {
             ArgumentNullException.ThrowIfNull(UserId);
 
-            var ConversationList = await _unitOfWork.ConversationRepo.ConversationPagination(UserId, 1, 15);
+            var ConversationList = await _unitOfWork.ConversationRepo.ConversationPagination(UserId, 1, 500);
 
             return ConversationList;
         }

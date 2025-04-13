@@ -35,7 +35,7 @@ namespace Ollama_Component.Controllers
                 return BadRequest("Request body cannot be null.");
 
             var response = await AdminService.AddModelAsync(model, userId);
-            return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
+            return response != null ? Created() : StatusCode(500, "Failed to process the request.");
         }
 
 
