@@ -24,6 +24,11 @@ using Ollama_DB_layer.Repositories.GetHistoryRepo;
 using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
+using ExploreService.Cache;
+using System.Reflection;
+using Ollama_DB_layer.DTOs;
+using ExploreService.DTOs;
+using Ollama_DB_layer.DataBaseHelpers;
 
 namespace ExploreService
 {
@@ -92,10 +97,13 @@ namespace ExploreService
         // Register Redis Cache
         public static void ConfigureCache(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMemoryCache();
+            services.Configure<RedisCacheSettings>(configuration.GetSection("RedisCacheSettings"));
+            
             services.AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
-            //services.AddScoped<CacheManager>();
+            
+            services.AddSingleton<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<ICacheManager, CacheManager>();
         }
 
         // Register Swagger with JWT Support
@@ -104,6 +112,16 @@ namespace ExploreService
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExploreService", Version = "v1" });
+
+                // Include XML comments
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
+                // Enable schema generation
+                c.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
+                c.SchemaGeneratorOptions.UseInlineDefinitionsForEnums = true;
+                c.UseAllOfToExtendReferenceSchemas();
 
                 // ✅ Add JWT Authentication support in Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
