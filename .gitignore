@@ -366,7 +366,6 @@ FodyWeavers.xsd
 /Gateway/appsettings.json
 /AdminService/appsettings.json
 /AuthService/appsettings.json
-/Gateway/appsettings.json
 DesignIdea.md
 memory-bank/activeContext.md
 memory-bank/progress.md
