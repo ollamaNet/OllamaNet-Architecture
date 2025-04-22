@@ -152,15 +152,15 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/admin/addmodel",
+      "DownstreamPathTemplate": "/api/Admin/AddModel",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
-      "UpstreamPathTemplate": "/admin/addmodel",
+      "UpstreamPathTemplate": "/Admin/AddModel",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -169,7 +169,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/ollamamodelinfo",
@@ -181,7 +181,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/pullmodel",
@@ -193,7 +193,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/installed",
@@ -205,7 +205,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/softdelete",
@@ -217,7 +217,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/uninstall",
@@ -229,7 +229,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/addtags",
@@ -241,7 +241,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/addtagstomodel/{modelId}",
@@ -253,22 +253,22 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
       "UpstreamPathTemplate": "/admin/updatemodel",
       "UpstreamHttpMethod": [ "PATCH" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/users",
+      "DownstreamPathTemplate": "/api/Admin/Users",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5002
+          "Port": 7239
         }
       ],
-      "UpstreamPathTemplate": "/admin/users",
+      "UpstreamPathTemplate": "/Admin/Users",
       "UpstreamHttpMethod": [ "GET" ]
     },
 
@@ -280,7 +280,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5003
+          "Port": 7014
         }
       ],
       "UpstreamPathTemplate": "/explore/models",
@@ -292,7 +292,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5003
+          "Port": 7014
         }
       ],
       "UpstreamPathTemplate": "/explore/modelinfo/{modelName}",
@@ -304,7 +304,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5003
+          "Port": 7014
         }
       ],
       "UpstreamPathTemplate": "/explore/gettags",
