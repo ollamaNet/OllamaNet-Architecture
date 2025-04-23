@@ -11,5 +11,7 @@ namespace ExploreService
         Task<ModelInfoResponse> ModelInfo(string modelID);
 
         Task<List<GetTagsResponse>> GetTags();
+        
+        Task<IEnumerable<ModelCard>> GetTagModels(string tagId);
     }
 }
