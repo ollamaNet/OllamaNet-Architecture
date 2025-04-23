@@ -29,6 +29,7 @@ using AdminService.DTOs;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using AuthenticationService.Helpers;
 using AuthenticationService;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 
 namespace AdminService
 {
@@ -99,6 +100,7 @@ namespace AdminService
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 

@@ -26,7 +26,7 @@ namespace AdminService.Controllers
         [HttpPost("AddModel")]
         public async Task<IActionResult> AddModel([FromBody] AddModelRequest model)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            var userId = Request.Headers["X-User-Id"].ToString();
             if (userId == null)
                 return Unauthorized();
 

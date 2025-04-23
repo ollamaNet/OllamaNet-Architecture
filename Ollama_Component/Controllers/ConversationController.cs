@@ -120,7 +120,7 @@ namespace Ollama_Component.Controllers
 
 
 
-        [HttpGet("GetConversations")]
+        /*[HttpGet("GetConversations")]
         public async Task<IActionResult> GetConversations()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
@@ -132,7 +132,7 @@ namespace Ollama_Component.Controllers
 
             var response = await _conversationService.GetConversationsAsync(userId);
             return response == null ? StatusCode(500, "Failed to process request") : Ok(response);
-        }
+        }*/
 
         [HttpGet("ConversationInfo/{conversationId}")]
         public async Task<IActionResult> ConversationInfo(string conversationId)

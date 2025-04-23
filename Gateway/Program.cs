@@ -1,3 +1,4 @@
+using Gateway.Middlewares;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
@@ -12,6 +13,8 @@ public class Program
 
         //Add Ocelot Services
         builder.Configuration.AddJsonFile("ocelotConfig.json", optional: false, reloadOnChange: true);
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+
         builder.Services.AddOcelot();
 
         // Add services to the container.
@@ -41,11 +44,14 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
+
         app.UseAuthentication();
         app.UseAuthorization();
 
 
         app.MapControllers();
+
+        app.UseMiddleware<ClaimsToHeaderMiddleware>();
 
         //Add Ocelot Middleware
         await app.UseOcelot();

@@ -24,6 +24,7 @@ using StackExchange.Redis;
 using System.Text;
 using FluentValidation;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 
 namespace AuthenticationService
 {
@@ -96,6 +97,7 @@ namespace AuthenticationService
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
 
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

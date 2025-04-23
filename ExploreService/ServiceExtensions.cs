@@ -24,6 +24,7 @@ using Ollama_DB_layer.Repositories.GetHistoryRepo;
 using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 
 namespace ExploreService
 {
@@ -64,6 +65,7 @@ namespace ExploreService
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
 
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
