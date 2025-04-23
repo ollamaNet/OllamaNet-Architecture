@@ -8,4 +8,12 @@ public class RedisCacheSettings
     public int ModelInfoExpirationMinutes { get; set; }
     public int TagExpirationMinutes { get; set; }
     public int SearchExpirationMinutes { get; set; }
+    
+    // Timeout settings
+    public int OperationTimeoutMilliseconds { get; set; } = 1000;
+    
+    // Retry settings
+    public int MaxRetryAttempts { get; set; } = 3;
+    public int RetryDelayMilliseconds { get; set; } = 100;
+    public int RetryDelayMultiplier { get; set; } = 5;
 } 
