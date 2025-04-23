@@ -177,4 +177,41 @@
 - Secure communication
 - Cache security
 - Rate limiting
-- Token blacklisting 
+- Token blacklisting
+
+## Caching Patterns
+
+The system employs a consistent caching strategy across microservices:
+
+### Core Pattern: Cache-Aside with Fallback
+
+Each service uses the cache-aside pattern through a standardized CacheManager that:
+1. Attempts to fetch data from Redis cache
+2. On cache miss, retrieves from the database and populates cache
+3. On cache failure, gracefully falls back to database access
+4. Implements retry policies for transient errors
+
+### Exception Handling Pattern
+
+A uniform exception translation pattern is used:
+1. Cache-level exceptions are caught and mapped to service-appropriate exceptions
+2. Service methods have consistent try/catch blocks
+3. The ExceptionConverter utility standardizes error messages and context
+
+### Key Management Pattern
+
+Cache keys follow a consistent naming convention:
+- Namespace by service: `servicename:resource:id`
+- Include pagination for lists: `servicename:resource:list:page:1:size:20`
+- Include query parameters for filtered results: `servicename:resource:list:filter:param:value`
+
+### Cache Invalidation Pattern
+
+Cache entries use a combination of:
+- TTL-based expiration for all entries
+- Explicit invalidation when data is modified
+- Keys grouped by resource type for selective clearing
+
+## Logging Patterns
+
+[Existing content about logging patterns] 

@@ -29,6 +29,9 @@ using System.Reflection;
 using Ollama_DB_layer.DTOs;
 using ExploreService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderConversationRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
 
 namespace ExploreService
 {
@@ -67,8 +70,11 @@ namespace ExploreService
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
-
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IFolderConversationRepository, FolderConversationRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

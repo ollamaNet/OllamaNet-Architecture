@@ -38,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AdminService\AdminService.csproj" />
     <ProjectReference Include="..\AuthService\AuthService.csproj" />
+    <ProjectReference Include="..\ConversationService\ConversationService.csproj" />
     <ProjectReference Include="..\ExploreService\ExploreService.csproj" />
     <ProjectReference Include="..\Gateway\Gateway.csproj" />
     <ProjectReference Include="..\Ollama_Component\Ollama_Component.csproj" />

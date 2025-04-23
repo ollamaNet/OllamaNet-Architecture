@@ -10,4 +10,6 @@ builder.AddProject<Projects.AuthService>("authservice");
 
 builder.AddProject<Projects.AdminService>("adminservice");
 
+builder.AddProject<Projects.ConversationService>("conversationservice");
+
 builder.Build().Run();

@@ -1,8 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using ConversationService.Cache;
+using ConversationService.ChatService;
+using ConversationService.ChatService.DTOs;
+using ConversationService.Connectors;
+using ConversationService.ConversationService;
+using ConversationService.ConversationService.DTOs;
+using ConversationService.Controllers.Validators;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Persistence;
 using Ollama_DB_layer.Repositories.AIModelRepo;
@@ -15,6 +28,7 @@ using Ollama_DB_layer.Repositories.GetHistoryRepo;
 using Ollama_DB_layer.Repositories.ModelTageRepo;
 using Ollama_DB_layer.Repositories.PaginationRepo;
 using Ollama_DB_layer.Repositories.PromptRepo;
+using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
 using Ollama_DB_layer.Repositories.TagRepo;
@@ -22,18 +36,13 @@ using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
-using FluentValidation;
-using AdminService.Controllers;
-using AdminService.Connectors;
-using AdminService.DTOs;
-using Ollama_DB_layer.Repositories.RefreshTokenRepo;
-using AuthenticationService.Helpers;
 using AuthenticationService;
+using AuthenticationService.Helpers;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
 using Ollama_DB_layer.Repositories.FolderConversationRepo;
 using Ollama_DB_layer.Repositories.FolderRepo;
 
-namespace AdminService
+namespace ConversationService
 {
     public static class ServiceExtensions
     {
@@ -56,7 +65,7 @@ namespace AdminService
         {
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddScoped<JWTManager>();
-            _ = services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddAuthentication(options =>
             {
@@ -89,7 +98,6 @@ namespace AdminService
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
-
             services.AddScoped<IAIModelRepository, AIModelRepository>();
             services.AddScoped<IAIResponseRepository, AIResponseRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
@@ -117,8 +125,24 @@ namespace AdminService
         {
             services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
-            services.AddScoped<IAdminService, AdminService>();
 
+            // ChatService is currently not in use (commented out)
+            //services.AddScoped<ChatHistory>();
+            //services.AddScoped<ChatHistoryManager>();
+            //services.AddScoped<IChatService, ChatService.ChatService>();
+
+            // Register ConversationService
+            services.AddScoped<IConversationService, ConversationService.ConversationService>();
+
+            // Register validators from the new location
+            services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();
+            services.AddScoped<IValidator<UpdateConversationRequest>, Controllers.Validators.UpdateConversationRequestValidator>();
+
+            // Register PromptRequestValidator (currently not used as ChatController is commented out)
+            services.AddScoped<IValidator<PromptRequest>, Controllers.Validators.PromptRequestValidator>();
+
+            // Register HTTP context accessor
+            services.AddHttpContextAccessor();
         }
 
         // Register CORS
@@ -139,10 +163,14 @@ namespace AdminService
         // Register Redis Cache
         public static void ConfigureCache(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMemoryCache();
+            // Register Redis cache settings from configuration
+            services.Configure<RedisCacheSettings>(configuration.GetSection("RedisCacheSettings"));
             services.AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
-            //services.AddScoped<CacheManager>();
+
+            // Register cache services with proper lifecycles
+            services.AddSingleton<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<ICacheManager, CacheManager>();
         }
 
         // Register Swagger with JWT Support
@@ -150,7 +178,7 @@ namespace AdminService
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "OllamaNet", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ConversationService", Version = "v1" });
 
                 // ✅ Add JWT Authentication support in Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -180,5 +208,4 @@ namespace AdminService
             });
         }
     }
-
 }
