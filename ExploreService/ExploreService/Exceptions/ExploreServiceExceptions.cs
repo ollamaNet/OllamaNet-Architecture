@@ -1,4 +1,5 @@
 using System;
+using ExploreService.Cache.Exceptions;
 
 namespace ExploreService.Exceptions
 {
@@ -32,7 +33,7 @@ namespace ExploreService.Exceptions
     {
         public string TagId { get; }
         
-        public TagNotFoundException(string tagId) 
+        public TagNotFoundException(string tagId)
             : base($"Tag with ID '{tagId}' was not found")
         {
             TagId = tagId;
@@ -40,16 +41,48 @@ namespace ExploreService.Exceptions
     }
 
     /// <summary>
-    /// Exception thrown when a cache operation fails
+    /// Exception thrown when there are data retrieval issues
     /// </summary>
-    public class CacheOperationException : ExploreServiceException
+    public class DataRetrievalException : ExploreServiceException
     {
-        public string CacheKey { get; }
+        public string ResourceType { get; }
         
-        public CacheOperationException(string cacheKey, Exception innerException) 
-            : base($"Cache operation failed for key '{cacheKey}'", innerException)
+        public DataRetrievalException(string resourceType, string message) 
+            : base($"Failed to retrieve {resourceType}: {message}")
         {
-            CacheKey = cacheKey;
+            ResourceType = resourceType;
+        }
+        
+        public DataRetrievalException(string resourceType, Exception innerException) 
+            : base($"Failed to retrieve {resourceType}", innerException)
+        {
+            ResourceType = resourceType;
+        }
+    }
+
+    /// <summary>
+    /// Helper class to convert cache exceptions to service exceptions
+    /// </summary>
+    public static class ExceptionConverter
+    {
+        /// <summary>
+        /// Converts a cache exception to an appropriate service exception
+        /// </summary>
+        public static ExploreServiceException ConvertCacheException(CacheException cacheEx, string resourceType)
+        {
+            return new DataRetrievalException(resourceType, 
+                $"Cache error: {GetCacheErrorDescription(cacheEx)}");
+        }
+
+        private static string GetCacheErrorDescription(CacheException cacheEx)
+        {
+            return cacheEx switch
+            {
+                CacheConnectionException => "Connection to cache failed",
+                CacheTimeoutException timeoutEx => $"Operation timed out after {timeoutEx.Threshold.TotalMilliseconds}ms",
+                CacheSerializationException => "Data format error",
+                _ => cacheEx.Message
+            };
         }
     }
 } 

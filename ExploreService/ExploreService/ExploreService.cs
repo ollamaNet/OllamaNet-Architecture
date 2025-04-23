@@ -2,6 +2,7 @@
 using ExploreService.DTOs;
 using ExploreService.Cache;
 using ExploreService.Exceptions;
+using ExploreService.Cache.Exceptions;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.UOW;
@@ -30,50 +31,39 @@ namespace ExploreService
             _logger = logger;
         }
 
-        public async Task<PagedResult<ModelCard>> AvailableModels(int PageNumber, int PageSize)
+        public async Task<PagedResult<ModelCard>> AvailableModels(int pageNumber, int pageSize)
         {
-            _logger.LogInformation("Retrieving available models. PageNumber: {PageNumber}, PageSize: {PageSize}", PageNumber, PageSize);
-            var stopwatch = Stopwatch.StartNew();
-            
-            var cacheKey = string.Format(CacheKeys.ModelList, PageNumber, PageSize);
-            _logger.LogDebug("Generated cache key: {CacheKey}", cacheKey);
-            
+            _logger.LogInformation("Retrieving available models. PageNumber: {PageNumber}, PageSize: {PageSize}", pageNumber, pageSize);
+            var cacheKey = string.Format(CacheKeys.ModelList, pageNumber, pageSize);
             var expiration = TimeSpan.FromMinutes(_settings.DefaultExpirationMinutes);
 
             try
             {
-                var result = await _cacheManager.GetOrSetAsync(
+                return await _cacheManager.GetOrSetAsync(
                     cacheKey,
-                    async () =>
-                    {
-                        _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                        var modelStopwatch = Stopwatch.StartNew();
+                    async () => {
+                        _logger.LogDebug("Fetching models from database. Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
+                        var models = await _unitOfWork.AIModelRepo.AIModelPagination(pageNumber, pageSize);
                         
-                        var ModelListPaged = await _unitOfWork.AIModelRepo.AIModelPagination(PageNumber, PageSize);
-                        
-                        modelStopwatch.Stop();
-                        _logger.LogDebug("Database query completed in {ElapsedMilliseconds}ms", modelStopwatch.ElapsedMilliseconds);
-                        
-                        if (ModelListPaged == null)
+                        if (models == null)
                         {
-                            _logger.LogWarning("No models returned from database");
                             throw new ModelNotFoundException("Failed to retrieve installed models");
                         }
                         
-                        return ModelListPaged;
+                        return models;
                     },
                     expiration
                 );
-
-                stopwatch.Stop();
-                _logger.LogInformation("AvailableModels operation completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
-                return result;
             }
-            catch (Exception ex) when (ex is not ModelNotFoundException)
+            catch (CacheException cacheEx)
+            {
+                throw ExceptionConverter.ConvertCacheException(cacheEx, "models list");
+            }
+            catch (Exception ex) when (ex is not ModelNotFoundException && ex is not ExploreServiceException)
             {
                 _logger.LogError(ex, "Error retrieving available models. PageNumber: {PageNumber}, PageSize: {PageSize}", 
-                    PageNumber, PageSize);
-                throw new ExploreServiceException("Failed to retrieve available models", ex);
+                    pageNumber, pageSize);
+                throw new DataRetrievalException("models list", ex);
             }
         }
 
@@ -83,141 +73,109 @@ namespace ExploreService
 
 
 
-        public async Task<ModelInfoResponse> ModelInfo(string modelID)
+
+        public async Task<ModelInfoResponse> ModelInfo(string modelId)
         {
-            _logger.LogInformation("Retrieving model info for modelID: {ModelID}", modelID);
-            var stopwatch = Stopwatch.StartNew();
-            
-            var cacheKey = string.Format(CacheKeys.ModelInfo, modelID);
-            _logger.LogDebug("Generated cache key: {CacheKey}", cacheKey);
-            
+            _logger.LogInformation("Retrieving model info for modelID: {ModelID}", modelId);
+            var cacheKey = string.Format(CacheKeys.ModelInfo, modelId);
             var expiration = TimeSpan.FromMinutes(_settings.ModelInfoExpirationMinutes);
 
             try
             {
-                var result = await _cacheManager.GetOrSetAsync(
+                return await _cacheManager.GetOrSetAsync(
                     cacheKey,
-                    async () =>
-                    {
-                        _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                        var modelStopwatch = Stopwatch.StartNew();
+                    async () => {
+                        _logger.LogDebug("Fetching model info from database. Model ID: {ModelID}", modelId);
+                        var model = await _unitOfWork.AIModelRepo.GetByIdAsync(modelId);
                         
-                        var DBmodel = await _unitOfWork.AIModelRepo.GetByIdAsync(modelID);
-                        
-                        modelStopwatch.Stop();
-                        _logger.LogDebug("Database query completed in {ElapsedMilliseconds}ms", modelStopwatch.ElapsedMilliseconds);
-                        
-                        if (DBmodel == null)
+                        if (model == null)
                         {
-                            _logger.LogWarning("Model not found with ID: {ModelID}", modelID);
-                            throw new ModelNotFoundException(modelID);
+                            throw new ModelNotFoundException(modelId);
                         }
-
-                        return ModelMapper.FromModelInfoResponse(DBmodel);
+                        
+                        return ModelMapper.FromModelInfoResponse(model);
                     },
                     expiration
                 );
-
-                stopwatch.Stop();
-                _logger.LogInformation("ModelInfo operation completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
-                return result;
             }
-            catch (Exception ex) when (ex is not ModelNotFoundException)
+            catch (CacheException cacheEx)
             {
-                _logger.LogError(ex, "Error retrieving model info for modelID: {ModelID}", modelID);
-                throw new ExploreServiceException($"Failed to retrieve model info for '{modelID}'", ex);
+                throw ExceptionConverter.ConvertCacheException(cacheEx, $"model '{modelId}'");
+            }
+            catch (Exception ex) when (ex is not ModelNotFoundException && ex is not ExploreServiceException)
+            {
+                _logger.LogError(ex, "Error retrieving model info for modelID: {ModelID}", modelId);
+                throw new DataRetrievalException($"model '{modelId}'", ex);
             }
         }
 
         public async Task<IEnumerable<ModelCard>> GetTagModels(string tagId)
         {
             _logger.LogInformation("Retrieving models by tag. TagID: {TagID}", tagId);
-            var stopwatch = Stopwatch.StartNew();
-            
             var cacheKey = string.Format(CacheKeys.TagModels, tagId);
-            _logger.LogDebug("Generated cache key: {CacheKey}", cacheKey);
-            
             var expiration = TimeSpan.FromMinutes(_settings.TagExpirationMinutes);
 
             try
             {
-                var result = await _cacheManager.GetOrSetAsync(
+                return await _cacheManager.GetOrSetAsync(
                     cacheKey,
-                    async () =>
-                    {
-                        _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                        var modelStopwatch = Stopwatch.StartNew();
+                    async () => {
+                        _logger.LogDebug("Fetching tag models from database. Tag ID: {TagID}", tagId);
+                        var models = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
                         
-                        var modelList = await _unitOfWork.AIModelRepo.GetModelsByTagIdAsync(tagId);
-                        
-                        modelStopwatch.Stop();
-                        _logger.LogDebug("Database query completed in {ElapsedMilliseconds}ms", modelStopwatch.ElapsedMilliseconds);
-                        
-                        if (modelList == null)
+                        if (models == null)
                         {
-                            _logger.LogWarning("No models found for tag ID: {TagID}", tagId);
                             throw new TagNotFoundException(tagId);
                         }
                         
-                        return modelList;
+                        return models;
                     },
                     expiration
                 );
-
-                stopwatch.Stop();
-                _logger.LogInformation("GetTagModels operation completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
-                return result;
             }
-            catch (Exception ex) when (ex is not TagNotFoundException)
+            catch (CacheException cacheEx)
+            {
+                throw ExceptionConverter.ConvertCacheException(cacheEx, $"models for tag '{tagId}'");
+            }
+            catch (Exception ex) when (ex is not TagNotFoundException && ex is not ExploreServiceException)
             {
                 _logger.LogError(ex, "Error retrieving models for tag ID: {TagID}", tagId);
-                throw new ExploreServiceException($"Failed to retrieve models for tag '{tagId}'", ex);
+                throw new DataRetrievalException($"models for tag '{tagId}'", ex);
             }
         }
 
         public async Task<List<GetTagsResponse>> GetTags()
         {
             _logger.LogInformation("Retrieving all tags");
-            var stopwatch = Stopwatch.StartNew();
-            
             var cacheKey = CacheKeys.ModelTags;
-            _logger.LogDebug("Generated cache key: {CacheKey}", cacheKey);
-            
             var expiration = TimeSpan.FromMinutes(_settings.TagExpirationMinutes);
 
             try
             {
-                var result = await _cacheManager.GetOrSetAsync(
+                return await _cacheManager.GetOrSetAsync(
                     cacheKey,
-                    async () =>
-                    {
-                        _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                        var tagStopwatch = Stopwatch.StartNew();
-                        
+                    async () => {
+                        _logger.LogDebug("Fetching tags from database");
                         var tags = await _unitOfWork.TagRepo.GetAllAsync();
-                        
-                        tagStopwatch.Stop();
-                        _logger.LogDebug("Database query completed in {ElapsedMilliseconds}ms", tagStopwatch.ElapsedMilliseconds);
                         
                         if (tags == null)
                         {
-                            _logger.LogWarning("No tags returned from database");
-                            throw new ExploreServiceException("Failed to retrieve tags");
+                            throw new DataRetrievalException("tags", "No tags found");
                         }
                         
                         return tags.ToGetTagsResponse();
                     },
                     expiration
                 );
-
-                stopwatch.Stop();
-                _logger.LogInformation("GetTags operation completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
-                return result;
             }
-            catch (Exception ex)
+            catch (CacheException cacheEx)
+            {
+                throw ExceptionConverter.ConvertCacheException(cacheEx, "tags");
+            }
+            catch (Exception ex) when (ex is not ExploreServiceException)
             {
                 _logger.LogError(ex, "Error retrieving tags");
-                throw new ExploreServiceException("Failed to retrieve tags", ex);
+                throw new DataRetrievalException("tags", ex);
             }
         }
     }
