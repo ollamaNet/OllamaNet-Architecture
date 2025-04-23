@@ -10,13 +10,13 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        //Ocelot
+        //Add Ocelot Services
         builder.Configuration.AddJsonFile("ocelotConfig.json", optional: false, reloadOnChange: true);
         builder.Services.AddOcelot();
 
         // Add services to the container.
-
         builder.Services.AddControllers();
+
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
@@ -40,12 +40,14 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
 
 
         app.MapControllers();
 
+        //Add Ocelot Middleware
         await app.UseOcelot();
 
         app.Run();
