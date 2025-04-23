@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ConversationService.ChatService
@@ -15,21 +17,28 @@ namespace ConversationService.ChatService
        private readonly IOllamaConnector _connector;
        private readonly ILogger<ChatService> _logger;
        private readonly ChatHistoryManager _chatHistoryManager;
-       private readonly ICacheManager _cacheManager;
 
        public ChatService(
            IOllamaConnector connector,
            ILogger<ChatService> logger,
-           ChatHistoryManager chatHistoryManager,
-           ICacheManager cacheManager)
+           ChatHistoryManager chatHistoryManager)
        {
            _connector = connector ?? throw new ArgumentNullException(nameof(connector));
            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
            _chatHistoryManager = chatHistoryManager ?? throw new ArgumentNullException(nameof(chatHistoryManager));
-           _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
        }
 
-       public async IAsyncEnumerable<OllamaModelResponse> GetStreamedModelResponse(PromptRequest request)
+
+
+
+
+
+
+
+       /// <summary>
+       /// Gets a streamed model response for a prompt request
+       /// </summary>
+       public IAsyncEnumerable<OllamaModelResponse> GetStreamedModelResponse(PromptRequest request)
        {
            if (request == null)
                throw new ArgumentException("Request cannot be null", nameof(request));
@@ -41,92 +50,112 @@ namespace ConversationService.ChatService
            _logger.LogInformation("Processing streamed chat request for conversation: {ConversationId}, model: {Model}",
                request.ConversationId, request.Model);
 
-           // Get chat history from cache or database
-           var (found, history) = await _cacheManager.GetChatHistoryAsync(request.ConversationId);
+           // Return an async enumerable without using try/catch at this level
+           return ProcessStreamedResponseAsync(request);
+       }
 
-           if (found)
-           {
-               _logger.LogInformation("Chat history retrieved from cache for conversation: {ConversationId}",
-                   request.ConversationId);
-           }
-           else
-           {
-               _logger.LogInformation("Chat history not found in cache, retrieving from database for conversation: {ConversationId}",
-                   request.ConversationId);
 
-               try
-               {
-                   history = await _chatHistoryManager.GetChatHistoryAsync(request);
-               }
-               catch (Exception ex)
-               {
-                   _logger.LogError(ex, "Error retrieving chat history from database for conversation: {ConversationId}",
-                       request.ConversationId);
-                   throw;
-               }
-           }
 
-           // Add latest user message and system message to chat history
-           if (!string.IsNullOrEmpty(request.SystemMessage))
-           {
-               history.AddSystemMessage(request.SystemMessage);
-           }
-           history.AddUserMessage(request.Content);
 
-           // Stream responses from the model
+
+
+
+
+       /// <summary>
+       /// Internal method to process the streaming response without yielding in a try-catch
+       /// </summary>
+       private async IAsyncEnumerable<OllamaModelResponse> ProcessStreamedResponseAsync(
+           PromptRequest request,
+           [EnumeratorCancellation] System.Threading.CancellationToken cancellationToken = default)
+       {
+           var stopwatch = Stopwatch.StartNew();
            List<OllamaModelResponse> responses = new List<OllamaModelResponse>();
+           ChatHistory history = null;
 
            try
            {
-               await foreach (var response in _connector.GetStreamedChatMessageContentsAsync(history, request))
+               // Get chat history from cache or database
+               history = await _chatHistoryManager.GetChatHistoryWithCachingAsync(request);
+               _logger.LogInformation("Chat history retrieved for conversation: {ConversationId}", request.ConversationId);
+
+               // Add latest user message and system message to chat history
+               if (!string.IsNullOrEmpty(request.SystemMessage))
                {
-                   // Skip null responses
-                   if (response == null)
-                   {
-                       continue;
-                   }
+                   history.AddSystemMessage(request.SystemMessage);
+               }
+               history.AddUserMessage(request.Content);
+           }
+           catch (Exception ex)
+           {
+               _logger.LogError(ex, "Error preparing chat history for conversation: {ConversationId}", request.ConversationId);
+               throw; // Rethrow to caller
+           }
 
-                   // Add assistant message to history and cache it
-                   if (!string.IsNullOrEmpty(response.Content))
-                   {
-                       // Add to history for tracking
-                       history.AddAssistantMessage(response.Content);
-
-                       // Update cache periodically during streaming
-                       await _cacheManager.SetChatHistoryAsync(request.ConversationId, history);
-                   }
-
-                   responses.Add(response);
-                   yield return response;
+           // Stream responses from the model
+           await foreach (var response in _connector.GetStreamedChatMessageContentsAsync(history, request)
+               .WithCancellation(cancellationToken))
+           {
+               // Skip null responses
+               if (response == null)
+               {
+                   continue;
                }
 
-               // Final cache update after all responses
-               await _cacheManager.SetChatHistoryAsync(request.ConversationId, history);
+               // Add assistant message to history for tracking
+               if (!string.IsNullOrEmpty(response.Content))
+               {
+                   history.AddAssistantMessage(response.Content);
+               }
 
-               // Save to database in background
+               responses.Add(response);
+               yield return response;
+           }
+
+           try
+           {
+               // After all streaming is done, save the interaction
+               stopwatch.Stop();
+               _logger.LogInformation("Streaming completed in {ElapsedMilliseconds}ms for conversation: {ConversationId}", 
+                   stopwatch.ElapsedMilliseconds, request.ConversationId);
+
+               // Use Task.Run to not block the streaming
                _ = Task.Run(async () =>
                {
                    try
                    {
-                       await _chatHistoryManager.SaveStreamedChatInteractionAsync(request, responses);
-                       _logger.LogInformation("Saved streamed chat interaction to database for conversation: {ConversationId}",
+                       await _chatHistoryManager.SaveStreamedChatInteractionAsync(request, responses, history);
+                       _logger.LogInformation("Saved streamed chat interaction for conversation: {ConversationId}", 
                            request.ConversationId);
                    }
                    catch (Exception ex)
                    {
-                       _logger.LogError(ex, "Error saving streamed chat interaction to database for conversation: {ConversationId}",
+                       _logger.LogError(ex, "Error saving streamed chat interaction for conversation: {ConversationId}", 
                            request.ConversationId);
                    }
                });
            }
            catch (Exception ex)
            {
-               _logger.LogError(ex, "Error streaming model response for conversation: {ConversationId}",
+               _logger.LogError(ex, "Error finalizing streaming for conversation: {ConversationId}", 
                    request.ConversationId);
-               throw;
+               // Don't throw here since we're after yielding all responses
            }
        }
 
+
+
+
+
+
+
+
+
+
+
+
+       /// <summary>
+       /// Gets a model response for a prompt request (non-streaming)
+       /// </summary>
        public async Task<ChatResponse> GetModelResponse(PromptRequest request)
        {
            if (request == null)
@@ -135,33 +164,24 @@ namespace ConversationService.ChatService
            if (string.IsNullOrEmpty(request.ConversationId))
                throw new ArgumentException("Conversation ID is required", nameof(request));
 
+           var stopwatch = Stopwatch.StartNew();
+
            // Log the operation start
            _logger.LogInformation("Processing chat request for conversation: {ConversationId}, model: {Model}",
                request.ConversationId, request.Model);
 
            // Get chat history from cache or database
-           var (found, history) = await _cacheManager.GetChatHistoryAsync(request.ConversationId);
-
-           if (found)
+           ChatHistory history;
+           try
            {
-               _logger.LogInformation("Chat history retrieved from cache for conversation: {ConversationId}",
-                   request.ConversationId);
+               // Use the enhanced method with caching
+               history = await _chatHistoryManager.GetChatHistoryWithCachingAsync(request);
+               _logger.LogInformation("Chat history retrieved for conversation: {ConversationId}", request.ConversationId);
            }
-           else
+           catch (Exception ex)
            {
-               _logger.LogInformation("Chat history not found in cache, retrieving from database for conversation: {ConversationId}",
-                   request.ConversationId);
-
-               try
-               {
-                   history = await _chatHistoryManager.GetChatHistoryAsync(request);
-               }
-               catch (Exception ex)
-               {
-                   _logger.LogError(ex, "Error retrieving chat history from database for conversation: {ConversationId}",
-                       request.ConversationId);
-                   throw;
-               }
+               _logger.LogError(ex, "Error retrieving chat history for conversation: {ConversationId}", request.ConversationId);
+               throw;
            }
 
            // Add latest user message and system message to chat history
@@ -174,12 +194,11 @@ namespace ConversationService.ChatService
            try
            {
                // Get model response
-               var ollamaResponse = await _connector.GetChatMessageContentsAsync(history, request);
+               var ollamaResponses = await _connector.GetChatMessageContentsAsync(history, request);
 
-               if (ollamaResponse.Count == 0 || ollamaResponse[0] == null)
+               if (ollamaResponses == null || ollamaResponses.Count == 0 || ollamaResponses[0] == null)
                {
-                   _logger.LogWarning("Model returned empty response for conversation: {ConversationId}",
-                       request.ConversationId);
+                   _logger.LogWarning("Model returned empty response for conversation: {ConversationId}", request.ConversationId);
                    return new ChatResponse
                    {
                        ConversationId = request.ConversationId,
@@ -190,26 +209,25 @@ namespace ConversationService.ChatService
                }
 
                // Map response
-               var response = ModelResponseMapper.ToModelResponse(ollamaResponse[0], request);
+               var response = ModelResponseMapper.ToModelResponse(ollamaResponses[0], request);
 
                // Add LLM response to history and save history to cache
-               history.AddAssistantMessage(ollamaResponse[0].Content ?? string.Empty);
+               history.AddAssistantMessage(ollamaResponses[0].Content ?? string.Empty);
 
-               // Update cache
-               await _cacheManager.SetChatHistoryAsync(request.ConversationId, history);
+               // Save chat interaction to database and update cache
+               await _chatHistoryManager.SaveChatInteractionAsync(request, ollamaResponses, history);
 
-               // Save to database
-               await _chatHistoryManager.SaveChatInteractionAsync(request, ollamaResponse);
-
-               _logger.LogInformation("Processed chat request successfully for conversation: {ConversationId}",
-                   request.ConversationId);
+               stopwatch.Stop();
+               _logger.LogInformation("Processed chat request successfully in {ElapsedMilliseconds}ms for conversation: {ConversationId}",
+                   stopwatch.ElapsedMilliseconds, request.ConversationId);
 
                return response;
            }
            catch (Exception ex)
            {
-               _logger.LogError(ex, "Error getting model response for conversation: {ConversationId}",
-                   request.ConversationId);
+               stopwatch.Stop();
+               _logger.LogError(ex, "Error getting model response for conversation: {ConversationId} after {ElapsedMilliseconds}ms",
+                   request.ConversationId, stopwatch.ElapsedMilliseconds);
                throw;
            }
        }

@@ -125,22 +125,29 @@ namespace ConversationService
         {
             services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
-
-            // ChatService is currently not in use (commented out)
-            //services.AddScoped<ChatHistory>();
-            //services.AddScoped<ChatHistoryManager>();
-            //services.AddScoped<IChatService, ChatService.ChatService>();
-
+            
+            // Chat-related services
+            services.AddScoped<ChatHistoryManager>();
+            services.AddScoped<IChatService, ChatService.ChatService>();
+            
             // Register ConversationService
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
-
+            
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();
             services.AddScoped<IValidator<UpdateConversationRequest>, Controllers.Validators.UpdateConversationRequestValidator>();
-
-            // Register PromptRequestValidator (currently not used as ChatController is commented out)
-            services.AddScoped<IValidator<PromptRequest>, Controllers.Validators.PromptRequestValidator>();
-
+            
+            // Register PromptRequestValidator (keep for backward compatibility)
+            services.AddScoped<Controllers.Validators.PromptRequestValidator>();
+            
+            // Register ChatRequestValidator for the ChatController
+            services.AddScoped<Controllers.Validators.ChatRequestValidator>();
+            services.AddScoped<IValidator<PromptRequest>>(provider => 
+            {
+                // Use ChatRequestValidator for the ChatController
+                return provider.GetRequiredService<Controllers.Validators.ChatRequestValidator>();
+            });
+            
             // Register HTTP context accessor
             services.AddHttpContextAccessor();
         }

@@ -9,4 +9,7 @@ public static class CacheKeys
     public const string ConversationInfo = "conversation:info:{0}"; // {0} = conversationId
     public const string ConversationMessages = "conversation:messages:{0}"; // {0} = conversationId
     public const string ConversationLatestMessages = "conversation:messages:{0}:latest:{1}"; // {0} = conversationId, {1} = count
+    
+    // Chat-related cache keys
+    public const string ChatHistory = "chat:history:{0}"; // {0} = conversationId
 }
