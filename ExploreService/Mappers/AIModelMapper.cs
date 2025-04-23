@@ -5,7 +5,7 @@ namespace ExploreService.Mappers
 {
     public static class ModelMapper
     {
-        public static ModelInfoResponse FromModelInfoResposne(this AIModel DBmodel)
+        public static ModelInfoResponse FromModelInfoResponse(this AIModel DBmodel)
         {
             if (DBmodel == null) throw new ArgumentNullException(nameof(DBmodel));
 
