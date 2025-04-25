@@ -161,7 +161,11 @@
         }
       ],
       "UpstreamPathTemplate": "/Admin/AddModel",
-      "UpstreamHttpMethod": [ "POST" ]
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/admin/ollamamodelinfo",

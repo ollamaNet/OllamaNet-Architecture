@@ -17,7 +17,7 @@ public class Program
 
         // Use Organized Service Registrations
         builder.Services.AddDatabaseAndIdentity(builder.Configuration);
-        builder.Services.AddJwtAuthentication(builder.Configuration);
+        //builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddRepositories();
         builder.Services.AddApplicationServices();
         builder.Services.ConfigureCors();

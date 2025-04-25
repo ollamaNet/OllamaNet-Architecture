@@ -41,14 +41,14 @@ namespace Ollama_Component.Services.ConversationService
 
 
 
-        public async Task<PagedResult<Conversation>> GetConversationsAsync(string UserId)
+        /*public async Task<PagedResult<Conversation>> GetConversationsAsync(string UserId)
         {
             ArgumentNullException.ThrowIfNull(UserId);
 
             var ConversationList = await _unitOfWork.ConversationRepo.ConversationPagination(UserId, 1, 15);
 
             return ConversationList;
-        }
+        }*/
 
 
         public async Task<GetConversationInfoResponse> GetConversationInfoAsync(string ConversationId)

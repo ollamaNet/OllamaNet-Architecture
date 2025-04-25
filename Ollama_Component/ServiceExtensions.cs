@@ -108,6 +108,7 @@ namespace Ollama_Component
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
