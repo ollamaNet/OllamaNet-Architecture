@@ -279,7 +279,7 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/models/models",
+      "DownstreamPathTemplate": "/api/v1/explore/models",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -288,22 +288,10 @@
         }
       ],
       "UpstreamPathTemplate": "/explore/models",
-      "UpstreamHttpMethod": [ "POST" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/models/modelinfo/{modelName}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7014
-        }
-      ],
-      "UpstreamPathTemplate": "/explore/modelinfo/{modelName}",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/models/gettags",
+      "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -311,8 +299,32 @@
           "Port": 7014
         }
       ],
-      "UpstreamPathTemplate": "/explore/gettags",
+      "UpstreamPathTemplate": "/explore/models/{id}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7014
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7014
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
       "UpstreamHttpMethod": [ "GET" ]
     }
   ]
-} 
+}

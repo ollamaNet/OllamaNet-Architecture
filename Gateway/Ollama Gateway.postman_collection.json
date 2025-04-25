@@ -1,0 +1,741 @@
+{
+	"info": {
+		"_postman_id": "a0041bcd-be47-48f7-bf28-d758583286eb",
+		"name": "Ollama Gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40154270"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"test\",\r\n  \"email\": \"test@test.com\",\r\n  \"password\": \"MaStEr15603#\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/register",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"medo1562003@gmail.com\",\r\n  \"password\": \"MaStEr15603#\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/login",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateProfile",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"description": "JWT Token",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"medo1562003@gmail.com\",\r\n  \"username\": \"MasterTest\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/updateprofile",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"updateprofile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangePassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldPassword\": \"MaStEr15603#$\",\r\n  \"newPassword\": \"MaStEr15603#\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/changepassword",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"changepassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ForgotPassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"medo1562003@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/forgotpassword",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"forgotpassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"medo1562003@gmail.com\",\r\n  \"token\": \"CfDJ8KgQ6Hm6jYNKmOj8lU68AM24M%2fuzMRS9oRVCb2CPZos8kXypFCstGnoj32yIJamre%2bWLLMRmKFXJ9ZzlKUdcor4Yv02yFCdHX%2f9RJP%2fpzJCOJdQJK6Ii1XJ2Nmcgj9fRMJBLfMg1byrKcbWVxutFraTJsxpdxpGNQWcz0v3siUiSTTHh1fCvlj6HaYeDuWeERUTpSuHqck1SENgpPYf8GgtNZjLxtI5LUDB6teA1K5r6\",\r\n  \"newPassword\": \"MaStEr15603#$\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/resetpassword",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"resetpassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AssignRole",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": \"36c31109-a463-4062-a31d-01510b9fa900\",\r\n  \"role\": \"Admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/assignrole",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"assignrole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeassignRole",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": \"36c31109-a463-4062-a31d-01510b9fa900\",\r\n  \"role\": \"Admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/deassignrole",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"deassignrole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResfreshToken",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseAuthURL}}/RefreshToken",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"RefreshToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetRoles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAuthURL}}/getroles/36c31109-a463-4062-a31d-01510b9fa900",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"getroles",
+								"36c31109-a463-4062-a31d-01510b9fa900"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYVN0RXIiLCJqdGkiOiIyMGE5OWQwMi05OTYwLTQxYTktOTU2Zi1lOWUxODY1MzNjYWEiLCJlbWFpbCI6Im1lZG8xNTYyMDAzQGdtYWlsLmNvbSIsIlVzZXJJZCI6IjEwNzE2ODRmLWI1NDUtNDJmNS04N2RjLTg4MGQ3YWVmZDdmMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwiZXhwIjoxNzQ3ODU0MjM4LCJpc3MiOiJTZWN1cmVBcGkiLCJhdWQiOiJTZWN1cmVBcGlVc2VyIn0.yCJ7XGzYh7km1GjhCHmxYrW9TznpacTJVVj7BOktdE0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwianRpIjoiNTk5MjRmYTUtYTQ2My00NjEzLThiMzQtMDI0MDUwNzU0ZGZhIiwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tIiwiVXNlcklkIjoiMzZjMzExMDktYTQ2My00MDYyLWEzMWQtMDE1MTBiOWZhOTAwIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MTc0Nzg1NTgxMiwiaXNzIjoiU2VjdXJlQXBpIiwiYXVkIjoiU2VjdXJlQXBpVXNlciJ9.kVVjhvm0x5RpQZOZDnmJXvu9UuIvF0c9DE6egwAe2ak\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAuthURL}}/logout",
+							"host": [
+								"{{baseAuthURL}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "AddModel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYXN0ZXJUZXN0IiwianRpIjoiMzEzYjc4YzMtNWU0MS00NzhjLThmZmQtNjAwZWUzOTE0MTgyIiwiZW1haWwiOiJtZWRvMTU2MjAwM0BnbWFpbC5jb20iLCJVc2VySWQiOiIxMDcxNjg0Zi1iNTQ1LTQyZjUtODdkYy04ODBkN2FlZmQ3ZjMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiVXNlciIsIkFkbWluIl0sImV4cCI6MTc0Nzg2MDM4MywiaXNzIjoiU2VjdXJlQXBpIiwiYXVkIjoiU2VjdXJlQXBpVXNlciJ9.AtzHdVtNJr9RLWuy8-Gz1Y5r-DnBZXJ6oxCwAR-iyck",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"phi4\",\r\n  \"description\": \"string\",\r\n  \"version\": \"string\",\r\n  \"size\": \"string\",\r\n  \"releasedAt\": \"2025-04-21T20:39:54.520Z\",\r\n  \"referenceLink\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"fromOllama\": true,\r\n  \"digest\": \"string\",\r\n  \"format\": \"string\",\r\n  \"parameterSize\": \"string\",\r\n  \"quantizationLevel\": \"string\",\r\n  \"license\": \"string\",\r\n  \"modelFile\": \"string\",\r\n  \"template\": \"string\",\r\n  \"parentModel\": \"string\",\r\n  \"family\": \"string\",\r\n  \"families\": [\r\n    \"string\"\r\n  ],\r\n  \"languages\": [\r\n    \"string\"\r\n  ],\r\n  \"architecture\": \"string\",\r\n  \"fileType\": 0,\r\n  \"parameterCount\": 0,\r\n  \"quantizationVersion\": 0,\r\n  \"sizeLabel\": \"string\",\r\n  \"modelType\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/AddModel",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"AddModel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OllamaModelInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwianRpIjoiZDVmMjQ1ZWEtYmYxNS00ZDFjLWFhZDUtZTk3Y2UyYWJmZmUxIiwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tIiwiVXNlcklkIjoiMzZjMzExMDktYTQ2My00MDYyLWEzMWQtMDE1MTBiOWZhOTAwIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MTc0ODEwMDcyNywiaXNzIjoiU2VjdXJlQXBpIiwiYXVkIjoiU2VjdXJlQXBpVXNlciJ9.r1E5QTmM0VogBnBlhJx_J9TIWgDQnBectSeH7LNi43E",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAdminURL}}/OllamaModelInfo?ModelName=phi4",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"OllamaModelInfo"
+							],
+							"query": [
+								{
+									"key": "ModelName",
+									"value": "phi4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PullModel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"modelName\": \"gemma3\",\r\n  \"stream\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/PullModel",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"PullModel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Installed",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAdminURL}}/Installed?pageNumber=1&pageSize=10",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"Installed"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SoftDelete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseAdminURL}}/Softdelete?modelName=ass",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"Softdelete"
+							],
+							"query": [
+								{
+									"key": "modelName",
+									"value": "ass"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Uninstall",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"modelName\": \"smollm:135m\",\r\n  \"deleteFromDB\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/Uninstall",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"Uninstall"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTags",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  \"gemmaTest\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/AddTags",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"AddTags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTagsToModel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"tagId\": \"33438e9d-6326-4263-93ad-f7edfc25cc72\"\r\n  }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/AddTagsToModel/gemma3",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"AddTagsToModel",
+								"gemma3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateModel",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"gemma3\",\r\n  \"description\": \"Gemma is a lightweight, family of models from Google built on Gemini technology. The Gemma 3 models are multimodal—processing text and images—and feature a 128K context window with support for over 140 languages. Available in 1B, 4B, 12B, and 27B parameter sizes, they excel in tasks like question answering, summarization, and reasoning, while their compact design allows deployment on resource-limited devices.\",\r\n  \"releasedAt\": \"2025-04-21T22:10:47.355Z\",\r\n  \"license\": \"string\",\r\n  \"template\": \"string\",\r\n  \"modelFile\": \"string\",\r\n  \"referenceLink\": \"https://ollama.com/library/gemma3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAdminURL}}/UpdateModel",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"UpdateModel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAdminURL}}/Users",
+							"host": [
+								"{{baseAdminURL}}"
+							],
+							"path": [
+								"Users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Explore",
+			"item": [
+				{
+					"name": "Models",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseExploreURL}}/models?page=1&pageSize=10",
+							"host": [
+								"{{baseExploreURL}}"
+							],
+							"path": [
+								"models"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Model Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseExploreURL}}/models/{id}",
+							"host": [
+								"{{baseExploreURL}}"
+							],
+							"path": [
+								"models",
+								"{id}"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "gemma3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseExploreURL}}/tags",
+							"host": [
+								"{{baseExploreURL}}"
+							],
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Models By Tag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseExploreURL}}/tags/{tagId}/models",
+							"host": [
+								"{{baseExploreURL}}"
+							],
+							"path": [
+								"tags",
+								"{tagId}",
+								"models"
+							],
+							"variable": [
+								{
+									"key": "tagId",
+									"value": "your-tag-id-here"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseAuthURL",
+			"value": "https://localhost:7000/auth",
+			"type": "string"
+		},
+		{
+			"key": "baseAdminURL",
+			"value": "https://localhost:7000/Admin",
+			"type": "string"
+		},
+		{
+			"key": "baseExploreURL",
+			"value": "https://localhost:7000/Explore",
+			"type": "string"
+		}
+	]
+}

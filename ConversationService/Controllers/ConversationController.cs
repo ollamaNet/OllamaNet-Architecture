@@ -63,7 +63,7 @@ namespace ConversationService.Controllers
 
             var validationResult = await _conversationValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
-                return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
+                return BadRequest(new { error = "Validation failed", details = validationResult.Errors });  
 
             var response = await _conversationService.CreateConversationAsync(userId, request);
             if (response == null)
