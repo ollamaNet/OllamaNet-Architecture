@@ -36,6 +36,7 @@ using Ollama_Component.Controllers;
 using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 
 namespace Ollama_Component
 {
@@ -106,7 +107,7 @@ namespace Ollama_Component
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
-
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -115,7 +116,7 @@ namespace Ollama_Component
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://a712-34-124-247-49.ngrok-free.app"));
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://127.0.0.1:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
             services.AddScoped<ChatHistory>();
             services.AddScoped<ChatHistoryManager>();

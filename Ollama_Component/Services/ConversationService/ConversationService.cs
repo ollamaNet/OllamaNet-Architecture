@@ -1,5 +1,6 @@
 ﻿using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
+using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 
@@ -41,7 +42,7 @@ namespace Ollama_Component.Services.ConversationService
 
 
 
-        public async Task<PagedResult<Conversation>> GetConversationsAsync(string UserId)
+        public async Task<PagedResult<ConversationCard>> GetConversationsAsync(string UserId)
         {
             ArgumentNullException.ThrowIfNull(UserId);
 
