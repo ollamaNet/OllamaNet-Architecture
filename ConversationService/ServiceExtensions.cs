@@ -36,11 +36,8 @@ using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
-using AuthenticationService;
-using AuthenticationService.Helpers;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
-using Ollama_DB_layer.Repositories.FolderConversationRepo;
-using Ollama_DB_layer.Repositories.FolderRepo;
+
 
 namespace ConversationService
 {
@@ -63,30 +60,26 @@ namespace ConversationService
         // Register Authentication & Authorization
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<JWT>(configuration.GetSection("JWT"));
-            services.AddScoped<JWTManager>();
-            services.AddScoped<IAuthService, AuthService>();
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(o =>
-            {
-                o.RequireHttpsMetadata = false;
-                o.SaveToken = false;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = configuration["JWT:Issuer"],
-                    ValidAudience = configuration["JWT:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"])),
-                };
-            });
+             {
+                 o.RequireHttpsMetadata = false;
+                 o.SaveToken = false;
+                 o.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuerSigningKey = true,
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidateLifetime = true,
+                     ValidIssuer = configuration["JWT:Issuer"],
+                     ValidAudience = configuration["JWT:Audience"],
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"])),
+                 };
+             });
 
             services.AddAuthorization(options =>
             {
@@ -114,9 +107,6 @@ namespace ConversationService
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-            services.AddScoped<IFolderConversationRepository, FolderConversationRepository>();
-            services.AddScoped<IFolderRepository, FolderRepository>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
@@ -125,29 +115,29 @@ namespace ConversationService
         {
             services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
-            
+
             // Chat-related services
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService.ChatService>();
-            
+
             // Register ConversationService
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
-            
+
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();
             services.AddScoped<IValidator<UpdateConversationRequest>, Controllers.Validators.UpdateConversationRequestValidator>();
-            
+
             // Register PromptRequestValidator (keep for backward compatibility)
             services.AddScoped<Controllers.Validators.PromptRequestValidator>();
-            
+
             // Register ChatRequestValidator for the ChatController
             services.AddScoped<Controllers.Validators.ChatRequestValidator>();
-            services.AddScoped<IValidator<PromptRequest>>(provider => 
+            services.AddScoped<IValidator<PromptRequest>>(provider =>
             {
                 // Use ChatRequestValidator for the ChatController
                 return provider.GetRequiredService<Controllers.Validators.ChatRequestValidator>();
             });
-            
+
             // Register HTTP context accessor
             services.AddHttpContextAccessor();
         }

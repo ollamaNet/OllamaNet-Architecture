@@ -37,8 +37,6 @@ using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
-using Ollama_DB_layer.Repositories.FolderConversationRepo;
-using Ollama_DB_layer.Repositories.FolderRepo;
 
 namespace Ollama_Component
 {
@@ -112,8 +110,6 @@ namespace Ollama_Component
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-            services.AddScoped<IFolderConversationRepository, FolderConversationRepository>();
-            services.AddScoped<IFolderRepository, FolderRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

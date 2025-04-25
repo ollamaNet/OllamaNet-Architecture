@@ -1,5 +1,6 @@
 ﻿using ConversationService.ConversationService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
+using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,9 +11,9 @@ namespace ConversationService.ConversationService
     {
         Task<OpenConversationResponse> CreateConversationAsync(string userId, OpenConversationRequest request);
         
-        Task<PagedResult<Conversation>> GetConversationsAsync(string userId, int pageNumber = 1, int pageSize = 15);
+        Task<PagedResult<ConversationCard>> GetConversationsAsync(string userId, int pageNumber = 1, int pageSize = 15);
         
-        Task<PagedResult<Conversation>> SearchConversationsAsync(string userId, string searchTerm, int pageNumber = 1, int pageSize = 15);
+        Task<PagedResult<ConversationCard>> SearchConversationsAsync(string userId, string searchTerm, int pageNumber = 1, int pageSize = 15);
         
         Task<GetConversationInfoResponse> GetConversationInfoAsync(string conversationId);
         

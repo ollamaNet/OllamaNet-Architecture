@@ -3,6 +3,7 @@ using ConversationService.ConversationService.DTOs;
 using ConversationService.Mappers;
 using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.DataBaseHelpers;
+using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.UOW;
 using System;
@@ -94,7 +95,7 @@ namespace ConversationService.ConversationService
 
 
 
-        public async Task<PagedResult<Conversation>> GetConversationsAsync(string userId, int pageNumber = 1, int pageSize = 15)
+        public async Task<PagedResult<ConversationCard>> GetConversationsAsync(string userId, int pageNumber = 1, int pageSize = 15)
         {
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
@@ -142,7 +143,7 @@ namespace ConversationService.ConversationService
 
 
 
-        public async Task<PagedResult<Conversation>> SearchConversationsAsync(string userId, string searchTerm, int pageNumber = 1, int pageSize = 15)
+        public async Task<PagedResult<ConversationCard>> SearchConversationsAsync(string userId, string searchTerm, int pageNumber = 1, int pageSize = 15)
         {
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
