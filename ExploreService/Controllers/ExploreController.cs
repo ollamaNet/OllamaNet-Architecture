@@ -1,168 +1,116 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using ExploreService;
 using ExploreService.DTOs;
+using ExploreService.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Net;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
+using System.Net;
 
 namespace ExploreService.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [Produces("application/json")]
+    [Route("api/v1/explore")]
     public class ExploreController : ControllerBase
     {
         private readonly IExploreService _exploreService;
         private readonly ILogger<ExploreController> _logger;
 
-        public ExploreController(
-            IExploreService exploreService,
-            ILogger<ExploreController> logger)
+        public ExploreController(IExploreService exploreService, ILogger<ExploreController> logger)
         {
-            _exploreService = exploreService ?? throw new ArgumentNullException(nameof(exploreService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _exploreService = exploreService;
+            _logger = logger;
         }
 
-        [HttpPost("Models")]
-        [ProducesResponseType(typeof(PagedResult<ModelCard>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Models(int PageNumber, int PageSize)
-        {
-            try
-            {
-                if (PageSize <= 0 || PageNumber <= 0)
-                {
-                    _logger.LogWarning("Invalid pagination parameters: PageNumber={PageNumber}, PageSize={PageSize}", PageNumber, PageSize);
-                    return BadRequest("PageNumber and PageSize must be greater than zero.");
-                }
-
-                var response = await _exploreService.AvailableModels(PageNumber, PageSize);
-                
-                if (response == null)
-                {
-                    _logger.LogError("Failed to retrieve models for PageNumber={PageNumber}, PageSize={PageSize}", PageNumber, PageSize);
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve models.");
-                }
-
-                // Add cache control headers
-                Response.Headers.Add("X-Cache-Status", "HIT");
-                Response.Headers.Add("Cache-Control", "public, max-age=300"); // 5 minutes cache
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving models for PageNumber={PageNumber}, PageSize={PageSize}", PageNumber, PageSize);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-            }
-        }
-
-        [HttpGet("ModelInfo/{modelName}")]
-        [ProducesResponseType(typeof(ModelInfoResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ModelInfo(string modelName)
+        /// <summary>
+        /// Get paginated list of available models
+        /// </summary>
+        [HttpGet("models")]
+        [ProducesResponseType(typeof(PagedResult<ModelCard>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetModels([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(modelName))
-                {
-                    _logger.LogWarning("Empty model name provided");
-                    return BadRequest("Model name cannot be empty.");
-                }
-
-                var response = await _exploreService.ModelInfo(modelName);
-                
-                if (response == null)
-                {
-                    _logger.LogWarning("Model not found: {ModelName}", modelName);
-                    return NotFound($"Model '{modelName}' not found.");
-                }
-
-                // Add cache control headers
-                Response.Headers.Add("X-Cache-Status", "HIT");
-                Response.Headers.Add("Cache-Control", "public, max-age=3600"); // 1 hour cache
-
-                return Ok(response);
+                var result = await _exploreService.AvailableModels(page, pageSize);
+                return Ok(result);
             }
-            catch (InvalidOperationException ex)
+            catch (ExploreServiceException ex)
             {
-                _logger.LogError(ex, "Error retrieving model info for {ModelName}", modelName);
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error retrieving model info for {ModelName}", modelName);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                _logger.LogError(ex, "Error getting models. Page: {Page}, PageSize: {PageSize}", page, pageSize);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
             }
         }
 
-        [HttpGet("GetTags")]
-        [ProducesResponseType(typeof(List<GetTagsResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        /// <summary>
+        /// Get detailed information about a specific model
+        /// </summary>
+        [HttpGet("models/{id}")]
+        [ProducesResponseType(typeof(ModelInfoResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetModelById(string id)
+        {
+            try
+            {
+                var result = await _exploreService.ModelInfo(id);
+                return Ok(result);
+            }
+            catch (ModelNotFoundException ex)
+            {
+                _logger.LogWarning("Model not found: {ModelId}", ex.ModelId);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ExploreServiceException ex)
+            {
+                _logger.LogError(ex, "Error getting model: {ModelId}", id);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all available tags
+        /// </summary>
+        [HttpGet("tags")]
+        [ProducesResponseType(typeof(List<GetTagsResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetTags()
         {
             try
             {
-                var response = await _exploreService.GetTags();
-                
-                if (response == null || !response.Any())
-                {
-                    _logger.LogWarning("No tags found");
-                    return Ok(new List<GetTagsResponse>()); // Return empty list instead of error
-                }
-
-                // Add cache control headers
-                Response.Headers.Add("X-Cache-Status", "HIT");
-                Response.Headers.Add("Cache-Control", "public, max-age=3600"); // 1 hour cache
-
-                return Ok(response);
+                var result = await _exploreService.GetTags();
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (ExploreServiceException ex)
             {
-                _logger.LogError(ex, "Error retrieving tags");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving tags.");
+                _logger.LogError(ex, "Error getting tags");
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
             }
         }
 
-        [HttpGet("GetTagModels/{tagId}")]
-        [ProducesResponseType(typeof(IEnumerable<ModelCard>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetTagModels(string tagId)
+        /// <summary>
+        /// Get all models associated with a specific tag
+        /// </summary>
+        [HttpGet("tags/{tagId}/models")]
+        [ProducesResponseType(typeof(IEnumerable<ModelCard>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetModelsByTag(string tagId)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(tagId))
-                {
-                    _logger.LogWarning("Empty tag ID provided");
-                    return BadRequest("Tag ID cannot be empty.");
-                }
-
-                var response = await _exploreService.GetTagModels(tagId);
-                
-                if (response == null || !response.Any())
-                {
-                    _logger.LogWarning("No models found for tag: {TagId}", tagId);
-                    return Ok(new List<ModelCard>()); // Return empty list instead of error
-                }
-
-                // Add cache control headers
-                Response.Headers.Add("X-Cache-Status", "HIT");
-                Response.Headers.Add("Cache-Control", "public, max-age=3600"); // 1 hour cache
-
-                return Ok(response);
+                var result = await _exploreService.GetTagModels(tagId);
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (TagNotFoundException ex)
             {
-                _logger.LogError(ex, "Error retrieving models for tag {TagId}", tagId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving models for the specified tag.");
+                _logger.LogWarning("Tag not found: {TagId}", ex.TagId);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ExploreServiceException ex)
+            {
+                _logger.LogError(ex, "Error getting models for tag: {TagId}", tagId);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
             }
         }
     }
-}
+} 

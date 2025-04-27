@@ -27,8 +27,7 @@ using AdminService.Controllers;
 using AdminService.Connectors;
 using AdminService.DTOs;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
-using AuthenticationService.Helpers;
-using AuthenticationService;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 
 namespace AdminService
 {
@@ -51,10 +50,6 @@ namespace AdminService
         // Register Authentication & Authorization
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<JWT>(configuration.GetSection("JWT"));
-            services.AddScoped<JWTManager>();
-            _ = services.AddScoped<IAuthService, AuthService>();
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,9 +78,11 @@ namespace AdminService
             });
         }
 
+
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
+
             services.AddScoped<IAIModelRepository, AIModelRepository>();
             services.AddScoped<IAIResponseRepository, AIResponseRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
@@ -99,8 +96,9 @@ namespace AdminService
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
-
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
@@ -143,7 +141,7 @@ namespace AdminService
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "OllamaNet", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AdminService", Version = "v1" });
 
                 // ✅ Add JWT Authentication support in Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

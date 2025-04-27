@@ -10,7 +10,7 @@ using AdminService.DTOs;
 namespace AdminService.Controllers
 {
     //[Authorize("Admin")]
-    [Route("api/[controller]")]
+    [Route("api/admin")]
     [ApiController]
     public class AdminController : Controller
     {
@@ -23,10 +23,10 @@ namespace AdminService.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpPost("AddModel")]
-        public async Task<IActionResult> AddModel([FromBody] AddModelRequest model)
+        [HttpPost("models")]
+        public async Task<IActionResult> CreateModel([FromBody] AddModelRequest model)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            var userId = Request.Headers["X-User-Id"].ToString();
             if (userId == null)
                 return Unauthorized();
 
@@ -37,22 +37,17 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-
-
-        [HttpGet("OllamaModelInfo")]
-        public async Task<IActionResult> OllamaModelInfo(string ModelName)
+        [HttpGet("models/info")]
+        public async Task<IActionResult> GetModelInfo([FromQuery] string modelName)
         {
-            if (string.IsNullOrWhiteSpace(ModelName))
+            if (string.IsNullOrWhiteSpace(modelName))
                 return BadRequest("Model name cannot be empty.");
 
-            var response = await AdminService.ModelInfoAsync(ModelName);
+            var response = await AdminService.ModelInfoAsync(modelName);
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-
-
-
-        [HttpPost("PullModel")]
+        [HttpPost("models/pull")]
         public async Task<IActionResult> PullModel([FromBody] InstallModelRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.ModelName))
@@ -86,8 +81,8 @@ namespace AdminService.Controllers
             }
         }
 
-        [HttpGet("Installed")]
-        public async Task<IActionResult> InstalledModels([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("models")]
+        public async Task<IActionResult> GetModels([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             if (pageNumber < 1 || pageSize < 1)
                 return BadRequest("Invalid pagination parameters.");
@@ -96,7 +91,7 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpDelete("SoftDelete")]
+        [HttpDelete("models/soft-delete")]
         public async Task<IActionResult> SoftDeleteModel([FromQuery] string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
@@ -106,8 +101,8 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpDelete("Uninstall")]
-        public async Task<IActionResult> UninstallModel([FromBody] RemoveModelRequest model)
+        [HttpDelete("models")]
+        public async Task<IActionResult> DeleteModel([FromBody] RemoveModelRequest model)
         {
             if (model == null || string.IsNullOrWhiteSpace(model.ModelName))
                 return BadRequest("Model name cannot be empty.");
@@ -116,8 +111,8 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPost("AddTags")]
-        public async Task<IActionResult> AddTags([FromBody] List<string> tags)
+        [HttpPost("tags")]
+        public async Task<IActionResult> CreateTags([FromBody] List<string> tags)
         {
             if(tags == null || tags.Count == 0)
                 return BadRequest("Tags cannot be empty.");
@@ -127,7 +122,7 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPost("AddTagsToModel/{modelId}")]
+        [HttpPost("models/{modelId}/tags")]
         public async Task<IActionResult> AddTagsToModel(string modelId, [FromBody] ICollection<AddTagToModelRequest> request)
         {
             if(request == null || request.Count == 0)
@@ -137,7 +132,7 @@ namespace AdminService.Controllers
             return response != null ? Ok(new { Message = response }) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpPatch("UpdateModel")]
+        [HttpPatch("models")]
         public async Task<IActionResult> UpdateModel(UpdateModelRequest request)
         {
             if (request == null)
@@ -146,8 +141,8 @@ namespace AdminService.Controllers
             return response != null ? Ok(response) : StatusCode(500, "Failed to process the request.");
         }
 
-        [HttpGet("Users")]
-        public async Task<IActionResult> Users()
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
         {
             var users = await AdminService.GetAllUsers();
             return Ok(users);

@@ -177,4 +177,170 @@
 - Secure communication
 - Cache security
 - Rate limiting
-- Token blacklisting 
+- Token blacklisting
+
+## Caching Patterns
+
+The system employs a consistent caching strategy across microservices:
+
+### Core Pattern: Cache-Aside with Fallback
+
+Each service uses the cache-aside pattern through a standardized CacheManager that:
+1. Attempts to fetch data from Redis cache
+2. On cache miss, retrieves from the database and populates cache
+3. On cache failure, gracefully falls back to database access
+4. Implements retry policies for transient errors
+
+### Exception Handling Pattern
+
+A uniform exception translation pattern is used:
+1. Cache-level exceptions are caught and mapped to service-appropriate exceptions
+2. Service methods have consistent try/catch blocks
+3. The ExceptionConverter utility standardizes error messages and context
+
+### Key Management Pattern
+
+Cache keys follow a consistent naming convention:
+- Namespace by service: `servicename:resource:id`
+- Include pagination for lists: `servicename:resource:list:page:1:size:20`
+- Include query parameters for filtered results: `servicename:resource:list:filter:param:value`
+
+### Cache Invalidation Pattern
+
+Cache entries use a combination of:
+- TTL-based expiration for all entries
+- Explicit invalidation when data is modified
+- Keys grouped by resource type for selective clearing
+
+## Logging Patterns
+
+[Existing content about logging patterns]
+
+# System Patterns
+
+## Architecture
+
+The OllamaNet Components system follows a microservices architecture with the following key services:
+
+1. **ConversationService**: Manages conversations and chat interactions
+2. **AuthService**: Handles authentication and user management
+3. **AdminService**: Provides administrative functionality
+4. **ExploreService**: Offers model exploration and discovery
+5. **Gateway**: API Gateway for routing requests
+
+Each service is independently deployable and follows similar patterns for consistency.
+
+## Design Patterns
+
+### Repository Pattern
+- Used for data access across all services
+- Abstracts database operations behind interfaces
+- Enables unit testing through mocking
+- Centralized query logic
+
+### Unit of Work
+- Manages transactions and database context
+- Ensures atomicity of operations
+- Coordinates across multiple repositories
+
+### Dependency Injection
+- Constructor-based DI throughout
+- Service registration in ServiceExtensions classes
+- Scoped lifetimes for request-bound services
+- Singleton for stateless services
+
+### Validation Pattern
+- FluentValidation library used across all services
+- Validator classes separated by request type
+- Hierarchical validation with complex rule sets
+- Conditional validation based on provided fields
+- Range validation for numeric parameters
+- Specialized validators registered through DI
+- Validators follow the same naming convention: `{RequestType}Validator`
+
+## Data Flow
+
+### Request Processing
+1. Gateway routes request to appropriate service
+2. Controller receives and performs initial authorization
+3. Request validated by corresponding validator
+4. Service layer processes business logic
+5. Repository layer handles data access
+6. Response mapped and returned
+
+### Caching Strategy
+1. Cache checked before database access
+2. Cache updated after successful database operations
+3. Cache invalidated on updates/deletes
+4. TTL set based on data volatility
+
+## Error Handling
+
+### Exception Framework
+- Centralized exception handling
+- Custom exceptions for business logic
+- Exception middleware for HTTP responses
+- Detailed logging for debugging
+
+### Validation Errors
+- Returned as 400 Bad Request
+- Includes detailed error messages
+- Validation happens before business logic
+- Clear error codes and descriptions
+
+## Communication
+
+### Synchronous APIs
+- REST API for service-to-service communication
+- Consistent endpoint structure
+- Uniform response format
+
+### Asynchronous Messaging
+- Event-based communication for decoupled operations
+- Message queue for reliability
+
+## Security
+
+### Authentication
+- JWT-based authentication
+- Token refresh mechanism
+- Claims-based authorization
+
+### Authorization
+- Role-based access control
+- Resource-based permissions
+
+## Performance Optimization
+
+### Caching
+- Redis for distributed caching
+- Optimized cache key generation
+- Selective caching based on usage patterns
+
+### Query Optimization
+- Efficient LINQ queries
+- Pagination for large result sets
+- Indexes on frequently queried fields
+
+## Monitoring and Logging
+
+### Logging Strategy
+- Structured logging with severity levels
+- Request correlation IDs
+- Performance metrics
+
+### Health Checks
+- Service status endpoints
+- Dependency health monitoring
+
+## Containerization
+
+### Docker
+- Each service has a Dockerfile
+- Optimized for layer caching
+- Environment variable configuration
+
+### Orchestration
+- Kubernetes or Docker Compose
+- Service discovery
+- Load balancing 
