@@ -1,16 +1,16 @@
 {
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:7000"
+    "BaseUrl": "http://ollamanetgateway.runasp.net"
   },
 
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/auth/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -18,11 +18,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/register",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/register",
@@ -30,11 +30,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/login",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/login",
@@ -42,11 +42,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/updateprofile",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/updateprofile",
@@ -54,11 +54,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/changepassword",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/changepassword",
@@ -66,11 +66,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/forgotpassword",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/forgotpassword",
@@ -78,11 +78,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/resetpassword",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/resetpassword",
@@ -90,11 +90,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/assignrole",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/assignrole",
@@ -102,11 +102,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/deassignrole",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/deassignrole",
@@ -114,11 +114,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/refreshtoken",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/refreshtoken",
@@ -126,11 +126,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/logout",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/logout",
@@ -138,11 +138,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/auth/getroles/{userId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7188
+          "Host": "authenticationservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/getroles/{userId}",
@@ -151,16 +151,18 @@
 
 
 
+
+
     {
-      "DownstreamPathTemplate": "/api/Admin/AddModel",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/Admin/AddModel",
+      "UpstreamPathTemplate": "/admin/models",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
@@ -168,123 +170,125 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/admin/ollamamodelinfo",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models/info",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/ollamamodelinfo",
+      "UpstreamPathTemplate": "/admin/models/info",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/pullmodel",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models/pull",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/pullmodel",
+      "UpstreamPathTemplate": "/admin/models/pull",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/installed",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/installed",
+      "UpstreamPathTemplate": "/admin/models",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/softdelete",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models/soft-delete",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/softdelete",
+      "UpstreamPathTemplate": "/admin/models/soft-delete",
       "UpstreamHttpMethod": [ "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/uninstall",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/uninstall",
+      "UpstreamPathTemplate": "/admin/models",
       "UpstreamHttpMethod": [ "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/addtags",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/tags",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/addtags",
+      "UpstreamPathTemplate": "/admin/tags",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/addtagstomodel/{modelId}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models/{modelId}/tags",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/addtagstomodel/{modelId}",
+      "UpstreamPathTemplate": "/admin/models/{modelId}/tags",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/api/admin/updatemodel",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/updatemodel",
+      "UpstreamPathTemplate": "/admin/models",
       "UpstreamHttpMethod": [ "PATCH" ]
     },
     {
-      "DownstreamPathTemplate": "/api/Admin/Users",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/admin/users",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7239
+          "Host": "adminservice.runasp.net",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/Admin/Users",
+      "UpstreamPathTemplate": "/admin/users",
       "UpstreamHttpMethod": [ "GET" ]
     },
+
+
 
 
 
     {
       "DownstreamPathTemplate": "/api/v1/explore/models",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7014
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/explore/models",
@@ -292,11 +296,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7014
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/explore/models/{id}",
@@ -304,11 +308,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7014
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/explore/tags",
@@ -316,15 +320,130 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7014
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/search",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/search",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}/messages",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}/messages",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "DELETE" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/chats/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chats",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/chats/stream/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chats/stream",
+      "UpstreamHttpMethod": [ "POST" ]
     }
   ]
 }
