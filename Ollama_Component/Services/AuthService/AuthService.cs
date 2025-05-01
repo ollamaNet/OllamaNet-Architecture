@@ -361,7 +361,6 @@ namespace Ollama_Component.Services.AuthService
             }
 
              
-
             rtoken.RevokedOn = DateTime.UtcNow;
 
             user.TokenVersion++;
