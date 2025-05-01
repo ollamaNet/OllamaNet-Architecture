@@ -362,4 +362,16 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Ollama_Component/appsettings.json
-/Ollama_Component/appsettings.json
+/ExploreService/appsettings.json
+/Gateway/appsettings.json
+/AdminService/appsettings.json
+/AuthService/appsettings.json
+/Gateway/appsettings.json
+DesignIdea.md
+memory-bank/activeContext.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+/AuthService/appsettings.Development.json
+/ExploreService/appsettings.Development.json
+/ConversationService/appsettings.json
+/ConversationService/conversationservice.runasp.net-WebDeploy.publishSettings
