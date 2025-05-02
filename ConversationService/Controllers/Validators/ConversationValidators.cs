@@ -71,19 +71,19 @@ namespace ConversationService.Controllers.Validators
                         .WithMessage("NumPredict must be greater than 0");
                 });
                 
-                // RepeatLastN validation (if provided)
-                When(x => x.Options.RepeatLastN.HasValue, () => {
-                    RuleFor(x => x.Options.RepeatLastN.Value)
-                        .GreaterThanOrEqualTo(0)
-                        .WithMessage("RepeatLastN must be greater than or equal to 0");
-                });
+                //// RepeatLastN validation (if provided)
+                //When(x => x.Options.RepeatLastN.HasValue, () => {
+                //    RuleFor(x => x.Options.RepeatLastN.Value)
+                //        .GreaterThanOrEqualTo(0)
+                //        .WithMessage("RepeatLastN must be greater than or equal to 0");
+                //});
                 
-                // PresencePenalty validation (if provided)
-                When(x => x.Options.PresencePenalty.HasValue, () => {
-                    RuleFor(x => x.Options.PresencePenalty.Value)
-                        .InclusiveBetween(0.0f, 1.0f)
-                        .WithMessage("PresencePenalty must be between 0 and 1");
-                });
+                //// PresencePenalty validation (if provided)
+                //When(x => x.Options.PresencePenalty.HasValue, () => {
+                //    RuleFor(x => x.Options.PresencePenalty.Value)
+                //        .InclusiveBetween(0.0f, 1.0f)
+                //        .WithMessage("PresencePenalty must be between 0 and 1");
+                //});
             });
         }
         

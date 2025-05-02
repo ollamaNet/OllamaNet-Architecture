@@ -386,36 +386,49 @@ namespace ConversationService.ConversationService
                 }
                 
                 string userId = conversation.User_Id;
+                _logger.LogInformation("Found conversation belonging to user: {UserId}", userId);
                 
                 await _unitOfWork.ConversationRepo.SoftDeleteAsync(conversationId);
 
-                // Note: Assuming there's no direct delete method, we may need to implement
-                // specific delete logic in the repository later
-                _logger.LogWarning("Using SaveChangesAsync for deletion as direct Delete method is not available");
+                _logger.LogInformation("Marked conversation {ConversationId} as deleted", conversationId);
                 
                 // Mark as deleted if possible
                 await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Saved changes to database for conversation deletion: {ConversationId}", conversationId);
                 
                 // Invalidate relevant caches
+                _logger.LogInformation("Beginning cache invalidation for deleted conversation");
+                
+                // Invalidate conversation info cache
                 var infoKey = string.Format(CacheKeys.ConversationInfo, conversationId);
                 await _cacheManager.InvalidateCache(infoKey);
+                _logger.LogInformation("Invalidated conversation info cache: {CacheKey}", infoKey);
                 
+                // Invalidate conversation messages cache
                 var messagesKey = string.Format(CacheKeys.ConversationMessages, conversationId);
                 await _cacheManager.InvalidateCache(messagesKey);
+                _logger.LogInformation("Invalidated conversation messages cache: {CacheKey}", messagesKey);
                 
                 // Invalidate the user's conversation list cache
                 var listKey = string.Format(CacheKeys.ConversationList, userId);
                 await _cacheManager.InvalidateCache(listKey);
+                _logger.LogInformation("Invalidated user conversation list cache: {CacheKey}", listKey);
                 
                 // Invalidate paginated and search caches
                 var paginatedKey = string.Format(CacheKeys.ConversationListPaginated, userId, "*", "*");
                 await _cacheManager.InvalidateCache(paginatedKey);
+                _logger.LogInformation("Invalidated paginated conversation cache: {CacheKey}", paginatedKey);
                 
                 var searchKey = string.Format(CacheKeys.ConversationSearch, userId, "*", "*", "*");
                 await _cacheManager.InvalidateCache(searchKey);
+                _logger.LogInformation("Invalidated search conversation cache: {CacheKey}", searchKey);
+
+                _logger.LogInformation("Cache invalidation completed for user {UserId}, conversation {ConversationId}", 
+                    userId, conversationId);
 
                 stopwatch.Stop();
-                _logger.LogInformation("DeleteConversationAsync completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+                _logger.LogInformation("DeleteConversationAsync completed in {ElapsedMilliseconds}ms. User: {UserId}, ConversationId: {ConversationId}", 
+                    stopwatch.ElapsedMilliseconds, userId, conversationId);
                 
                 return true;
             }

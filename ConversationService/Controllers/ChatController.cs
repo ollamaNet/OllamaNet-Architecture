@@ -49,7 +49,7 @@ namespace ConversationService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SendMessage([FromBody] PromptRequest request)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            var userId = Request.Headers["X-User-Id"].ToString();
             if (userId == null)
                 return Unauthorized();
 
@@ -78,7 +78,7 @@ namespace ConversationService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task StreamMessage([FromBody] PromptRequest request)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            var userId = Request.Headers["X-User-Id"].ToString();
             if (userId == null)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
