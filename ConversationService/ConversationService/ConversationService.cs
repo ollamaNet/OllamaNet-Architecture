@@ -2,6 +2,7 @@
 using ConversationService.ConversationService.DTOs;
 using ConversationService.Mappers;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.DTOs;
 using Ollama_DB_layer.Entities;
@@ -10,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ConversationService.Connectors;
+using ConversationService.ChatService.DTOs;
 
 namespace ConversationService.ConversationService
 {
@@ -18,15 +21,18 @@ namespace ConversationService.ConversationService
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheManager _cacheManager;
         private readonly ILogger<ConversationService> _logger;
+        private readonly IOllamaConnector _ollamaConnector;
 
         public ConversationService(
             IUnitOfWork unitOfWork,
             ICacheManager cacheManager,
-            ILogger<ConversationService> logger)
+            ILogger<ConversationService> logger,
+            IOllamaConnector ollamaConnector)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _ollamaConnector = ollamaConnector ?? throw new ArgumentNullException(nameof(ollamaConnector));
         }
 
 
@@ -438,6 +444,61 @@ namespace ConversationService.ConversationService
                 _logger.LogError(ex, "Error deleting conversation: {ConversationId} after {ElapsedMilliseconds}ms", 
                     conversationId, stopwatch.ElapsedMilliseconds);
                 throw;
+            }
+        }
+
+        public async Task<string> GenerateTitleAsync(GenerateTitleRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (string.IsNullOrEmpty(request.Prompt) || string.IsNullOrEmpty(request.Response))
+                throw new ArgumentException("Both prompt and response must be provided");
+
+            var stopwatch = Stopwatch.StartNew();
+            _logger.LogInformation("Generating title for conversation");
+
+            try
+            {
+                // Create a chat history with the system message and the first interaction
+                var chatHistory = new ChatHistory();
+                chatHistory.AddSystemMessage("You are a helpful assistant that generates concise conversation titles.");
+                chatHistory.AddUserMessage($"User: {request.Prompt}\nAssistant: {request.Response}\n\nGenerate a conversation title based on these first interaction between a user and an ai assistant. The title should be only in a format maximum three or four words");
+
+                // Create a prompt request for the title generation
+                var promptRequest = new PromptRequest
+                {
+                    Content = "Generate a title",
+                    Model = "llama3.2:1b", // Using llama2 as the default model
+                    ConversationId = Guid.NewGuid().ToString() // Temporary ID since this is a one-off request
+                };
+
+                // Get the response from Ollama
+                var ollamaResponses = await _ollamaConnector.GetChatMessageContentsAsync(chatHistory, promptRequest);
+
+                if (ollamaResponses == null || ollamaResponses.Count == 0 || string.IsNullOrEmpty(ollamaResponses[0].Content))
+                {
+                    _logger.LogWarning("Failed to generate title - empty response from model");
+                    return "New Conversation"; // Fallback title
+                }
+
+                // Clean up the response to ensure it's just the title
+                var title = ollamaResponses[0].Content.Trim();
+                if (title.Length > 100) // Ensure title isn't too long
+                {
+                    title = title.Substring(0, 97) + "...";
+                }
+
+                stopwatch.Stop();
+                _logger.LogInformation("Title generated successfully in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+
+                return title;
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                _logger.LogError(ex, "Error generating title after {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+                return "New Conversation"; // Fallback title in case of error
             }
         }
     }

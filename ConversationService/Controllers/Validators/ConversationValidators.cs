@@ -89,4 +89,13 @@ namespace ConversationService.Controllers.Validators
         
         private bool BeValidGuid(string guid) => Guid.TryParse(guid, out _);
     }
+
+    public class GenerateTitleRequestValidator : AbstractValidator<GenerateTitleRequest>
+    {
+        public GenerateTitleRequestValidator()
+        {
+            RuleFor(x => x.Prompt).NotEmpty().WithMessage("Prompt is required");
+            RuleFor(x => x.Response).NotEmpty().WithMessage("Response is required");
+        }
+    }
 } 

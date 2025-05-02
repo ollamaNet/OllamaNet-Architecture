@@ -19,6 +19,7 @@ namespace ConversationService.Controllers
         private readonly IConversationService _conversationService;
         private readonly IValidator<OpenConversationRequest> _conversationValidator;
         private readonly IValidator<UpdateConversationRequest> _updateValidator;
+        private readonly IValidator<GenerateTitleRequest> _generateTitleValidator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
 
@@ -30,11 +31,13 @@ namespace ConversationService.Controllers
             IConversationService conversationService,
             IValidator<OpenConversationRequest> conversationValidator,
             IValidator<UpdateConversationRequest> updateValidator,
+            IValidator<GenerateTitleRequest> generateTitleValidator,
             IHttpContextAccessor httpContextAccessor)
         {
             _conversationService = conversationService ?? throw new ArgumentNullException(nameof(conversationService));
             _conversationValidator = conversationValidator ?? throw new ArgumentNullException(nameof(conversationValidator));
             _updateValidator = updateValidator ?? throw new ArgumentNullException(nameof(updateValidator));
+            _generateTitleValidator = generateTitleValidator ?? throw new ArgumentNullException(nameof(generateTitleValidator));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
@@ -256,6 +259,32 @@ namespace ConversationService.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to delete conversation", details = ex.Message });
+            }
+        }
+
+        [HttpPost("generate-title")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GenerateTitle([FromBody] GenerateTitleRequest request)
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized();
+
+            var validationResult = await _generateTitleValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
+
+            try
+            {
+                var title = await _conversationService.GenerateTitleAsync(request);
+                return Ok(new { title });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to generate title", details = ex.Message });
             }
         }
     }

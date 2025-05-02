@@ -113,19 +113,20 @@ namespace ConversationService
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://704e-35-196-162-195.ngrok-free.app"));
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434")); // replaced with my local model cause i don't work with the hosted
             services.AddScoped<IOllamaConnector, OllamaConnector>();
 
             // Chat-related services
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService.ChatService>();
 
-            // Register ConversationService
+            // Register ConversationService with OllamaConnector dependency
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
 
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();
             services.AddScoped<IValidator<UpdateConversationRequest>, Controllers.Validators.UpdateConversationRequestValidator>();
+            services.AddScoped<IValidator<GenerateTitleRequest>, Controllers.Validators.GenerateTitleRequestValidator>();
 
             // Register PromptRequestValidator (keep for backward compatibility)
             services.AddScoped<Controllers.Validators.PromptRequestValidator>();
