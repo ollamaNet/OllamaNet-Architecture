@@ -14,6 +14,7 @@ public class Program
         //Add Ocelot Services
         builder.Configuration.AddJsonFile("ocelotConfig.json", optional: false, reloadOnChange: true);
         builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.ConfigureCors();
 
         builder.Services.AddOcelot();
 
@@ -43,6 +44,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseCors("AllowFrontend");
+
         app.UseRouting();
 
         app.UseAuthentication();
