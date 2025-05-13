@@ -1,39 +1,35 @@
 ﻿using AdminService.Connectors;
-using OllamaSharp.Models;
 using Ollama_DB_layer.Entities;
-using Model = OllamaSharp.Models.Model;
 using Ollama_DB_layer.UOW;
 using AdminService.DTOs;
 using AdminService.Mappers;
-
 
 namespace AdminService
 {
     public class AdminService : IAdminService
     {
-        public readonly IOllamaConnector _ollamaConnector;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOllamaConnector _ollamaConnector;
 
-        public AdminService(IOllamaConnector connector,  IUnitOfWork unitOfWork)
+        public AdminService(IOllamaConnector connector, IUnitOfWork unitOfWork)
         {
             _ollamaConnector = connector;
             _unitOfWork = unitOfWork;
         }
 
-
         public async Task<AIModel?> AddModelAsync(AddModelRequest model, string userId)
         {
-
             if (model == null || string.IsNullOrWhiteSpace(model.Name))
                 throw new ArgumentException("Invalid model data. Model name is required.");
 
-            AIModel? dbModel ;
+            AIModel? dbModel;
 
             if (!model.FromOllama)
                 dbModel = AIModelMapper.FromRequestToAIModel(model, userId);
             else
             {
-                var ollamaModelInfo = await ModelInfoAsync(model.Name);
+                // We need to get model info from Ollama
+                var ollamaModelInfo = await _ollamaConnector.GetModelInfo(model.Name);
                 if (ollamaModelInfo == null)
                     throw new InvalidOperationException("Model not installed in Ollama.");
 
@@ -61,52 +57,6 @@ namespace AdminService
             return await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name);
         }
 
-
-
-
-
-
-
-        public async Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int PageSize)
-        {
-            var models = await _ollamaConnector.GetInstalledModelsPaged(pageNumber, PageSize)
-                         ?? throw new InvalidOperationException("Failed to retrieve installed models.");
-
-            return models.Any() ? models : throw new InvalidOperationException("No models are installed.");
-        }
-
-
-        public async Task<ShowModelResponse?> ModelInfoAsync(string modelName)
-        {
-            if (string.IsNullOrWhiteSpace(modelName))
-                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
-
-            return await _ollamaConnector.GetModelInfo(modelName)
-                   ?? throw new InvalidOperationException($"Model '{modelName}' not found.");
-        }
-
-
-
-
-        public async Task<string> UninstllModelAsync(RemoveModelRequest model)
-        {
-            if (model is null || string.IsNullOrWhiteSpace(model.ModelName))
-                throw new ArgumentException("Invalid model request.", nameof(model));
-
-            await _ollamaConnector.RemoveModel(model.ModelName);
-
-            if (!model.DeleteFromDB)
-            {
-                await SoftDeleteAIModelAsync(model.ModelName);
-                return "Model removed from Ollama";
-            }
-               
-            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.ModelName) == null
-                ? "Model removed from Ollama and DB"
-                : "Model removed from Ollama but not from DB";
-        }
-
-
         public async Task<string> SoftDeleteAIModelAsync(string modelName)
         {
             if (string.IsNullOrWhiteSpace(modelName))
@@ -120,39 +70,6 @@ namespace AdminService
             await _unitOfWork.SaveChangesAsync();
 
             return "Model soft deleted successfully";
-        }
-
-
-        public async Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(modelName))
-                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
-
-            // Check if the model is already installed
-            var installedModels = await _ollamaConnector.GetInstalledModels();
-            if (installedModels.Any(model => model.Name == modelName))
-                return new InstallProgressInfo
-                {
-                    Completed = 100,
-                    Total = 100,
-                    Status = $"{modelName}already installed",
-                    Digest = installedModels.Where(installedModels => installedModels.Name == modelName).FirstOrDefault()?.Digest
-
-                };
-
-            else
-            {
-                InstallProgressInfo? lastProgress = null;
-
-                await foreach (var response in _ollamaConnector.PullModelAsync(modelName))
-                {
-                    lastProgress = response; // Store the latest progress
-
-                    // Report progress to the caller (e.g., the controller)
-                    progress?.Report(response);
-                }
-                return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
-            }
         }
 
         public async Task<List<Tag>> AddTags(List<string> tags)
@@ -169,8 +86,9 @@ namespace AdminService
         public async Task<string> AddTagsToModel(string modelId, ICollection<AddTagToModelRequest> tags)
         {
             var model = await _unitOfWork.AIModelRepo.GetByIdAsync(modelId);
-            if(model == null)
+            if (model == null)
                 throw new InvalidOperationException("Model not found.");
+            
             foreach (var tag in tags)
             {
                 var dbTag = await _unitOfWork.TagRepo.GetByIdAsync(tag.TagId);
@@ -184,7 +102,6 @@ namespace AdminService
             return "Tags added successfully";
         }
 
-
         public async Task<IEnumerable<ApplicationUser>> GetAllUsers()
         {
             var users = await _unitOfWork.ApplicationUserRepo.GetAllAsync();
@@ -194,7 +111,7 @@ namespace AdminService
         public async Task<string> UpdateModel(UpdateModelRequest model)
         {
             var dbModel = await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name)
-                          ?? throw new InvalidOperationException("Model not found.");
+                         ?? throw new InvalidOperationException("Model not found.");
 
             // Update properties if provided
             if (model.Description != null) dbModel.Description = model.Description;
@@ -203,7 +120,6 @@ namespace AdminService
             if (model.Template != null) dbModel.Template = model.Template;
             if (model.ModelFile != null) dbModel.ModelFile = model.ModelFile;
             if (model.ReferenceLink != null) dbModel.ReferenceLink = model.ReferenceLink;
-
 
             await _unitOfWork.AIModelRepo.UpdateAsync(dbModel);
             await _unitOfWork.SaveChangesAsync();

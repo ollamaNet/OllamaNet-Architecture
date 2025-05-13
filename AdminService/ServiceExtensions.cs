@@ -109,7 +109,7 @@ namespace AdminService
             services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
             services.AddScoped<IAdminService, AdminService>();
-
+            services.AddScoped<IInferenceOperationsService, InferenceOperationsService>();
         }
 
         // Register CORS
