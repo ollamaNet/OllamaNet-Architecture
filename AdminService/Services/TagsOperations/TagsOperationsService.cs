@@ -31,7 +31,6 @@ namespace AdminService.Services.TagsOperations
                 {
                     Id = tag.Id,
                     Name = tag.Name,
-                    IsDeleted = tag.IsDeleted
                 };
             }
             catch (Exception ex)
@@ -46,11 +45,11 @@ namespace AdminService.Services.TagsOperations
             try
             {
                 // Check if tag with same name exists
-                var existingTag = await _unitOfWork.TagRepo.FindAsync(t => t.Name == request.Name && !t.IsDeleted);
-                if (existingTag != null)
-                {
-                    return TagOperationResult.CreateFailure($"Tag with name '{request.Name}' already exists");
-                }
+                //var existingTag = await _unitOfWork.TagRepo.FindAsync(t => t.Name == request.Name && !t.IsDeleted);
+                //if (existingTag != null)
+                //{
+                //    return TagOperationResult.CreateFailure($"Tag with name '{request.Name}' already exists");
+                //}
 
                 var tag = new Tag
                 {
@@ -81,15 +80,15 @@ namespace AdminService.Services.TagsOperations
                 }
 
                 // Check if another tag with the new name exists
-                var existingTag = await _unitOfWork.TagRepo.FindAsync(t => 
-                    t.Name == request.Name && 
-                    t.Id != request.Id && 
-                    !t.IsDeleted);
+                //var existingTag = await _unitOfWork.TagRepo.FindAsync(t => 
+                //    t.Name == request.Name && 
+                //    t.Id != request.Id && 
+                //    !t.IsDeleted);
 
-                if (existingTag != null)
-                {
-                    return TagOperationResult.CreateFailure($"Tag with name '{request.Name}' already exists", request.Id);
-                }
+                //if (existingTag != null)
+                //{
+                //    return TagOperationResult.CreateFailure($"Tag with name '{request.Name}' already exists", request.Id);
+                //}
 
                 tag.Name = request.Name;
                 await _unitOfWork.SaveChangesAsync();
