@@ -97,21 +97,7 @@ namespace AdminService.Services.UserOperations
             return (users, 100); // Placeholder total count
         }
 
-        public async Task<bool> CreateUserAsync(CreateUserRequest request)
-        {
-            _logger.LogInformation($"Placeholder: Create user with email {request.Email} and role {request.Role}");
-            
-            // Placeholder implementation - will be replaced with AuthService client call
-            return true;
-        }
 
-        public async Task<bool> UpdateUserProfileAsync(string userId, UpdateUserProfileRequest request)
-        {
-            _logger.LogInformation($"Placeholder: Update user {userId} profile");
-            
-            // Placeholder implementation - will be replaced with AuthService client call
-            return true;
-        }
 
         public async Task<bool> ChangeUserRoleAsync(string userId, string newRole)
         {
@@ -146,13 +132,6 @@ namespace AdminService.Services.UserOperations
             return true;
         }
 
-        public async Task<bool> ResetUserPasswordAsync(string userId, string newPassword)
-        {
-            _logger.LogInformation($"Placeholder: Reset password for user {userId}");
-            
-            // Placeholder implementation - will be replaced with AuthService client call
-            return true;
-        }
 
         public async Task<bool> LockUserAccountAsync(string userId, TimeSpan duration)
         {

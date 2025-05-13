@@ -10,11 +10,7 @@ namespace AdminService.Services.UserOperations
         Task<IEnumerable<UserResponse>> SearchUsersAsync(string searchTerm, string? role = null);
         Task<(IEnumerable<UserResponse> Users, int TotalCount)> GetUsersPaginatedAsync(int pageNumber, int pageSize, string? role = null);
         
-        // Create operations
-        Task<bool> CreateUserAsync(CreateUserRequest request);
-        
         // Update operations
-        Task<bool> UpdateUserProfileAsync(string userId, UpdateUserProfileRequest request);
         Task<bool> ChangeUserRoleAsync(string userId, string newRole);
         Task<bool> ToggleUserStatusAsync(string userId, bool isActive);
         
@@ -23,7 +19,6 @@ namespace AdminService.Services.UserOperations
         Task<bool> SoftDeleteUserAsync(string userId);
         
         // Security operations
-        Task<bool> ResetUserPasswordAsync(string userId, string newPassword);
         Task<bool> LockUserAccountAsync(string userId, TimeSpan duration);
         Task<bool> UnlockUserAccountAsync(string userId);
     }

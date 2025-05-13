@@ -120,58 +120,6 @@ namespace AdminService.Controllers
 
 
 
-        // POST: api/admin/users
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
-        {
-            ValidationResult validationResult = await _createUserValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors.Select(e => new { Property = e.PropertyName, Error = e.ErrorMessage }));
-            }
-
-            try
-            {
-                await _userAdminService.CreateUserAsync(request);
-                return StatusCode(201, new { Message = "User created successfully" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-
-        // PUT: api/admin/users/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserProfileRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest("User ID cannot be empty.");
-
-            ValidationResult validationResult = await _updateProfileValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors.Select(e => new { Property = e.PropertyName, Error = e.ErrorMessage }));
-            }
-
-            try
-            {
-                await _userAdminService.UpdateUserProfileAsync(id, request);
-                return Ok(new { Message = "User updated successfully" });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
 
         // PATCH: api/admin/users/{id}/role
         [HttpPatch("{id}/role")]
@@ -274,38 +222,6 @@ namespace AdminService.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
-            }
-        }
-
-
-
-
-        // POST: api/admin/users/{id}/reset-password
-        [HttpPost("{id}/reset-password")]
-        public async Task<IActionResult> ResetPassword(string id, [FromBody] string newPassword)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest("User ID cannot be empty.");
-
-            var request = new ResetPasswordRequest { UserId = id, NewPassword = newPassword };
-            ValidationResult validationResult = await _resetPasswordValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors.Select(e => new { Property = e.PropertyName, Error = e.ErrorMessage }));
-            }
-
-            try
-            {
-                await _userAdminService.ResetUserPasswordAsync(id, newPassword);
-                return Ok(new { Message = "Password reset successfully" });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
             }
         }
 
