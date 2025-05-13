@@ -1,4 +1,4 @@
-﻿namespace AdminService.DTOs
+﻿namespace AdminService.Services.InferenceOperations.DTOs
 {
     public class InstallProgressInfo
     { 

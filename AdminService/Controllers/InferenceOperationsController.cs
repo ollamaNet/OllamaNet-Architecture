@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
-using AdminService.DTOs;
+using AdminService.Services.InferenceOperations;
+using AdminService.Services.InferenceOperations.DTOs;
 
 namespace AdminService.Controllers
 {

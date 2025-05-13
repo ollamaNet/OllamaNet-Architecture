@@ -1,9 +1,9 @@
 using AdminService.Connectors;
-using AdminService.DTOs;
+using AdminService.Services.InferenceOperations.DTOs;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;
 
-namespace AdminService
+namespace AdminService.Services.InferenceOperations
 {
     public class InferenceOperationsService : IInferenceOperationsService
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace AdminService.DTOs
+namespace AdminService.Services.InferenceOperations.DTOs
 {
     public class InstalledModelsResponse
     {
