@@ -229,7 +229,6 @@ namespace AdminService.Services.AIModelOperations
             try
             {
                 // In a real implementation, we would delete the model from the database
-                // We might also need to call Ollama API to remove the model there
                 
                 // Placeholder implementation - simulate success
                 return ModelOperationResult.CreateSuccess(

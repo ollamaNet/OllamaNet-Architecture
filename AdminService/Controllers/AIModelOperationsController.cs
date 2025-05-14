@@ -255,7 +255,7 @@ namespace AdminService.Controllers
 
 
         // POST api/models/{modelId}/softdelete
-        [HttpPost("{modelId}/softdelete")]
+        [HttpDelete("{modelId}/softdelete")]
         [ProducesResponseType(typeof(ModelOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         //[Authorize] // Uncomment when authorization is set up
