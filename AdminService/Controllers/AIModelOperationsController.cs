@@ -75,10 +75,13 @@ namespace AdminService.Controllers
                 {
                     return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
                 }
-                
-                // Get user ID (this should be replaced with actual user ID from claims once authentication is set up)
-                var userId = "current-user-id"; // Placeholder
-                
+
+                var userId = Request.Headers["X-User-Id"].ToString();
+                if (userId == null)
+                    return Unauthorized();
+                //var userId = "2396eace-718c-4131-b18a-bbbc026990f0";
+
+
                 var result = await _modelService.CreateModelAsync(request, userId);
                 
                 if (!result.Success)

@@ -16,6 +16,13 @@
 //            _unitOfWork = unitOfWork;
 //        }
 
+
+
+
+
+
+
+
 //        public async Task<AIModel?> AddModelAsync(AddModelRequest model, string userId)
 //        {
 //            if (model == null || string.IsNullOrWhiteSpace(model.Name))
@@ -55,6 +62,13 @@
 
 //            return await _unitOfWork.AIModelRepo.GetByIdAsync(model.Name);
 //        }
+
+
+
+
+
+
+
 
 //        public async Task<string> SoftDeleteAIModelAsync(string modelName)
 //        {
