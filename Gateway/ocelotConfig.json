@@ -154,23 +154,60 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamPathTemplate": "/api/models/{modelId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "adminservice.runasp.net", 
+          "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/models/{modelId}",
+      "UpstreamHttpMethod": ["GET", "DELETE"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+    {
+      "DownstreamPathTemplate": "/api/models",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "adminservice.runasp.net",
+          "Port": 80 
+
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/models",
+      "UpstreamHttpMethod": ["POST", "PUT"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/models/tags/add",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "adminservice.runasp.net",
           "Port": 80
+
         }
       ],
-      "UpstreamPathTemplate": "/admin/models",
+      "UpstreamPathTemplate": "/admin/models/tags/add",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     },
+
     {
-      "DownstreamPathTemplate": "/api/admin/models/info",
+      "DownstreamPathTemplate": "/api/models/tags/remove",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -178,11 +215,16 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/models/info",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/admin/models/tags/remove",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
     {
-      "DownstreamPathTemplate": "/api/admin/models/pull",
+      "DownstreamPathTemplate": "/api/models/{modelId}/softdelete",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -190,11 +232,16 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/models/pull",
-      "UpstreamHttpMethod": [ "POST" ]
+      "UpstreamPathTemplate": "/admin/models/{modelId}/softdelete",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
     {
-      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamPathTemplate": "/api/inference/models/info",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -202,11 +249,35 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/models",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/admin/inference/models/info",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
+
     {
-      "DownstreamPathTemplate": "/api/admin/models/soft-delete",
+      "DownstreamPathTemplate": "/api/inference/models",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "adminservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/inference/models",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+    {
+      "DownstreamPathTemplate": "/api/inference/models/pull",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -214,68 +285,123 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/admin/models/soft-delete",
-      "UpstreamHttpMethod": [ "DELETE" ]
+      "UpstreamPathTemplate": "/admin/inference/models/pull",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
     {
-      "DownstreamPathTemplate": "/api/admin/models",
+      "DownstreamPathTemplate": "/api/TagOperations/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        {
-          "Host": "adminservice.runasp.net",
-          "Port": 80
-        }
+        { "Host": "adminservice.runasp.net", "Port": 80 }
       ],
-      "UpstreamPathTemplate": "/admin/models",
-      "UpstreamHttpMethod": [ "DELETE" ]
+      "UpstreamPathTemplate": "/admin/tags/{id}",
+      "UpstreamHttpMethod": ["GET", "DELETE"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
     },
     {
-      "DownstreamPathTemplate": "/api/admin/tags",
+      "DownstreamPathTemplate": "/api/TagOperations",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        {
-          "Host": "adminservice.runasp.net",
-          "Port": 80
-        }
+        { "Host": "adminservice.runasp.net", "Port": 80 }
       ],
       "UpstreamPathTemplate": "/admin/tags",
-      "UpstreamHttpMethod": [ "POST" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/admin/models/{modelId}/tags",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "adminservice.runasp.net",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/admin/models/{modelId}/tags",
-      "UpstreamHttpMethod": [ "POST" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/admin/models",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "adminservice.runasp.net",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/admin/models",
-      "UpstreamHttpMethod": [ "PATCH" ]
+      "UpstreamHttpMethod": ["POST", "PUT"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
     },
     {
       "DownstreamPathTemplate": "/api/admin/users",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        {
-          "Host": "adminservice.runasp.net",
-          "Port": 80
-        }
+        { "Host": "adminservice.runasp.net", "Port": 80 }
       ],
       "UpstreamPathTemplate": "/admin/users",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}",
+      "UpstreamHttpMethod": ["GET", "DELETE"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/email/{email}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/email/{email}",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/search",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/search",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}/role",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}/role",
+      "UpstreamHttpMethod": ["PATCH"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}/status",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}/status",
+      "UpstreamHttpMethod": ["PATCH"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}/soft-delete",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}/soft-delete",
+      "UpstreamHttpMethod": ["PATCH"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}/lock",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}/lock",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/users/{id}/unlock",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "adminservice.runasp.net", "Port": 80 }
+      ],
+      "UpstreamPathTemplate": "/admin/users/{id}/unlock",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
     },
 
 
@@ -330,11 +456,6 @@
       "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
       "UpstreamHttpMethod": [ "GET" ]
     },
-
-
-
-
-
     {
       "DownstreamPathTemplate": "/api/conversations",
       "DownstreamScheme": "http",

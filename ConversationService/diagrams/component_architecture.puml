@@ -1,0 +1,47 @@
+@startuml Component Architecture
+
+package "ConversationService" {
+  [ChatController] as CC
+  [ConversationController] as ConvC
+  [IChatService] as ICS
+  [IConversationService] as IConvS
+  [ChatHistoryManager] as HM
+  [PromptRequestValidator] as PRV
+  [OpenConversationRequestValidator] as OCRV
+  [UpdateConversationRequestValidator] as UCRV
+  [HttpContextAccessor] as HCA
+  [CacheManager] as Cache
+  [UnitOfWork] as UOW
+}
+
+package "External Services" {
+  [API Gateway] as Gateway
+  [Database] as DB
+  [Ollama Service] as Ollama
+  [Redis Cache] as Redis
+}
+
+' Internal Dependencies
+CC --> ICS : uses
+CC --> PRV : validates
+CC --> HCA : accesses context
+CC --> Gateway : authenticates
+
+ConvC --> IConvS : uses
+ConvC --> OCRV : validates
+ConvC --> UCRV : validates
+ConvC --> HCA : accesses context
+ConvC --> Gateway : authenticates
+
+ICS --> HM : manages history
+ICS --> Ollama : gets responses
+HM --> Cache : caches history
+HM --> UOW : persists data
+UOW --> DB : accesses data
+Cache --> Redis : distributed cache
+
+' External Dependencies
+Gateway --> CC : routes requests
+Gateway --> ConvC : routes requests
+
+@enduml

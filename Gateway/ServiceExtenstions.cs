@@ -35,5 +35,20 @@ namespace Gateway
                 options.AddPolicy("User", policy => policy.RequireRole("User"));
             });
         }
+
+        // Register CORS
+        public static void ConfigureCors(this IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+        }
     }
 }

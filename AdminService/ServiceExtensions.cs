@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Reflection;
 using Ollama_DB_layer.Entities;
 using Ollama_DB_layer.Persistence;
 using Ollama_DB_layer.Repositories.AIModelRepo;
@@ -18,16 +21,21 @@ using Ollama_DB_layer.Repositories.PromptRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
 using Ollama_DB_layer.Repositories.TagRepo;
+using Ollama_DB_layer.Repositories.RefreshTokenRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
 using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
-using System.Text;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using AdminService.Controllers;
 using AdminService.Connectors;
-using AdminService.DTOs;
-using Ollama_DB_layer.Repositories.RefreshTokenRepo;
-using Ollama_DB_layer.Repositories.AttachmentRepo;
+using AdminService.Services.InferenceOperations;
+using AdminService.Services.UserOperations;
+using AdminService.Services.UserOperations.DTOs;
+using AdminService.Controllers.Validators;
+using AdminService.Services.AIModelOperations;
+using AdminService.Services.AIModelOperations.DTOs;
 
 namespace AdminService
 {
@@ -108,8 +116,23 @@ namespace AdminService
         {
             services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("http://localhost:11434"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
-            services.AddScoped<IAdminService, AdminService>();
 
+
+            services.AddScoped<IInferenceOperationsService, InferenceOperationsService>();
+            services.AddScoped<IUserOperationsService, UserOperationsService>();
+            services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
+
+
+
+
+            services.AddScoped<IAIModelOperationsService, AIModelOperationsService>();
+            services.AddScoped<IValidator<CreateModelRequest>, CreateModelRequestValidator>();
+            services.AddScoped<IValidator<UpdateModelRequest>, UpdateModelRequestValidator>();
+            services.AddScoped<IValidator<ModelTagOperationRequest>, ModelTagOperationRequestValidator>();
+            services.AddScoped<IValidator<SearchModelRequest>, SearchModelRequestValidator>();
+
+            // Add logging services if not already registered elsewhere
+            services.AddLogging();
         }
 
         // Register CORS
@@ -170,6 +193,7 @@ namespace AdminService
                 });
             });
         }
+
     }
 
 }

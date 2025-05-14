@@ -375,3 +375,4 @@ memory-bank/activeContext.md
 /ExploreService/appsettings.Development.json
 /ConversationService/appsettings.json
 /ConversationService/conversationservice.runasp.net-WebDeploy.publishSettings
+/Gateway/ollamanetgateway.runasp.net-WebDeploy.publishSettings
