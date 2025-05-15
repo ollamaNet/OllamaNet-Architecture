@@ -11,5 +11,6 @@ namespace ConversationService.FolderService
         Task<bool> UpdateFolderAsync(string userId, UpdateFolderRequest request);
         Task<IEnumerable<FolderWithConversations>> GetFoldersByUserIdAsync(string userId);
         Task<FolderWithConversations> GetAllMainAsync(string userId, string rootFolderId);
+        Task<FolderWithConversations> GetRootFolderStructureAsync(string userId);
     }
 }

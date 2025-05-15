@@ -13,5 +13,6 @@ namespace AuthenticationService.DTOs
 
         [Required, StringLength(256)]
         public string Password { get; set; }
+
     }
 }

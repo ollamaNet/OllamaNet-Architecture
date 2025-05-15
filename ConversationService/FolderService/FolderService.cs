@@ -266,5 +266,31 @@ namespace ConversationService.FolderService
                 throw;
             }
         }
+
+        public async Task<FolderWithConversations> GetRootFolderStructureAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
+
+            var stopwatch = Stopwatch.StartNew();
+            _logger.LogInformation("Getting root folder structure for user: {UserId}", userId);
+
+            try
+            {
+                var folderStructure = await _unitOfWork.FolderRepo.GetRootFolderStructureAsync(userId);
+
+                stopwatch.Stop();
+                _logger.LogInformation("GetRootFolderStructureAsync completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+
+                return folderStructure;
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                _logger.LogError(ex, "Error getting root folder structure for user: {UserId} after {ElapsedMilliseconds}ms",
+                    userId, stopwatch.ElapsedMilliseconds);
+                throw;
+            }
+        }
     }
 }
