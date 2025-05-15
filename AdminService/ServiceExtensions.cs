@@ -36,6 +36,7 @@ using AdminService.Services.UserOperations.DTOs;
 using AdminService.Controllers.Validators;
 using AdminService.Services.AIModelOperations;
 using AdminService.Services.AIModelOperations.DTOs;
+using AdminService.Services.TagsOperations;
 
 namespace AdminService
 {
@@ -123,7 +124,7 @@ namespace AdminService
             services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
 
 
-
+            services.AddScoped<ITagsOperationsService, TagsOperationsService>();
 
             services.AddScoped<IAIModelOperationsService, AIModelOperationsService>();
             services.AddScoped<IValidator<CreateModelRequest>, CreateModelRequestValidator>();
