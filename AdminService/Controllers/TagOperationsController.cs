@@ -7,7 +7,7 @@ namespace AdminService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class TagOperationsController : ControllerBase
     {
         private readonly ITagsOperationsService _tagsService;

@@ -297,22 +297,36 @@
       "DownstreamPathTemplate": "/api/TagOperations/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "adminservice.runasp.net", "Port": 80 }
+        {
+          "Host": "adminservice.runasp.net",
+          "Port": 80
+        }
       ],
-      "UpstreamPathTemplate": "/admin/tags/{id}",
-      "UpstreamHttpMethod": ["GET", "DELETE"],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+      "UpstreamPathTemplate": "/admin/TagOperations/{id}",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
     {
-      "DownstreamPathTemplate": "/api/TagOperations",
+      "DownstreamPathTemplate": "/api/TagOperations/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "adminservice.runasp.net", "Port": 80 }
+        {
+          "Host": "adminservice.runasp.net",
+          "Port": 80
+        }
       ],
-      "UpstreamPathTemplate": "/admin/tags",
-      "UpstreamHttpMethod": ["POST", "PUT"],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+      "UpstreamPathTemplate": "/admin/TagOperations{id}",
+      "UpstreamHttpMethod": [ "POST", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
+
     {
       "DownstreamPathTemplate": "/api/admin/users",
       "DownstreamScheme": "http",
