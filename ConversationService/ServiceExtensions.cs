@@ -37,6 +37,8 @@ using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 
 
 namespace ConversationService
@@ -96,8 +98,10 @@ namespace ConversationService
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IModelTagRepository, ModelTagRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IPaginationRepository, PaginationRepository>();
             services.AddScoped<IPromptRepository, PromptRepository>();
             services.AddScoped<ISystemMessageRepository, SystemMessageRepository>();

@@ -25,6 +25,8 @@ using System.Text;
 using FluentValidation;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 
 namespace AuthenticationService
 {
@@ -82,14 +84,15 @@ namespace AuthenticationService
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
-
             services.AddScoped<IAIModelRepository, AIModelRepository>();
             services.AddScoped<IAIResponseRepository, AIResponseRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IModelTagRepository, ModelTagRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IPaginationRepository, PaginationRepository>();
             services.AddScoped<IPromptRepository, PromptRepository>();
             services.AddScoped<ISystemMessageRepository, SystemMessageRepository>();
@@ -97,10 +100,8 @@ namespace AuthenticationService
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
