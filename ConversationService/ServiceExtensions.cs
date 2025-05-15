@@ -39,6 +39,8 @@ using System.Text;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
 using Ollama_DB_layer.Repositories.FolderRepo;
 using Ollama_DB_layer.Repositories.NoteRepo;
+using ConversationService.FolderService.DTOs;
+using ConversationService.FolderService;
 
 
 namespace ConversationService
@@ -123,6 +125,11 @@ namespace ConversationService
             // Chat-related services
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService.ChatService>();
+
+            // folder service 
+            services.AddScoped<IFolderService, FolderService.FolderService>();
+            services.AddScoped<IValidator<CreateFolderRequest>, CreateFolderRequestValidator>();
+            services.AddScoped<IValidator<UpdateFolderRequest>, UpdateFolderRequestValidator>();
 
             // Register ConversationService
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
