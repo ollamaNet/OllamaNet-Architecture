@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdminService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Admin/[controller]")]
     //[Authorize]
     public class TagOperationsController : ControllerBase
     {

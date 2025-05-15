@@ -4,7 +4,7 @@ using OllamaSharp.Models;
 using AddModelRequest = AdminService.Services.AIModelOperations.DTOs.AddModelRequest;
 using CreateModelRequest = AdminService.Services.AIModelOperations.DTOs.CreateModelRequest;
 
-namespace AdminService.Mappers
+namespace AdminService.Services.AIModelOperations.Mappers
 {
     public static class AIModelMapper
     {
@@ -22,7 +22,7 @@ namespace AdminService.Mappers
                 Version = addModelRequest.Version,
                 Digest = addModelRequest.Digest,
                 Size = addModelRequest.Size,
-                ReleasedAt = (DateTime)addModelRequest.ReleasedAt,
+                ReleasedAt = addModelRequest.ReleasedAt,
                 ReferenceLink = addModelRequest.ReferenceLink,
                 ImageUrl = addModelRequest.ImageUrl,
                 SizeLabel = addModelRequest.SizeLabel,
