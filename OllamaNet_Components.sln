@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OllamaNet_Components.Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{31070AB7-0785-4F93-917B-35AE984DBFC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ollama DB layer", "..\Ollama-DB-layer\Ollama DB layer.csproj", "{2274B38A-3331-4924-82C8-2979FCFFD259}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExploreService", "ExploreService\ExploreService.csproj", "{91B979B4-B37D-77A6-1D5D-0F55BB2A23A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}"
@@ -45,10 +43,6 @@ Global
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31070AB7-0785-4F93-917B-35AE984DBFC0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2274B38A-3331-4924-82C8-2979FCFFD259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2274B38A-3331-4924-82C8-2979FCFFD259}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2274B38A-3331-4924-82C8-2979FCFFD259}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2274B38A-3331-4924-82C8-2979FCFFD259}.Release|Any CPU.Build.0 = Release|Any CPU
 		{91B979B4-B37D-77A6-1D5D-0F55BB2A23A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{91B979B4-B37D-77A6-1D5D-0F55BB2A23A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91B979B4-B37D-77A6-1D5D-0F55BB2A23A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
