@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace ConversationService.Controllers.Validators
 {
-    public class CreateFeedbackRequestValidator : AbstractValidator<CreateFeedbackRequest>
+    public class AddFeedbackRequestValidator : AbstractValidator<AddFeedbackRequest>
     {
-        public CreateFeedbackRequestValidator()
+        public AddFeedbackRequestValidator()
         {
             RuleFor(x => x.ResponseId)
                 .NotEmpty().WithMessage("Response ID is required");

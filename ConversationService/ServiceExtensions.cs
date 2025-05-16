@@ -142,7 +142,7 @@ namespace ConversationService
 
             // Register FeedbackService
             services.AddScoped<IFeedbackService, FeedbackService.FeedbackService>();
-            services.AddScoped<IValidator<CreateFeedbackRequest>, CreateFeedbackRequestValidator>();
+            services.AddScoped<IValidator<AddFeedbackRequest>, AddFeedbackRequestValidator>();
             services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
 
             // Register validators from the new location

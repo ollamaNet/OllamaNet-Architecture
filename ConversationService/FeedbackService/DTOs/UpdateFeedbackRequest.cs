@@ -7,7 +7,7 @@ namespace ConversationService.FeedbackService.DTOs
 
     public class UpdateFeedbackRequest
     {
-        public bool Rating { get; set; }
+        public bool Rate { get; set; }
 
     }
 

@@ -1,9 +1,12 @@
 ﻿using ConversationService.FeedbackService;
 using ConversationService.FeedbackService.DTOs;
+using ConversationService.NoteService;
+using ConversationService.NoteService.DTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OpenAI.Responses;
 using System;
 using System.Collections.Generic;
@@ -19,138 +22,111 @@ namespace ConversationService.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
-        private readonly IValidator<CreateFeedbackRequest> _createFeedbackValidator;
-        private readonly IValidator<UpdateFeedbackRequest> _updateFeedbackValidator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly ILogger<FeedbackController> _logger;
         public FeedbackController(
-            IFeedbackService feedbackService,
-            IValidator<CreateFeedbackRequest> createFeedbackValidator,
-            IValidator<UpdateFeedbackRequest> updateFeedbackValidator,
-            IHttpContextAccessor httpContextAccessor)
+            IFeedbackService feedbackService , ILogger<FeedbackController> logger)
+           
         {
-            _feedbackService = feedbackService ?? throw new ArgumentNullException(nameof(feedbackService));
-            _createFeedbackValidator = createFeedbackValidator ?? throw new ArgumentNullException(nameof(createFeedbackValidator));
-            _updateFeedbackValidator = updateFeedbackValidator ?? throw new ArgumentNullException(nameof(updateFeedbackValidator));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _feedbackService = feedbackService ;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Creates a new feedback for a response
-        /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(FeedbackResponse), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Create([FromBody] CreateFeedbackRequest request)
+        public async Task<ActionResult<FeedbackResponse>> AddFeedback([FromBody] AddFeedbackRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    error = "Invalid request model",
-                    details = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                });
-            }
-
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
-            if (userId == null)
-                return Unauthorized(new { error = "User not authenticated" });
-
-            var validationResult = await _createFeedbackValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-                return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
-
             try
             {
-                var response = await _feedbackService.CreateFeedbackAsync(userId, request);
-                return CreatedAtAction(nameof(GetById), new { feedbackId = response.FeedbackId }, response);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Gets a feedback by ID
-        /// </summary>
-        [HttpGet("{responseId}/{feedbackId}")]
-        [ProducesResponseType(typeof(FeedbackResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(string responseId, string feedbackId)
-        {
-            var feedback = await _feedbackService.GetFeedbackByIdAsync(feedbackId, responseId);
-            if (feedback == null)
-                return NotFound(new { error = "Feedback not found" });
-
-            return Ok(feedback);
-        }
-
-        /// <summary>
-        /// Gets all feedbacks for a response
-        /// </summary>
-        [HttpGet("byResponse/{responseId}")]
-        [ProducesResponseType(typeof(IEnumerable<FeedbackResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetByResponseId(string responseId)
-        {
-            var feedbacks = await _feedbackService.GetFeedbacksByResponseIdAsync(responseId);
-            return Ok(feedbacks);
-        }
-
-        /// <summary>
-        /// Updates a feedback
-        /// </summary>
-        [HttpPut("{responseId}/{feedbackId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(string responseId,  string feedbackId, [FromBody] UpdateFeedbackRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    error = "Invalid request model",
-                    details = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                });
-            }
-
-            var validationResult = await _updateFeedbackValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-                return BadRequest(new { error = "Validation failed", details = validationResult.Errors });
-
-            try
-            {
-                var result = await _feedbackService.UpdateFeedbackAsync(feedbackId, responseId, request);
-                if (!result)
-                    return NotFound(new { error = "Feedback not found" });
-
-                return Ok(new { message = "Feedback updated successfully" });
+                var feedback = await _feedbackService.AddFeedbackAsync(request);
+                return Ok(FeedbackResponse.FromEntity(feedback));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Error adding feedback");
+                return StatusCode(500, "Internal server error");
             }
         }
 
-        /// <summary>
-        /// Deletes a feedback
-        /// </summary>
         [HttpDelete("{responseId}/{feedbackId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string responseId, string feedbackId)
+        public async Task<ActionResult> DeleteFeedback(string responseId, string feedbackId)
         {
-            var result = await _feedbackService.DeleteFeedbackAsync(feedbackId,responseId);
-            if (!result)
-                return NotFound(new { error = "Feedback not found" });
-
-            return Ok(new { message = "Feedback deleted successfully" });
+            try
+            {
+                var result = await _feedbackService.DeleteFeedbackAsync(feedbackId, responseId);
+                if (!result) return NotFound();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting feedback");
+                return StatusCode(500, "Internal server error");
+            }
         }
+
+        [HttpPut("soft-delete/{responseId}/{feedbackId}")]
+        public async Task<ActionResult> SoftDeleteFeedback(string responseId, string feedbackId)
+        {
+            try
+            {
+                var result = await _feedbackService.SoftDeleteFeedbackAsync(feedbackId, responseId);
+                if (!result) return NotFound();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error soft deleting feedback");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("{responseId}/{feedbackId}")]
+        public async Task<ActionResult<FeedbackResponse>> UpdateFeedback(string responseId, string feedbackId, [FromBody] UpdateFeedbackRequest request)
+        {
+            try
+            {
+                var feedback = await _feedbackService.UpdateFeedbackAsync(feedbackId, responseId, request);
+                return Ok(FeedbackResponse.FromEntity(feedback));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating feedback");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("response/{responseId}")]
+        public async Task<ActionResult<FeedbackResponse>> GetFeedbackByResponseId(string responseId)
+        {
+            try
+            {
+                var feedback = await _feedbackService.GetFeedbackByResponseIdAsync(responseId);
+                return Ok(FeedbackResponse.FromEntity(feedback));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting notes by response ID");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{responseId}/{FeedbackId}")]
+        public async Task<ActionResult<FeedbackResponse>> GetFeedback(string responseId, string feedbackId)
+        {
+            try
+            {
+                var feedback = await _feedbackService.GetFeedbackAsync(feedbackId, responseId);
+                if (feedback == null) return NotFound();
+                return Ok(FeedbackResponse.FromEntity(feedback));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting note");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
     }
 }

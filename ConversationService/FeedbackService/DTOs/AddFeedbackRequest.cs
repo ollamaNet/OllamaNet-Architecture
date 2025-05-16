@@ -2,11 +2,11 @@
 
 namespace ConversationService.FeedbackService.DTOs
 {
-    public class CreateFeedbackRequest
+    public class AddFeedbackRequest
     {
         [Required]
         public string ResponseId { get; set; }
 
-        public bool Rating { get; set; } // Changed from bool? to bool
+        public bool Rate { get; set; } 
     }
 }
