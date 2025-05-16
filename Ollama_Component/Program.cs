@@ -73,12 +73,12 @@ public class Program
 
             try
             {
-                logger.LogInformation("🔧 Resolving services...");
+                logger.LogInformation(" Resolving services...");
 
                 var indexer = services.GetRequiredService<IRagIndexingService>();
                 var retriever = services.GetRequiredService<IRagRetrievalService>();
 
-                logger.LogInformation("✅ Services resolved.");
+                logger.LogInformation(" Services resolved.");
 
                 var request = new PromptRequest
                 {
@@ -89,7 +89,7 @@ public class Program
 
                 // Index the document
                 await indexer.IndexDocumentAsync(request);
-                logger.LogInformation("✅ Document indexed.");
+                logger.LogInformation("Document indexed.");
 
                 // Retrieve relevant chunks
                 var contextChunks = await retriever.GetRelevantContextAsync(request);
