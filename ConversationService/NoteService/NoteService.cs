@@ -71,16 +71,16 @@ namespace ConversationService.NoteService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error soft deleting note {NoteId} for response {ResponseId}", responseId, noteId);
+                _logger.LogError(ex, "Error soft deleting note {NoteId} for response {ResponseId}", noteId, responseId);
                 throw;
             }
         }
 
-        public async Task<Note> UpdateNoteAsync(string noteId, string responseId, UpdateNoteRequest request)
+        public async Task<Note> UpdateNoteAsync(string responseId, string noteId, UpdateNoteRequest request)
         {
             try
             {
-                var note = await _unitOfWork.NoteRepo.GetByIdAsync(noteId, responseId);
+                var note = await _unitOfWork.NoteRepo.GetByIdAsync(responseId, noteId);
                 if (note == null) throw new KeyNotFoundException($"Note with ID {noteId} not found");
 
                 if (request.Content != null) note.Content = request.Content;
@@ -98,11 +98,11 @@ namespace ConversationService.NoteService
             }
         }
 
-        public async Task<Note> GetNoteAsync(string noteId, string responseId)
+        public async Task<Note> GetNoteAsync(string responseId, string noteId)
         {
             try
             {
-                return await _unitOfWork.NoteRepo.GetNoteWithResponseAsync(noteId, responseId);
+                return await _unitOfWork.NoteRepo.GetNoteWithResponseAsync(responseId, noteId);
             }
             catch (Exception ex)
             {

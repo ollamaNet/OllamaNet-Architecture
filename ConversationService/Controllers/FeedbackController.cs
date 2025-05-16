@@ -32,12 +32,22 @@ namespace ConversationService.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<FeedbackResponse>> AddFeedback([FromBody] AddFeedbackRequest request)
         {
             try
             {
                 var feedback = await _feedbackService.AddFeedbackAsync(request);
                 return Ok(FeedbackResponse.FromEntity(feedback));
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Duplicate feedback attempt for response {ResponseId}", request.ResponseId);
+                return Conflict(new { message = ex.Message });  // 409 Conflict with message
             }
             catch (Exception ex)
             {
@@ -46,12 +56,20 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
         [HttpDelete("{responseId}/{feedbackId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> DeleteFeedback(string responseId, string feedbackId)
         {
             try
             {
-                var result = await _feedbackService.DeleteFeedbackAsync(feedbackId, responseId);
+                var result = await _feedbackService.DeleteFeedbackAsync(responseId, feedbackId);
                 if (!result) return NotFound();
                 return Ok();
             }
@@ -62,12 +80,21 @@ namespace ConversationService.Controllers
             }
         }
 
-        [HttpPut("soft-delete/{responseId}/{feedbackId}")]
-        public async Task<ActionResult> SoftDeleteFeedback(string responseId, string feedbackId)
+
+
+
+
+        [HttpDelete("soft-delete/{responseId}/{feedbackId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SoftDeleteFeedback(string responseId, string feedbackId)
         {
             try
             {
-                var result = await _feedbackService.SoftDeleteFeedbackAsync(feedbackId, responseId);
+                var result = await _feedbackService.SoftDeleteFeedbackAsync(responseId, feedbackId);
                 if (!result) return NotFound();
                 return Ok();
             }
@@ -78,12 +105,22 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
         [HttpPut("{responseId}/{feedbackId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<FeedbackResponse>> UpdateFeedback(string responseId, string feedbackId, [FromBody] UpdateFeedbackRequest request)
         {
             try
             {
-                var feedback = await _feedbackService.UpdateFeedbackAsync(feedbackId, responseId, request);
+                var feedback = await _feedbackService.UpdateFeedbackAsync(responseId, feedbackId, request);
                 return Ok(FeedbackResponse.FromEntity(feedback));
             }
             catch (KeyNotFoundException)
@@ -97,7 +134,43 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+        [HttpGet("{responseId}/{feedbackId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<FeedbackResponse>> GetFeedback(string responseId, string feedbackId)
+        {
+            try
+            {
+                var feedback = await _feedbackService.GetFeedbackAsync(responseId, feedbackId);
+                if (feedback == null) return NotFound();
+                return Ok(FeedbackResponse.FromEntity(feedback));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting note");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+
+
+
         [HttpGet("response/{responseId}")]
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<FeedbackResponse>> GetFeedbackByResponseId(string responseId)
         {
             try
@@ -108,22 +181,6 @@ namespace ConversationService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting notes by response ID");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("{responseId}/{FeedbackId}")]
-        public async Task<ActionResult<FeedbackResponse>> GetFeedback(string responseId, string feedbackId)
-        {
-            try
-            {
-                var feedback = await _feedbackService.GetFeedbackAsync(feedbackId, responseId);
-                if (feedback == null) return NotFound();
-                return Ok(FeedbackResponse.FromEntity(feedback));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting note");
                 return StatusCode(500, "Internal server error");
             }
         }

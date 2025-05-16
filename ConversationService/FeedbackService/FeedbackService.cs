@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConversationService.NoteService.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConversationService.FeedbackService
 {
@@ -26,6 +27,14 @@ namespace ConversationService.FeedbackService
         {
             try
             {
+                // Use repository method to check existing feedback by Response_Id
+                var existingFeedback = await _unitOfWork.FeedbackRepo.GetFeedbackByResponseIdAsync(request.ResponseId);
+
+                if (existingFeedback != null && !existingFeedback.IsDeleted)
+                {
+                    throw new InvalidOperationException("This response already has feedback.");
+                }
+
                 var feedback = new Feedback
                 {
                     Response_Id = request.ResponseId,
@@ -35,14 +44,26 @@ namespace ConversationService.FeedbackService
 
                 await _unitOfWork.FeedbackRepo.AddAsync(feedback);
                 await _unitOfWork.SaveChangesAsync();
+
                 return feedback;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Attempt to add duplicate feedback for response {ResponseId}", request.ResponseId);
+                throw;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error while adding feedback for response {ResponseId}", request.ResponseId);
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding feedback for response {ResponseId}", request.ResponseId);
+                _logger.LogError(ex, "Unexpected error while adding feedback for response {ResponseId}", request.ResponseId);
                 throw;
             }
         }
+
 
 
 
@@ -78,12 +99,12 @@ namespace ConversationService.FeedbackService
             }
         }
 
-        public async Task<Feedback> UpdateFeedbackAsync(string feedbackId, string responseId, UpdateFeedbackRequest request)
+        public async Task<Feedback> UpdateFeedbackAsync(string responseId, string feedbackId, UpdateFeedbackRequest request)
         {
             try
             {
-                var feedback = await _unitOfWork.FeedbackRepo.GetByIdAsync(feedbackId, responseId);
-                if (feedback == null) throw new KeyNotFoundException($"Note with ID {feedbackId} not found");
+                var feedback = await _unitOfWork.FeedbackRepo.GetByIdAsync(responseId, feedbackId);
+                if (feedback == null) throw new KeyNotFoundException($"feedback with ID {feedbackId} not found");
 
                 if (request.Rate != null) feedback.Rate = request.Rate;
                
@@ -94,20 +115,20 @@ namespace ConversationService.FeedbackService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating feedback {FeedbackId} for response {ResponseId}", feedbackId, responseId);
+                _logger.LogError(ex, "Error updating response {ResponseId} for feedback {FeedbackId}", responseId, feedbackId);
                 throw;
             }
         }
 
-        public async Task<Feedback> GetFeedbackAsync(string feedbackId, string responseId)
+        public async Task<Feedback> GetFeedbackAsync(string responseId, string feedbackId)
         {
             try
             {
-                return await _unitOfWork.FeedbackRepo.GetByIdAsync(feedbackId, responseId);
+                return await _unitOfWork.FeedbackRepo.GetByIdAsync(responseId, feedbackId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting feedback {FeedbackId} for response {ResponseId}", feedbackId, responseId);
+                _logger.LogInformation("Received request for FeedbackId: {feedbackId}, ResponsekId: {responseId}", feedbackId, responseId);
                 throw;
             }
         }

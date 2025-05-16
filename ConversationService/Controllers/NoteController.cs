@@ -22,6 +22,11 @@ namespace ConversationService.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<NoteResponse>> AddNote([FromBody] AddNoteRequest request)
         {
             try
@@ -36,12 +41,21 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
         [HttpDelete("{responseId}/{noteId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> DeleteNote(string responseId, string noteId)
         {
             try
             {
-                var result = await _noteService.DeleteNoteAsync(noteId, responseId);
+                var result = await _noteService.DeleteNoteAsync(responseId, noteId);
                 if (!result) return NotFound();
                 return Ok();
             }
@@ -52,12 +66,24 @@ namespace ConversationService.Controllers
             }
         }
 
-        [HttpPut("soft-delete/{responseId}/{noteId}")]
+
+
+
+
+
+
+
+        [HttpDelete("soft-delete/{responseId}/{noteId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> SoftDeleteNote(string responseId, string noteId)
         {
             try
             {
-                var result = await _noteService.SoftDeleteNoteAsync(noteId, responseId);
+                var result = await _noteService.SoftDeleteNoteAsync(responseId, noteId);
                 if (!result) return NotFound();
                 return Ok();
             }
@@ -68,12 +94,23 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
         [HttpPut("{responseId}/{noteId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<NoteResponse>> UpdateNote(string responseId, string noteId, [FromBody] UpdateNoteRequest request)
         {
             try
             {
-                var note = await _noteService.UpdateNoteAsync(noteId, responseId, request);
+                var note = await _noteService.UpdateNoteAsync(responseId, noteId, request);
                 return Ok(NoteResponse.FromEntity(note));
             }
             catch (KeyNotFoundException)
@@ -87,7 +124,20 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
+
+
         [HttpGet("response/{responseId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<NoteResponse>>> GetNotesByResponseId(string responseId)
         {
             try
@@ -102,12 +152,24 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
+
         [HttpGet("{responseId}/{noteId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<NoteResponse>> GetNote(string responseId, string noteId)
         {
             try
             {
-                var note = await _noteService.GetNoteAsync(noteId, responseId);
+                var note = await _noteService.GetNoteAsync(responseId, noteId);
                 if (note == null) return NotFound();
                 return Ok(NoteResponse.FromEntity(note));
             }
@@ -118,7 +180,21 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
+
+
+
         [HttpGet("conversation/{conversationId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<NoteResponse>>> GetNotesInConversation(string conversationId)
         {
             try

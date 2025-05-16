@@ -71,6 +71,12 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
         /// <summary>
         /// Deletes a folder permanently
         /// </summary>
@@ -99,6 +105,13 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
+
         /// <summary>
         /// Soft deletes a folder
         /// </summary>
@@ -126,6 +139,13 @@ namespace ConversationService.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+
+
+
+
+
+
 
         /// <summary>
         /// Updates a folder's name
@@ -171,6 +191,12 @@ namespace ConversationService.Controllers
             }
         }
 
+
+
+
+
+
+
         /// <summary>
         /// Gets all folders and conversations for the current user
         /// </summary>
@@ -198,6 +224,17 @@ namespace ConversationService.Controllers
                 return NotFound(new { error = ex.Message });
             }
         }
+
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// Gets a specific folder by ID
