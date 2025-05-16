@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Ollama_DB_Layer\Ollama_DB_Layer.csproj" />
     <ProjectReference Include="..\OllamaNet_Components.ServiceDefaults\OllamaNet_Components.ServiceDefaults.csproj" />
   </ItemGroup>
 
