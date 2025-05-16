@@ -6,5 +6,6 @@
         public string Title { get; set; }
         public string SystemMessage { get; set; }
         public string FolderId { get; set; }
+
     }
 }
