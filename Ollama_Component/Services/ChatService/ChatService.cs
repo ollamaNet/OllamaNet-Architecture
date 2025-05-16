@@ -1,9 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Ollama_Component.Connectors;
+using Microsoft.SemanticKernel.Connectors.Ollama;
 using Ollama_Component.Services.CacheService;
 using Ollama_Component.Services.ChatService.Mappers;
 using Ollama_Component.Services.ChatService.DTOs;
+using Ollama_Component.Services.ChatService.Rag;
+using Microsoft.SemanticKernel;
+using Microsoft.Extensions.Options;
 
 namespace Ollama_Component.Services.ChatService
 {
@@ -15,16 +19,24 @@ namespace Ollama_Component.Services.ChatService
         private readonly CacheManager _cacheManager;
         private string? cacheKey;
 
+        private readonly IRagRetrievalService _ragRetrievalService;
+
+        private readonly RagOptions _ragOptions;
+
         public ChatService(
             IOllamaConnector connector,
             ILogger<ChatService> logger,
             ChatHistoryManager chatHistoryManager,
-            CacheManager cacheManager)
+            CacheManager cacheManager,
+            IRagRetrievalService ragRetrievalService,
+            IOptions<RagOptions> ragOptions)
         {
             _connector = connector;
             _logger = logger;
             _chatHistoryManager = chatHistoryManager;
             _cacheManager = cacheManager;
+            _ragRetrievalService = ragRetrievalService;
+            _ragOptions = ragOptions.Value;
         }
 
         public async IAsyncEnumerable<OllamaModelResponse> GetStreamedModelResponse(PromptRequest request)
@@ -84,6 +96,27 @@ namespace Ollama_Component.Services.ChatService
                 _logger.LogInformation("History retrieved From Database");
             }
 
+
+            // RAG Retrieval
+            var contextChunks = await _ragRetrievalService.GetRelevantContextAsync(request);
+            if (contextChunks?.Any() == true)
+            {
+                var retrievedContext = string.Join("\n---\n", contextChunks);
+                var systemContext = $"Use the following retrieved context from the user's uploaded document to answer the query:\n{retrievedContext}";
+
+                _logger.LogInformation(systemContext);
+
+                // add systemcontext to history
+                history.AddSystemMessage(systemContext);
+
+             
+                _logger.LogInformation("RAG context prepended to chat history.");
+
+
+            }
+
+
+
             //Add Latest User Message and System Message to Chat History
             history.AddSystemMessage(request.SystemMessage);
             history.AddUserMessage(request.Content);
@@ -100,9 +133,11 @@ namespace Ollama_Component.Services.ChatService
                 _cacheManager.SetChatHistory(cacheKey, history);
                 await _chatHistoryManager.SaveChatInteractionAsync(request, ollamaResponse);
                 return response;
+
             }
 
             return response;
+
         }
     }
 }

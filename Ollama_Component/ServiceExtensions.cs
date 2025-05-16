@@ -37,6 +37,7 @@ using Ollama_Component.Services.ChatService.DTOs;
 using Ollama_Component.Services.ConversationService.DTOs;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_Component.Services.ChatService.Rag;
 
 namespace Ollama_Component
 {
@@ -66,7 +67,7 @@ namespace Ollama_Component
 
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddScoped<JWTManager>();
-            services.AddScoped<IAuthService, AuthService>();
+           services.AddScoped<IAuthService, AuthService>();
 
             services.AddAuthentication(options =>
             {
@@ -129,6 +130,10 @@ namespace Ollama_Component
             services.AddScoped<ChatHistory>();
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService>();
+
+            services.AddScoped<IRagIndexingService, RagIndexingService>();
+            services.AddScoped<IRagRetrievalService, RagRetrievalService>();
+
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IExploreService, ExploreService>();

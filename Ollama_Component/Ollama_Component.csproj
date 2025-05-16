@@ -21,10 +21,14 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.14.0-alpha" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="OllamaSharp" Version="5.1.10" />
+    <PackageReference Include="OllamaSharp" Version="3.0.1" />
+    <PackageReference Include="PdfPig" Version="0.1.9" />
+    <PackageReference Include="Pinecone.Client" Version="2.1.0" />
+    <PackageReference Include="pinecone_sdk" Version="1.0.2" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.1.7" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />

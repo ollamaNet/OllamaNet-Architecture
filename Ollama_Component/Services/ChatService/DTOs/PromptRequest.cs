@@ -12,6 +12,9 @@ namespace Ollama_Component.Services.ChatService.DTOs
         [JsonPropertyName("ConversationId")]
         public string ConversationId { get; set; }
 
+        //temporary property
+        public string DocumentUrl { get; set; }
+
 
         [NotMapped]
         [JsonPropertyName("model")]
