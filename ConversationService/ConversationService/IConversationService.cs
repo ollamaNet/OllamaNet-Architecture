@@ -22,5 +22,7 @@ namespace ConversationService.ConversationService
         Task<bool> UpdateConversationAsync(string conversationId, UpdateConversationRequest request);
         
         Task<bool> DeleteConversationAsync(string conversationId);
+
+        Task<bool> MoveConversationToFolderAsync(string conversationId, string targetFolderId);
     }
 }

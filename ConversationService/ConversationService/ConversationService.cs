@@ -429,5 +429,55 @@ namespace ConversationService.ConversationService
                 throw;
             }
         }
+
+        public async Task<bool> MoveConversationToFolderAsync(string conversationId, string targetFolderId)
+        {
+            try
+            {
+                // Get the conversation
+                var conversation = await _unitOfWork.ConversationRepo.GetByIdAsync(conversationId);
+                if (conversation == null)
+                {
+                    throw new KeyNotFoundException($"Conversation with ID {conversationId} not found");
+                }
+
+                // Get the current folder to check user ownership
+                var currentFolder = await _unitOfWork.FolderRepo.GetByIdAsync(conversation.Folder_Id);
+                if (currentFolder == null)
+                {
+                    throw new KeyNotFoundException($"Current folder with ID {conversation.Folder_Id} not found");
+                }
+
+                // Get the target folder to ensure it exists
+                var targetFolder = await _unitOfWork.FolderRepo.GetByIdAsync(targetFolderId);
+                if (targetFolder == null)
+                {
+                    throw new KeyNotFoundException($"Target folder with ID {targetFolderId} not found");
+                }
+
+                // Ensure both folders belong to the same user
+                if (currentFolder.User_Id != targetFolder.User_Id)
+                {
+                    throw new UnauthorizedAccessException("Cannot move conversation to a folder owned by a different user");
+                }
+
+                // Update the conversation's folder ID
+                conversation.Folder_Id = targetFolderId;
+
+                // Update the conversation
+                await _unitOfWork.ConversationRepo.UpdateAsync(conversation);
+
+                // Save changes
+                await _unitOfWork.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error moving conversation {ConversationId} to folder {FolderId}",
+                    conversationId, targetFolderId);
+                throw;
+            }
+        }
     }
 }

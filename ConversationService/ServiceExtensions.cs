@@ -41,6 +41,9 @@ using Ollama_DB_layer.Repositories.FolderRepo;
 using Ollama_DB_layer.Repositories.NoteRepo;
 using ConversationService.FolderService.DTOs;
 using ConversationService.FolderService;
+using ConversationService.NoteService;
+using ConversationService.FeedbackService;
+using ConversationService.FeedbackService.DTOs;
 
 
 namespace ConversationService
@@ -133,6 +136,14 @@ namespace ConversationService
 
             // Register ConversationService
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
+
+            // Register NoteService
+            services.AddScoped<INoteService, NoteService.NoteService>();
+
+            // Register FeedbackService
+            services.AddScoped<IFeedbackService, FeedbackService.FeedbackService>();
+            services.AddScoped<IValidator<CreateFeedbackRequest>, CreateFeedbackRequestValidator>();
+            services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
 
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();

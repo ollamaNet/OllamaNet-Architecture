@@ -258,5 +258,42 @@ namespace ConversationService.Controllers
                 return StatusCode(500, new { error = "Failed to delete conversation", details = ex.Message });
             }
         }
+
+
+
+
+
+
+        [HttpPut("{conversationId}/move")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> MoveConversationToFolder(string conversationId, [FromBody] MoveConversationRequest request)
+        {
+            if (!Guid.TryParse(conversationId, out _))
+                return BadRequest(new { error = "Invalid ConversationId", details = "ConversationId must be a valid GUID" });
+
+            //if (!Guid.TryParse(request.TargetFolderId, out _))
+            //    return BadRequest(new { error = "Invalid FolderId", details = "FolderId must be a valid GUID" });
+
+            try
+            {
+                var result = await _conversationService.MoveConversationToFolderAsync(conversationId, request.TargetFolderId);
+                return Ok(new { success = result });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Failed to process request");
+            }
+        }
     }
 }
