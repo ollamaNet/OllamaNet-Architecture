@@ -85,15 +85,14 @@ namespace AuthenticationService
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
+
             services.AddScoped<IAIModelRepository, AIModelRepository>();
             services.AddScoped<IAIResponseRepository, AIResponseRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
-            services.AddScoped<IFolderRepository, FolderRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IModelTagRepository, ModelTagRepository>();
-            services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IPaginationRepository, PaginationRepository>();
             services.AddScoped<IPromptRepository, PromptRepository>();
             services.AddScoped<ISystemMessageRepository, SystemMessageRepository>();
@@ -101,15 +100,17 @@ namespace AuthenticationService
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            
+
 
         }
 
