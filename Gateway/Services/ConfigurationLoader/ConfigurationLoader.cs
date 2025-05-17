@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Gateway
+namespace Gateway.Services.ConfigurationLoader
 {
     public static class ConfigurationLoader
     {

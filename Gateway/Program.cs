@@ -1,4 +1,5 @@
 using Gateway.Middlewares;
+using Gateway.Services.ConfigurationLoader;
 using Microsoft.Extensions.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;

@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Gateway
+namespace Gateway.Services.ConfigurationLoader
 {
     public class ConfigurationChangeMonitor : BackgroundService
     {
