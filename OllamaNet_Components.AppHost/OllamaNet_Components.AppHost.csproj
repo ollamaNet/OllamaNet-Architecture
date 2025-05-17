@@ -42,7 +42,6 @@
     <ProjectReference Include="..\ConversationService\ConversationService.csproj" />
     <ProjectReference Include="..\ExploreService\ExploreService.csproj" />
     <ProjectReference Include="..\Gateway\Gateway.csproj" />
-    <ProjectReference Include="..\Ollama_Component\Ollama_Component.csproj" />
   </ItemGroup>
 
 </Project>

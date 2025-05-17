@@ -30,6 +30,8 @@ using Ollama_DB_layer.DTOs;
 using ExploreService.DTOs;
 using Ollama_DB_layer.DataBaseHelpers;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 
 namespace ExploreService
 {
@@ -55,6 +57,7 @@ namespace ExploreService
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
+
             services.AddScoped<IAIModelRepository, AIModelRepository>();
             services.AddScoped<IAIResponseRepository, AIResponseRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
@@ -70,8 +73,9 @@ namespace ExploreService
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
 
-            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

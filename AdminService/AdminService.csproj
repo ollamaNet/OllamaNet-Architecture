@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Ollama-DB-layer\Ollama DB layer.csproj" />
+    <ProjectReference Include="..\..\Ollama_DB_layer\Ollama_DB_layer.csproj" />
     <ProjectReference Include="..\OllamaNet_Components.ServiceDefaults\OllamaNet_Components.ServiceDefaults.csproj" />
   </ItemGroup>
 
