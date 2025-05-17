@@ -38,6 +38,7 @@ using AdminService.Services.AIModelOperations;
 using AdminService.Services.AIModelOperations.DTOs;
 using Ollama_DB_layer.Repositories.FolderRepo;
 using Ollama_DB_layer.Repositories.NoteRepo;
+using AdminService.Services.TagsOperations;
 
 namespace AdminService
 {
