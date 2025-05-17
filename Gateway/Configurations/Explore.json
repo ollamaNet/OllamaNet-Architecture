@@ -1,0 +1,52 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/models",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/models",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/models/{id}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "exploreservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ]
+} 

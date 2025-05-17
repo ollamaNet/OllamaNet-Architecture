@@ -1,0 +1,112 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/search",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/search",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}/messages",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}/messages",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/chats/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chats",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/chats/stream/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chats/stream",
+      "UpstreamHttpMethod": [ "POST" ]
+    }
+  ]
+} 
