@@ -37,6 +37,13 @@ using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
+using ConversationService.FolderService.DTOs;
+using ConversationService.FolderService;
+using ConversationService.NoteService;
+using ConversationService.FeedbackService;
+using ConversationService.FeedbackService.DTOs;
 
 
 namespace ConversationService
@@ -96,8 +103,10 @@ namespace ConversationService
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddScoped<IConversationPromptResponseRepository, ConversationPromptResponseRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IModelTagRepository, ModelTagRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IPaginationRepository, PaginationRepository>();
             services.AddScoped<IPromptRepository, PromptRepository>();
             services.AddScoped<ISystemMessageRepository, SystemMessageRepository>();
@@ -120,8 +129,21 @@ namespace ConversationService
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService.ChatService>();
 
+            // folder service 
+            services.AddScoped<IFolderService, FolderService.FolderService>();
+            services.AddScoped<IValidator<CreateFolderRequest>, CreateFolderRequestValidator>();
+            services.AddScoped<IValidator<UpdateFolderRequest>, UpdateFolderRequestValidator>();
+
             // Register ConversationService
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
+
+            // Register NoteService
+            services.AddScoped<INoteService, NoteService.NoteService>();
+
+            // Register FeedbackService
+            services.AddScoped<IFeedbackService, FeedbackService.FeedbackService>();
+            services.AddScoped<IValidator<AddFeedbackRequest>, AddFeedbackRequestValidator>();
+            services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
 
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();

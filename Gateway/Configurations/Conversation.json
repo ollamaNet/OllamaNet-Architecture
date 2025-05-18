@@ -1,0 +1,157 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/conversations",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/conversations/search",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/search",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+
+    {
+        "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+        "DownstreamScheme": "${Services.Conversation.Scheme}",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "${Services.Conversation.Host}",
+            "Port": "${Services.Conversation.Port}"
+          }
+        ],
+        "UpstreamPathTemplate": "/conversations/{conversationId}",
+        "UpstreamHttpMethod": [ "PUT" ]
+      },
+
+
+
+
+      {
+        "DownstreamPathTemplate": "/api/conversations/{conversationId}",
+        "DownstreamScheme": "${Services.Conversation.Scheme}",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "${Services.Conversation.Host}",
+            "Port": "${Services.Conversation.Port}"
+          }
+        ],
+        "UpstreamPathTemplate": "/conversations/{conversationId}",
+        "UpstreamHttpMethod": [ "DELETE" ]
+      },
+  
+
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}/messages",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}/messages",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+ 
+
+
+    {
+      "DownstreamPathTemplate": "/api/conversations/{conversationId}/move",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/conversations/{conversationId}/move",
+      "UpstreamHttpMethod": [ "PUT" ]
+    },
+
+ 
+
+
+
+
+
+
+    
+
+    {
+      "DownstreamPathTemplate": "/api/chats/",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/chats",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+
+
+    {
+      "DownstreamPathTemplate": "/api/chats/stream/",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/chats/stream",
+      "UpstreamHttpMethod": [ "POST" ]
+    }
+  ]
+}

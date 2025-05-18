@@ -1,5 +1,4 @@
 using AdminService.Connectors;
-using AdminService.Mappers;
 using AdminService.Services.AIModelOperations.DTOs;
 using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.Entities;
@@ -10,6 +9,7 @@ using CreateModelRequest = AdminService.Services.AIModelOperations.DTOs.CreateMo
 using AdminService.Services.AIModelOperations.Exceptions;
 using Ollama_DB_layer.UOW;
 using System.Linq;
+using AdminService.Services.AIModelOperations.Mappers;
 
 namespace AdminService.Services.AIModelOperations
 {

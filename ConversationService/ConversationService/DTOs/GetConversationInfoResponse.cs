@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Identity.Client;
+using System;
 
 namespace ConversationService.ConversationService.DTOs
 {
     public class GetConversationInfoResponse
     {
         public string ConversationId { get; set; }
+        public string FolderId { get; set; }
         public string Title { get; set; }
         public string ModelName { get; set; }
         public string SystemMessage { get; set; }

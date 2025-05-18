@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdminService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]
+    [Route("api/Admin/[controller]")]
+    //[Authorize]
     public class TagOperationsController : ControllerBase
     {
         private readonly ITagsOperationsService _tagsService;

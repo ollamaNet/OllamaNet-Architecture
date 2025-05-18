@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AdminService.Controllers
 {
-    [Route("api/models")]
+    [Route("api/Admin/[controller]")]
     [ApiController]
     public class AIModelOperationsController : ControllerBase
     {

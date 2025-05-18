@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 
 namespace AuthenticationService;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
@@ -22,6 +23,21 @@ public class Program
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
+        // Seed roles
+        using (var scope = app.Services.CreateScope())
+        {
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            string[] roles = { "User", "Admin" }; // Add other roles as needed
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+        }
 
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {

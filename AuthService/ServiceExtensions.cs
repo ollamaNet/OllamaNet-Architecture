@@ -25,6 +25,8 @@ using System.Text;
 using FluentValidation;
 using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 
 namespace AuthenticationService
 {
@@ -49,7 +51,8 @@ namespace AuthenticationService
         {
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddScoped<JWTManager>();
-            _ = services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddAuthentication(options =>
             {
@@ -98,8 +101,8 @@ namespace AuthenticationService
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-
-            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
@@ -107,7 +110,7 @@ namespace AuthenticationService
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            
+
 
         }
 

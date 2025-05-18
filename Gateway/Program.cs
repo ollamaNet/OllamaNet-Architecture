@@ -1,6 +1,9 @@
 using Gateway.Middlewares;
+using Gateway.Services.ConfigurationLoader;
+using Microsoft.Extensions.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System;
 
 namespace Gateway;
 
@@ -11,12 +14,30 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        //Add Ocelot Services
-        builder.Configuration.AddJsonFile("ocelotConfig.json", optional: false, reloadOnChange: true);
+        // Add JWT authentication and CORS
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.ConfigureCors();
 
-        builder.Services.AddOcelot();
+        // Use the new configuration loader instead of direct JSON file
+        builder.Services.AddOcelotWithSplitConfigurations(builder.Configuration);
+
+        // Add configuration change monitor
+        builder.Services.AddSingleton<Action>(sp => 
+        {
+            // This action will be called when configuration changes
+            return () => 
+            {
+                var newConfig = ConfigurationLoader.LoadAndCombineConfigurations();
+                // In a production environment, you would use a more sophisticated mechanism
+                // to update Ocelot's configuration at runtime
+                Console.WriteLine("Configuration reloaded, restart application to apply changes.");
+            };
+        });
+        builder.Services.AddHostedService<ConfigurationChangeMonitor>();
+
+
+
+
 
         // Add services to the container.
         builder.Services.AddControllers();

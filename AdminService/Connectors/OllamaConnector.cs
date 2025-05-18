@@ -9,7 +9,6 @@ using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using Model = OllamaSharp.Models.Model;
 using OpenTelemetry.Trace;
-using AdminService.Mappers;
 using AdminService.Services.InferenceOperations.DTOs;
 
 namespace AdminService.Connectors

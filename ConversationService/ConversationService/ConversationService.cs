@@ -9,6 +9,7 @@ using Ollama_DB_layer.UOW;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ConversationService.ConversationService
@@ -29,13 +30,6 @@ namespace ConversationService.ConversationService
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-
-
-
-
-
-
-
         public async Task<OpenConversationResponse> CreateConversationAsync(string userId, OpenConversationRequest request)
         {
             if (string.IsNullOrEmpty(userId))
@@ -43,14 +37,34 @@ namespace ConversationService.ConversationService
                 
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
+                
+            if (string.IsNullOrEmpty(request.FolderId))
+                throw new ArgumentException("Folder ID cannot be null or empty", nameof(request.FolderId));
             
             var stopwatch = Stopwatch.StartNew();
-            _logger.LogInformation("Creating new conversation for user: {UserId}, model: {Model}", 
-                userId, request.ModelName);
+            _logger.LogInformation("Creating new conversation for user: {UserId}, folder: {FolderId}, model: {Model}", 
+                userId, request.FolderId, request.ModelName);
                 
             try
             {
-                var conversation = ConversationMapper.ToConversationEntity(request, userId);
+                // Verify the folder belongs to the user
+                var folder = await _unitOfWork.FolderRepo.GetByIdAsync(request.FolderId);
+                if (folder == null || folder.User_Id != userId)
+                {
+                    _logger.LogWarning("Folder {FolderId} not found or does not belong to user {UserId}", 
+                        request.FolderId, userId);
+                    throw new InvalidOperationException("Folder not found or does not belong to user");
+                }
+
+                var conversation = new Conversation
+                {
+                    Title = request.Title,
+                    Folder_Id = request.FolderId,
+                    AI_Id = request.ModelName,
+                    SystemMessage = request.SystemMessage,
+                    CreatedAt = DateTime.UtcNow,
+                    EndedAt = DateTime.UtcNow
+                };
                 
                 _unitOfWork.ConversationRepo.AddAsync(conversation);
                 await _unitOfWork.SaveChangesAsync();
@@ -63,19 +77,26 @@ namespace ConversationService.ConversationService
                     throw new InvalidOperationException("Failed to retrieve newly created conversation");
                 }
                 
-                _logger.LogInformation("Created conversation: {ConversationId} for user: {UserId}", conv.Id, userId);
+                _logger.LogInformation("Created conversation: {ConversationId} in folder: {FolderId} for user: {UserId}", 
+                    conv.Id, conv.Folder_Id, userId);
                 
-                // Invalidate the user's conversation list cache
-                var cacheKey = string.Format(CacheKeys.ConversationList, userId);
+                // Invalidate the folder's conversation list cache
+                var cacheKey = string.Format(CacheKeys.ConversationList, conv.Folder_Id);
                 await _cacheManager.InvalidateCache(cacheKey);
                 
-                var paginatedCacheKey = string.Format(CacheKeys.ConversationListPaginated, userId, "*", "*");
+                var paginatedCacheKey = string.Format(CacheKeys.ConversationListPaginated, conv.Folder_Id, "*", "*");
                 await _cacheManager.InvalidateCache(paginatedCacheKey);
 
                 stopwatch.Stop();
                 _logger.LogInformation("CreateConversationAsync completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
                 
-                return ConversationMapper.ToOpenConversationResponse(conv);
+                return new OpenConversationResponse
+                {
+                    ConversationId = conv.Id,
+                    FolderId = conv.Folder_Id,
+                    Title = conv.Title,
+                    Modelname = conv.AI_Id
+                };
             }
             catch (Exception ex)
             {
@@ -86,49 +107,44 @@ namespace ConversationService.ConversationService
             }
         }
 
-
-
-
-
-
-
-
-
-
         public async Task<PagedResult<ConversationCard>> GetConversationsAsync(string userId, int pageNumber = 1, int pageSize = 15)
         {
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             
-            if (pageNumber < 1)
-                pageNumber = 1;
-                
-            if (pageSize < 1 || pageSize > 50)
-                pageSize = 15;
-            
             var stopwatch = Stopwatch.StartNew();
-            _logger.LogInformation("Retrieving conversations for user: {UserId}, page: {Page}, size: {Size}", 
-                userId, pageNumber, pageSize);
+            _logger.LogInformation("Getting conversations for user: {UserId}", userId);
             
             try
             {
-                // Try to get from cache first with specific pagination parameters
-                var cacheKey = string.Format(CacheKeys.ConversationListPaginated, userId, pageNumber, pageSize);
+                // Get all folders with their conversations for the user
+                var foldersWithConversations = await _unitOfWork.FolderRepo.GetAllFoldersWithConversationsAsync(userId);
                 
-                var conversations = await _cacheManager.GetOrSetAsync(
-                    cacheKey,
-                    async () => 
-                    {
-                        _logger.LogDebug("Fetching conversations from database for user: {UserId}", userId);
-                        return await _unitOfWork.ConversationRepo.ConversationPagination(userId, pageNumber, pageSize);
-                    },
-                    TimeSpan.FromMinutes(30) // Cache for 30 minutes
-                );
+                // Flatten the conversations from all folders
+                var allConversations = foldersWithConversations
+                    .SelectMany(f => f.Conversations)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToList();
 
+                // Create a paged result manually since we're working with in-memory data
+                var totalCount = allConversations.Count;
+                var items = allConversations
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var result = new PagedResult<ConversationCard>
+                {
+                    Items = items,
+                    TotalRecords = totalCount,
+                    CurrentPage = pageNumber,
+                    PageSize = pageSize
+                };
+                
                 stopwatch.Stop();
                 _logger.LogInformation("GetConversationsAsync completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
                 
-                return conversations;
+                return result;
             }
             catch (Exception ex)
             {
@@ -138,10 +154,6 @@ namespace ConversationService.ConversationService
                 throw;
             }
         }
-
-
-
-
 
         public async Task<PagedResult<ConversationCard>> SearchConversationsAsync(string userId, string searchTerm, int pageNumber = 1, int pageSize = 15)
         {
@@ -183,13 +195,6 @@ namespace ConversationService.ConversationService
             }
         }
 
-
-
-
-
-
-
-
         public async Task<GetConversationInfoResponse> GetConversationInfoAsync(string conversationId)
         {
             if (string.IsNullOrEmpty(conversationId))
@@ -218,7 +223,15 @@ namespace ConversationService.ConversationService
                             throw new InvalidOperationException($"Conversation not found: {conversationId}");
                         }
                         
-                        return ConversationMapper.ToConversationInfoResponse(conversation);
+                        return new GetConversationInfoResponse
+                        {
+                            ConversationId = conversation.Id,
+                            Title = conversation.Title,
+                            ModelName = conversation.AI_Id,
+                            SystemMessage = conversation.SystemMessage,
+                            CreatedAt = conversation.CreatedAt,
+                            TokenUsage = conversation.TokensUsed.ToString()
+                        };
                     },
                     TimeSpan.FromMinutes(30) // Cache for 30 minutes
                 );
@@ -236,15 +249,6 @@ namespace ConversationService.ConversationService
                 throw;
             }
         }
-
-
-
-
-
-
-
-
-
 
         public async Task<List<MessageHistory>> GetConversationMessagesAsync(string conversationId)
         {
@@ -283,10 +287,6 @@ namespace ConversationService.ConversationService
                 throw;
             }
         }
-
-
-
-
 
         public async Task<bool> UpdateConversationAsync(string conversationId, UpdateConversationRequest request)
         {
@@ -330,25 +330,23 @@ namespace ConversationService.ConversationService
                     return true;
                 }
 
-
-
-                
-                // SaveChangesAsync will update the entity since it's being tracked
+                conversation.EndedAt = DateTime.UtcNow;
+                await _unitOfWork.ConversationRepo.UpdateAsync(conversation);
                 await _unitOfWork.SaveChangesAsync();
                 
                 // Invalidate relevant caches
                 var infoKey = string.Format(CacheKeys.ConversationInfo, conversationId);
                 await _cacheManager.InvalidateCache(infoKey);
                 
-                // Invalidate the user's conversation list cache
-                var listKey = string.Format(CacheKeys.ConversationList, conversation.User_Id);
+                // Invalidate the folder's conversation list cache
+                var listKey = string.Format(CacheKeys.ConversationList, conversation.Folder_Id);
                 await _cacheManager.InvalidateCache(listKey);
                 
                 // Invalidate paginated and search caches
-                var paginatedKey = string.Format(CacheKeys.ConversationListPaginated, conversation.User_Id, "*", "*");
+                var paginatedKey = string.Format(CacheKeys.ConversationListPaginated, conversation.Folder_Id, "*", "*");
                 await _cacheManager.InvalidateCache(paginatedKey);
                 
-                var searchKey = string.Format(CacheKeys.ConversationSearch, conversation.User_Id, "*", "*", "*");
+                var searchKey = string.Format(CacheKeys.ConversationSearch, conversation.Folder_Id, "*", "*", "*");
                 await _cacheManager.InvalidateCache(searchKey);
 
                 stopwatch.Stop();
@@ -364,8 +362,6 @@ namespace ConversationService.ConversationService
                 throw;
             }
         }
-
-
 
         public async Task<bool> DeleteConversationAsync(string conversationId)
         {
@@ -385,16 +381,13 @@ namespace ConversationService.ConversationService
                     return false;
                 }
                 
-                string userId = conversation.User_Id;
-                _logger.LogInformation("Found conversation belonging to user: {UserId}", userId);
+                string folderId = conversation.Folder_Id;
+                _logger.LogInformation("Found conversation in folder: {FolderId}", folderId);
                 
                 await _unitOfWork.ConversationRepo.SoftDeleteAsync(conversationId);
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Marked conversation {ConversationId} as deleted", conversationId);
-                
-                // Mark as deleted if possible
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Saved changes to database for conversation deletion: {ConversationId}", conversationId);
                 
                 // Invalidate relevant caches
                 _logger.LogInformation("Beginning cache invalidation for deleted conversation");
@@ -409,26 +402,22 @@ namespace ConversationService.ConversationService
                 await _cacheManager.InvalidateCache(messagesKey);
                 _logger.LogInformation("Invalidated conversation messages cache: {CacheKey}", messagesKey);
                 
-                // Invalidate the user's conversation list cache
-                var listKey = string.Format(CacheKeys.ConversationList, userId);
+                // Invalidate the folder's conversation list cache
+                var listKey = string.Format(CacheKeys.ConversationList, folderId);
                 await _cacheManager.InvalidateCache(listKey);
-                _logger.LogInformation("Invalidated user conversation list cache: {CacheKey}", listKey);
+                _logger.LogInformation("Invalidated folder conversation list cache: {CacheKey}", listKey);
                 
                 // Invalidate paginated and search caches
-                var paginatedKey = string.Format(CacheKeys.ConversationListPaginated, userId, "*", "*");
+                var paginatedKey = string.Format(CacheKeys.ConversationListPaginated, folderId, "*", "*");
                 await _cacheManager.InvalidateCache(paginatedKey);
                 _logger.LogInformation("Invalidated paginated conversation cache: {CacheKey}", paginatedKey);
                 
-                var searchKey = string.Format(CacheKeys.ConversationSearch, userId, "*", "*", "*");
+                var searchKey = string.Format(CacheKeys.ConversationSearch, folderId, "*", "*", "*");
                 await _cacheManager.InvalidateCache(searchKey);
-                _logger.LogInformation("Invalidated search conversation cache: {CacheKey}", searchKey);
-
-                _logger.LogInformation("Cache invalidation completed for user {UserId}, conversation {ConversationId}", 
-                    userId, conversationId);
+                _logger.LogInformation("Invalidated search cache: {CacheKey}", searchKey);
 
                 stopwatch.Stop();
-                _logger.LogInformation("DeleteConversationAsync completed in {ElapsedMilliseconds}ms. User: {UserId}, ConversationId: {ConversationId}", 
-                    stopwatch.ElapsedMilliseconds, userId, conversationId);
+                _logger.LogInformation("DeleteConversationAsync completed in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
                 
                 return true;
             }
@@ -437,6 +426,56 @@ namespace ConversationService.ConversationService
                 stopwatch.Stop();
                 _logger.LogError(ex, "Error deleting conversation: {ConversationId} after {ElapsedMilliseconds}ms", 
                     conversationId, stopwatch.ElapsedMilliseconds);
+                throw;
+            }
+        }
+
+        public async Task<bool> MoveConversationToFolderAsync(string conversationId, string targetFolderId)
+        {
+            try
+            {
+                // Get the conversation
+                var conversation = await _unitOfWork.ConversationRepo.GetByIdAsync(conversationId);
+                if (conversation == null)
+                {
+                    throw new KeyNotFoundException($"Conversation with ID {conversationId} not found");
+                }
+
+                // Get the current folder to check user ownership
+                var currentFolder = await _unitOfWork.FolderRepo.GetByIdAsync(conversation.Folder_Id);
+                if (currentFolder == null)
+                {
+                    throw new KeyNotFoundException($"Current folder with ID {conversation.Folder_Id} not found");
+                }
+
+                // Get the target folder to ensure it exists
+                var targetFolder = await _unitOfWork.FolderRepo.GetByIdAsync(targetFolderId);
+                if (targetFolder == null)
+                {
+                    throw new KeyNotFoundException($"Target folder with ID {targetFolderId} not found");
+                }
+
+                // Ensure both folders belong to the same user
+                if (currentFolder.User_Id != targetFolder.User_Id)
+                {
+                    throw new UnauthorizedAccessException("Cannot move conversation to a folder owned by a different user");
+                }
+
+                // Update the conversation's folder ID
+                conversation.Folder_Id = targetFolderId;
+
+                // Update the conversation
+                await _unitOfWork.ConversationRepo.UpdateAsync(conversation);
+
+                // Save changes
+                await _unitOfWork.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error moving conversation {ConversationId} to folder {FolderId}",
+                    conversationId, targetFolderId);
                 throw;
             }
         }

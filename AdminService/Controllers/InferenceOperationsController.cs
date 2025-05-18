@@ -7,7 +7,7 @@ using AdminService.Services.InferenceOperations.DTOs;
 
 namespace AdminService.Controllers
 {
-    [Route("api/inference")]
+    [Route("api/Admin/[controller]")]
     [ApiController]
     public class InferenceOperationsController : ControllerBase
     {

@@ -6,9 +6,9 @@ namespace AdminService.Services.UserOperations
     {
         // Read operations
         Task<UserResponse> GetUserByIdAsync(string userId);
-        Task<UserResponse> GetUserByEmailAsync(string email);
         Task<IEnumerable<UserResponse>> SearchUsersAsync(string searchTerm, string? role = null);
         Task<(IEnumerable<UserResponse> Users, int TotalCount)> GetUsersPaginatedAsync(int pageNumber, int pageSize, string? role = null);
+        Task<IEnumerable<RoleResponse>> GetAvailableRolesAsync();
         
         // Update operations
         Task<bool> ChangeUserRoleAsync(string userId, string newRole);
@@ -21,5 +21,9 @@ namespace AdminService.Services.UserOperations
         // Security operations
         Task<bool> LockUserAccountAsync(string userId, TimeSpan duration);
         Task<bool> UnlockUserAccountAsync(string userId);
+        
+        // Role management operations
+        Task<RoleResponse> CreateRoleAsync(CreateRoleRequest request);
+        Task<bool> DeleteRoleAsync(string roleId);
     }
 }

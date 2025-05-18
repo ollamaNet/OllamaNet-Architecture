@@ -11,7 +11,7 @@ using ValidationResult = FluentValidation.Results.ValidationResult;
 namespace AdminService.Controllers
 {
     //[Authorize("Admin")] // Commented for testing
-    [Route("api/admin/users")]
+    [Route("api/Admin/[controller]")]
     [ApiController]
     public class UserOperationsController : ControllerBase
     {
@@ -22,6 +22,7 @@ namespace AdminService.Controllers
         private readonly ToggleUserStatusRequestValidator _toggleStatusValidator;
         private readonly ResetPasswordRequestValidator _resetPasswordValidator;
         private readonly LockUserRequestValidator _lockUserValidator;
+        private readonly CreateRoleRequestValidator _createRoleValidator;
 
         public UserOperationsController(
             IUserOperationsService userAdminService,
@@ -30,7 +31,8 @@ namespace AdminService.Controllers
             ChangeUserRoleRequestValidator changeRoleValidator,
             ToggleUserStatusRequestValidator toggleStatusValidator,
             ResetPasswordRequestValidator resetPasswordValidator,
-            LockUserRequestValidator lockUserValidator)
+            LockUserRequestValidator lockUserValidator,
+            CreateRoleRequestValidator createRoleValidator)
         {
             _userAdminService = userAdminService;
             _createUserValidator = createUserValidator;
@@ -39,6 +41,7 @@ namespace AdminService.Controllers
             _toggleStatusValidator = toggleStatusValidator;
             _resetPasswordValidator = resetPasswordValidator;
             _lockUserValidator = lockUserValidator;
+            _createRoleValidator = createRoleValidator;
         }
 
 
@@ -85,25 +88,6 @@ namespace AdminService.Controllers
         }
 
 
-
-
-        // GET: api/admin/users/email/{email}
-        [HttpGet("email/{email}")]
-        public async Task<IActionResult> GetUserByEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                return BadRequest("Email cannot be empty.");
-
-            try
-            {
-                var user = await _userAdminService.GetUserByEmailAsync(email);
-                return Ok(user);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-        }
 
 
 
@@ -273,6 +257,82 @@ namespace AdminService.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+        }
+
+
+
+
+        // GET: api/admin/users/roles
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetAvailableRoles()
+        {
+            try
+            {
+                var roles = await _userAdminService.GetAvailableRolesAsync();
+                return Ok(roles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error retrieving roles", Error = ex.Message });
+            }
+        }
+
+
+
+
+        // POST: api/admin/users/roles
+        [HttpPost("roles")]
+        public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request)
+        {
+            // Validate request
+            ValidationResult validationResult = await _createRoleValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => new { Property = e.PropertyName, Error = e.ErrorMessage }));
+            }
+
+            try
+            {
+                var createdRole = await _userAdminService.CreateRoleAsync(request);
+                return CreatedAtAction(nameof(GetAvailableRoles), createdRole);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error creating role", Error = ex.Message });
+            }
+        }
+
+
+
+
+        // DELETE: api/admin/users/roles/{id}
+        [HttpDelete("roles/{id}")]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest("Role ID cannot be empty.");
+
+            try
+            {
+                await _userAdminService.DeleteRoleAsync(id);
+                return Ok(new { Message = "Role deleted successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error deleting role", Error = ex.Message });
             }
         }
     }

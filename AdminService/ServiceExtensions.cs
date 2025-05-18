@@ -36,6 +36,9 @@ using AdminService.Services.UserOperations.DTOs;
 using AdminService.Controllers.Validators;
 using AdminService.Services.AIModelOperations;
 using AdminService.Services.AIModelOperations.DTOs;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
+using AdminService.Services.TagsOperations;
 
 namespace AdminService
 {
@@ -105,8 +108,9 @@ namespace AdminService
             services.AddScoped<IGetHistoryRepository, GetHistoryRepository>();
             services.AddScoped<ISetHistoryRepository, SetHistoryRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
@@ -123,7 +127,7 @@ namespace AdminService
             services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
 
 
-
+            services.AddScoped<ITagsOperationsService, TagsOperationsService>();
 
             services.AddScoped<IAIModelOperationsService, AIModelOperationsService>();
             services.AddScoped<IValidator<CreateModelRequest>, CreateModelRequestValidator>();
