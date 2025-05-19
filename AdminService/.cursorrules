@@ -1,0 +1,120 @@
+# AdminService Project Rules and Patterns
+
+## Code Organization
+- Controllers are placed in the Controllers/ directory with domain-specific names
+- Services are placed in the Services/ directory organized by domain (UserOperations, AIModelOperations, etc.)
+- DTOs are placed in the Services/[Domain]/DTOs/ directory
+- Validators are placed in the Controllers/Validators/ directory
+- Connectors are placed in the Connectors/ directory
+- Service registrations are centralized in ServiceExtensions.cs
+- Program.cs contains the application startup configuration
+
+## Naming Conventions
+- Controllers use the suffix "Controller" and domain-specific prefix (e.g., UserOperationsController)
+- Controller names reflect their administrative domain with "Operations" suffix
+- Interfaces are prefixed with "I" (e.g., IUserOperationsService)
+- DTOs use descriptive names with purpose suffix (e.g., CreateUserRequest, UpdateModelRequest)
+- Validators follow the pattern [RequestModel]Validator (e.g., CreateUserRequestValidator)
+- Services follow the pattern [Domain]OperationsService (e.g., UserOperationsService)
+- Repository interfaces from Ollama_DB_layer follow the pattern I[Entity]Repository
+
+## Architecture Patterns
+- Clean architecture with controllers, services, and data access layers
+- Dependency injection for all components registered in ServiceExtensions.cs
+- Service extension methods for organizing registration by category
+- FluentValidation for comprehensive request validation
+- Domain-specific services for business logic encapsulation
+- RESTful API design with consistent URL structure
+- Try/catch pattern with contextual logging for error handling
+- Repository pattern via IUnitOfWork for data access
+- Connector pattern for external service integration
+
+## Controller Patterns
+- RESTful endpoint design with domain-specific URL structure
+- Consistent URL structure /api/Admin/[controller]/...
+- Appropriate HTTP methods (GET, POST, PUT, PATCH, DELETE)
+- FluentValidation for request validation
+- Try/catch blocks with exception-specific handling
+- Consistent status code usage (200, 201, 400, 404, 500)
+- Contextual logging with ILogger<T>
+- Pagination for collection endpoints with page size/number
+
+## Service Patterns
+- Domain-specific interfaces for all services
+- Business logic encapsulation in service implementations
+- Repository access via IUnitOfWork
+- Exception throwing for service-level errors:
+  - KeyNotFoundException for missing resources
+  - ArgumentException for invalid inputs
+  - InvalidOperationException for logical errors
+- External service integration via connectors
+- Result-based returns for operation outcomes
+
+## Validation Patterns
+- FluentValidation for all request models
+- Custom validators implementing AbstractValidator<T>
+- Conditional validation using When() for context-specific rules
+- Consistent validation registration in ServiceExtensions.cs
+- Controller-level validation checks
+- Structured error responses for validation failures
+- Rich validation rules with explanatory messages
+
+## Error Handling Patterns
+- Controller-level try/catch blocks
+- Exception-specific handling:
+  - KeyNotFoundException → 404 Not Found
+  - ArgumentException → 400 Bad Request
+  - InvalidOperationException → 400 Bad Request
+  - General exceptions → 500 Internal Server Error
+- Detailed error logging with contextual information
+- Security-conscious error responses (minimal information to clients)
+- Consistent error response format
+
+## Streaming Pattern
+- Server-Sent Events for model installation progress
+- Response headers for streaming configuration:
+  - Content-Type: text/event-stream
+  - Cache-Control: no-cache
+  - Connection: keep-alive
+- IAsyncEnumerable for asynchronous streaming
+- IProgress<T> for progress reporting
+- Response.BodyWriter for direct streaming
+
+## API Design Patterns
+- Domain-specific controllers (User, Model, Tag, Inference)
+- Consistent URL structure /api/Admin/[domain]Operations/...
+- Resource-oriented endpoints
+- Appropriate HTTP method selection
+- Strongly-typed request and response DTOs
+- Pagination parameters for collection endpoints
+- Search and filtering capabilities
+- Clear operation naming
+
+## Project-Specific Guidelines
+- Use FluentValidation for all request validation
+- Organize services by domain operations
+- Implement proper error handling with exception-specific responses
+- Use ILogger<T> for contextual logging
+- Return appropriate HTTP status codes
+- Implement pagination for collection endpoints
+- Use streaming for long-running operations
+- Follow RESTful API design principles
+
+## Security Practices
+- JWT authentication structure (currently commented out)
+- Role-based authorization policies (Admin, User)
+- Input validation for all requests
+- User locking and unlocking capabilities
+- Password management functionality
+- Secure database connection with TLS/SSL
+- HTTPS requirement in production
+- Sensitive operations restricted by role
+
+## Ollama Integration Patterns
+- OllamaConnector abstraction for Ollama API
+- Model installation with progress streaming
+- Model information retrieval with error handling
+- Installed model management
+- Asynchronous model operations
+
+These rules help maintain consistency and quality in the AdminService project. 
