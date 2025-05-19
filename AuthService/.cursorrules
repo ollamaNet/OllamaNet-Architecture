@@ -1,0 +1,103 @@
+# AuthService Project Rules and Patterns
+
+## Code Organization
+- Controllers are placed in the Controllers/ directory
+- DTOs are placed in the DTOs/ directory with purpose-specific models
+- JWT-related helpers are in the Helpers/ directory
+- Core service interfaces and implementations are in the AuthService/ directory
+- Service registrations are organized in ServiceExtensions.cs
+- Program.cs contains the application startup and role seeding
+
+## Naming Conventions
+- Controllers use the suffix "Controller" (e.g., AuthController)
+- Interfaces are prefixed with "I" (e.g., IAuthService)
+- DTOs use descriptive names with purpose suffix (e.g., RegisterModel, AuthModel)
+- Helper classes have meaningful names indicating their purpose (JWTManager)
+- Methods follow the AsyncSuffix pattern for asynchronous operations
+
+## Architecture Patterns
+- Clean architecture with controllers, services, and data access
+- Dependency injection for all services
+- Service extension methods for organizing service registration
+- ASP.NET Identity for user management
+- JWT authentication with refresh tokens
+- Token-based user identification via claims
+
+## API Patterns
+- RESTful API endpoints under /api/auth/
+- HTTP POST for operations that modify state
+- HTTP GET for operations that retrieve data
+- Model validation at controller level with ModelState
+- Explicit property validation for critical fields
+- Consistent response formats with structured errors
+- HTTP status codes used appropriately (200, 400, 401, 403)
+
+## Security Patterns
+- JWT tokens for authentication with comprehensive claims
+- Refresh tokens with one-time use pattern (revocation after use)
+- Password validation with reuse prevention
+- Role-based authorization with [Authorize] attributes
+- Input validation at controller level
+- Secure cookie handling with HttpOnly, Secure flags
+- Token-based user identification for secure operations
+
+## JWT Implementation
+- Create tokens with UserManager.GetClaimsAsync and GetRolesAsync
+- Include user ID claim for secure identification
+- Use symmetric key for signing with HMAC SHA-256
+- Configure validation parameters with issuer, audience, lifetime checks
+- Set ClockSkew to zero for precise expiration
+- Include roles as claims for authorization
+
+## Refresh Token Patterns
+- Generate using RNGCryptoServiceProvider for cryptographic randomness
+- Store in ApplicationUser.RefreshTokens collection
+- Transmit via HTTP-only secure cookies with SameSite=None
+- Validate based on IsActive property (checks expiration and revocation)
+- Revoke on use by setting RevokedOn property
+- Issue new refresh token on each successful refresh
+- Extract from cookies in RefreshTokenAsync endpoint
+
+## Exception Handling
+- ModelState validation for input validation
+- Explicit field validation with clear error messages
+- Proper HTTP status codes for different error conditions
+- Minimal error information for security (especially for authentication)
+- Business logic errors returned as operation-specific messages
+
+## Project-Specific Guidelines
+- Always validate user input at controller level
+- Use GetUserByTokenAsync for token-based user identification
+- Include [Authorize] attribute on protected endpoints
+- Add [Authorize(Roles = "Admin")] for admin-only endpoints
+- Use SetRefreshTokenInCookie for consistent cookie handling
+- Create root folders for new users during registration
+- Verify old password before allowing password changes
+- Prevent password reuse in reset and change workflows
+- Validate email format in password recovery flow
+
+## Security Practices
+- Validate JWT tokens with proper parameters
+- Use refresh token rotation with one-time use pattern
+- Transmit refresh tokens via HTTP-only secure cookies
+- Enforce password policies
+- Use HTTPS in production (enforced by Secure cookie flag)
+- Implement proper user identification for sensitive operations
+- Return minimal error details for authentication failures
+
+## Data Access Patterns
+- Use UnitOfWork pattern for data operations
+- Use Identity UserManager for user operations
+- Access user data via repositories
+- Create and manage refresh tokens through ApplicationUser
+- Handle password operations via Identity
+- Verify role existence before assignment/removal
+
+## Cookie Management
+- Always use HttpOnly flag for security cookies
+- Always use Secure flag to enforce HTTPS
+- Set appropriate expiration matching token lifetime
+- Use SameSite=None for cross-site functionality
+- Set IsEssential=True to ensure cookie persistence
+
+These rules help maintain consistency, security, and best practices in the AuthService project. 

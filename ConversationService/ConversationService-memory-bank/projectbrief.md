@@ -1,43 +1,48 @@
 # ConversationService Project Brief
 
-## Overview
-The ConversationService is a microservice responsible for managing chat conversations and message history in the OllamaNet system. It provides real-time chat capabilities, message persistence, and conversation management features.
+## Project Overview
+ConversationService is a critical microservice component of the OllamaNet platform that manages all aspects of user conversations with AI models. It provides APIs for creating, managing, and interacting with conversations, including real-time chat capabilities. The service implements both standard REST endpoints and streaming responses for AI model interactions, supporting a robust and responsive user experience for conversational AI applications.
 
-## Core Requirements
-
-### Functional Requirements
-1. Real-time chat functionality
-2. Message history management
-3. Conversation state persistence
-4. User authentication and authorization
-5. Caching for performance optimization
-
-### Non-Functional Requirements
-1. High availability and scalability
-2. Low latency for real-time communication
-3. Data consistency and reliability
-4. Secure communication
-5. Easy integration with other services
+## Core Functionality
+- **Conversation Management**: Create, read, update, delete, and organize conversations
+- **Real-time Chat**: Process user messages and stream AI model responses
+- **Message History**: Store and retrieve conversation history for continuity
+- **Folder Organization**: Support for organizing conversations in user folders
+- **Note Management**: Create and manage notes associated with conversations
+- **Feedback Collection**: Collect and manage user feedback on AI responses
+- **Caching Strategy**: Redis-based caching for improved performance
 
 ## Technical Stack
-- .NET Core
-- Redis for caching
-- Entity Framework Core
-- JWT Authentication
-- Swagger for API documentation
+- **ASP.NET Core Web API (.NET 9.0)**: Core framework for RESTful API development
+- **Entity Framework Core**: ORM for data access through shared Ollama_DB_layer
+- **SQL Server**: Primary database for persistence
+- **Redis**: Distributed caching for performance optimization
+- **OllamaSharp**: Client library for Ollama AI model integration
+- **FluentValidation**: Request validation framework
+- **Semantic Kernel**: Microsoft's framework for AI chat completion
+- **JWT Authentication**: Security implementation for user authentication
+- **Swagger/OpenAPI**: API documentation and testing
 
-## Key Components
-1. ChatController - Handles real-time chat operations
-2. ConversationController - Manages conversation lifecycle
-3. ChatService - Core business logic implementation
-4. HistoryManager - Message history management
-5. CacheService - Caching implementation
+## Project Scope
+ConversationService is a central component in the OllamaNet microservices architecture, handling all conversational interactions between users and AI models. It provides a robust API for frontend applications to manage conversations, interact with AI models, and organize content. The service implements advanced features like conversation organization, streaming responses, and sophisticated caching strategies to deliver a performant and reliable user experience.
 
 ## Integration Points
-- Authentication Service
-- User Service
-- Frontend Applications
-- Other microservices requiring chat functionality
+- **Ollama_DB_layer**: Shared database access layer for data persistence
+- **OllamaSharp**: Integration with Ollama inference engine API
+- **Authentication Service**: JWT validation and user identification
+- **Redis Cache**: Distributed caching for performance optimization
+- **Frontend Application**: Web UI consuming the ConversationService API
+- **Other Microservices**: Admin and Explore services for model information
+
+## Key Requirements
+- **Conversation Persistence**: Reliable storage and retrieval of conversation data
+- **Real-time Interaction**: Low-latency responses for chat interactions
+- **Streaming Capability**: Server-sent events for real-time model responses
+- **Organizational Structure**: Support for folders and conversation management
+- **Performance Optimization**: Caching strategies to minimize latency
+- **Scalability**: Robust design for handling increased load
+- **Security**: Proper authentication and authorization checks
+- **Error Handling**: Comprehensive exception management and fallback strategies
 
 ## Success Criteria
 1. Real-time message delivery under 100ms
