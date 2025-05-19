@@ -60,3 +60,156 @@ When asked to create architecture diagrams, follow this order:
 - Don't create inaccurate relationship flows
 - Don't omit validation components
 - Don't forget to include proper error handling in sequence diagrams 
+
+# ConversationService Project Rules and Patterns
+
+## Code Organization
+- Controllers are placed in the Controllers/ directory
+- Services are placed in domain-specific directories (ConversationService/, ChatService/, etc.)
+- DTOs are organized in Services/[Domain]/DTOs/ subdirectories
+- Validators are placed in Controllers/Validators/ directory
+- Cache components are placed in the Cache/ directory
+- Connectors are placed in the Connectors/ directory
+- Service registrations are centralized in ServiceExtensions.cs
+- Program.cs contains the application startup configuration
+
+## Naming Conventions
+- Controllers use the suffix "Controller" (e.g., ConversationController)
+- Service interfaces are prefixed with "I" (e.g., IConversationService)
+- DTOs use descriptive names with purpose suffix (e.g., OpenConversationRequest)
+- Validators follow the pattern [RequestModel]Validator (e.g., OpenConversationRequestValidator)
+- Cache keys are defined in the CacheKeys class with standardized formats:
+  - Resource-specific: "resource:type:{0}" 
+  - List-specific: "resource:list:param:{0}"
+  - Domain-specific keys for conversations, chat history, etc.
+- Repository interfaces from Ollama_DB_layer follow the pattern I[Entity]Repository
+
+## Architecture Patterns
+- Clean architecture with separation of controllers, services, and data access
+- Dependency injection throughout the application, registered in ServiceExtensions.cs
+- Service extension methods for organized registration
+- FluentValidation for request validation
+- Domain-specific services for business logic
+- RESTful API design with consistent HTTP method usage
+- Cache-aside pattern with Redis implementation and fallback strategies
+- Repository pattern with Unit of Work for data access
+- Streaming pattern for real-time responses using IAsyncEnumerable
+
+## Controller Patterns
+- RESTful endpoint design with clear resource naming
+- Consistent URL structure and HTTP verb usage (GET, POST, PUT, DELETE)
+- Attribute-based routing with descriptive route names
+- ProducesResponseType attributes for Swagger documentation
+- AuthorizeAttribute for authentication requirement
+- FluentValidation for input validation
+- Try/catch blocks for error handling with specific HTTP status codes
+- Contextual logging with ILogger<T>
+- Performance monitoring with Stopwatch
+
+## Service Patterns
+- Interface-based service design with dependency injection
+- Constructor injection for dependencies with null checks
+- Explicit argument validation at method entry points
+- Performance monitoring with Stopwatch.StartNew()
+- Comprehensive exception handling with contextual information
+- Detailed logging with operation context and timing information
+- Consistent async/await usage throughout
+- Cache integration via ICacheManager with retry logic
+- Transaction management via IUnitOfWork
+
+## Caching Patterns
+- Cache-aside pattern with GetOrSetAsync approaches
+- Centralized cache key management in CacheKeys.cs
+- Domain-specific key formats with parameter placeholders
+- Targeted cache invalidation on data mutations
+- Exception handling with specialized exception types
+- Fallback to database on cache miss or failure
+- TTL management based on data type in RedisCacheSettings
+- Contextual logging with cache operation details
+- Performance timing with Stopwatch
+
+## Streaming Patterns
+- Server-Sent Events for real-time AI responses
+- Content-Type: text/event-stream header setting
+- IAsyncEnumerable with [EnumeratorCancellation] attribute for streaming
+- Response.BodyWriter for direct HTTP streaming
+- JSON serialization of event data
+- Background processing with Task.Run for post-streaming operations
+- Proper error handling within streaming context
+- HTTP status code response for streaming failures
+
+## Error Handling Patterns
+- Controller-level try/catch blocks with specific exception handling
+- HTTP status code mapping:
+  - 400: Bad Request (ArgumentException, ValidationException)
+  - 401: Unauthorized (missing auth token)
+  - 404: Not Found (KeyNotFoundException, InvalidOperationException)
+  - 500: Internal Server Error (general exceptions)
+- Detailed logging with exception context and stack trace
+- User-friendly error messages in response bodies
+- Validation error formatting with property-specific details
+- Transient error handling with retry logic for external services
+
+## Validation Patterns
+- FluentValidation for all request models
+- Explicit validation call in controllers before processing
+- Detailed validation error messages with HTTP 400 responses
+- Custom validators inheriting from AbstractValidator<T>
+- RuleFor() syntax for property validation rules
+- When() for conditional validation logic
+- Validator registration in ServiceExtensions.cs
+- Authorization validation for resource access
+
+## Logging Patterns
+- Log level selection based on message importance:
+  - Information for successful operations
+  - Warning for potential issues
+  - Error for failures and exceptions
+- Contextual information in log messages:
+  - Operation type
+  - User identifier
+  - Resource identifiers
+  - Timing information
+- Performance tracking with Stopwatch
+- Exception logging with stack traces
+- Success/failure outcome logging
+
+## Security Practices
+- JWT authentication with comprehensive token validation
+- Bearer token scheme with authorization header
+- User identification via claims or X-User-Id header
+- Role-based authorization with User and Admin policies
+- Input validation for all requests before processing
+- Resource ownership verification for user-specific resources
+- HTTPS enforcement in production
+- Cross-Origin Resource Sharing configuration
+- Secure error messages (no sensitive details exposed)
+
+## Asynchronous Patterns
+- Async/await throughout the codebase
+- Task<T> return types for asynchronous methods
+- IAsyncEnumerable for streaming data
+- Cancellation token support for cancelable operations
+- Background task processing with Task.Run
+- Proper exception handling in async methods
+- ConfigureAwait(false) for performance-critical code
+
+## Performance Optimization Patterns
+- Redis caching for frequently accessed data
+- Custom TTL values by data type
+- In-memory operations for small datasets
+- Pagination for large result sets
+- Asynchronous operations to prevent blocking
+- Performance monitoring with Stopwatch
+- Early validation to avoid unnecessary processing
+
+## Project-Specific Guidelines
+- Always validate user access to conversations and folders
+- Use caching for conversation history and metadata
+- Stream chat responses for real-time interaction
+- Keep logging contextual with operation metadata
+- Implement proper error handling with appropriate status codes
+- Maintain conversation history integrity
+- Use RESTful URL patterns for all endpoints
+- Document API responses with ProducesResponseType
+- Include performance monitoring for all significant operations 

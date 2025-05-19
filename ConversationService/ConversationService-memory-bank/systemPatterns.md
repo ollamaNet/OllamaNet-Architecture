@@ -1,87 +1,165 @@
-# ConversationService System Patterns
+# System Patterns for ConversationService
 
 ## Architecture Overview
-The ConversationService follows a layered architecture pattern with clear separation of concerns:
+ConversationService follows a clean, layered architecture pattern within a microservices ecosystem:
 
-1. **Presentation Layer**
-   - Controllers (ChatController, ConversationController)
-   - DTOs and ViewModels
-   - Input validation
-   - API Gateway integration
-
-2. **Application Layer**
-   - Services (IChatService, IConversationService)
-   - Business logic implementation
-   - Transaction management
-   - History management
-
-3. **Infrastructure Layer**
-   - Data access (UnitOfWork)
-   - Caching (CacheManager, Redis)
-   - External service integration (Ollama Service)
-   - Authentication (API Gateway)
-
-4. **Domain Layer**
-   - Core business entities
-   - Domain logic
-   - Value objects
+- **API Layer**: Controllers handling HTTP requests and responses
+  - ConversationController for conversation management
+  - ChatController for real-time chat interactions
+  - FolderController for folder organization
+  - NoteController for note management
+  - FeedbackController for feedback collection
+- **Service Layer**: Domain-specific services containing business logic
+  - ConversationService for conversation management
+  - ChatService for AI model interactions
+  - ChatHistoryManager for history retrieval and persistence
+  - FolderService for folder organization
+  - NoteService for note management
+  - FeedbackService for feedback handling
+- **Caching Layer**: Redis-based caching for performance optimization
+  - RedisCacheService for low-level Redis operations
+  - CacheManager for high-level caching abstraction
+  - Cache-specific exception handling
+- **Data Access Layer**: Repository pattern via IUnitOfWork from shared Ollama_DB_layer
+- **Integration Layer**: OllamaConnector for AI model integration
 
 ## Design Patterns
-
-### Repository Pattern
-- Used for data access abstraction
-- Provides consistent interface for data operations
-- Enables easy switching of data sources
-
-### CQRS Pattern
-- Separate read and write operations
-- Optimized for different use cases
-- Improves scalability
-
-### Caching Strategy
-- Multi-level caching (in-memory and Redis)
-- Cache invalidation patterns
-- Cache-aside pattern implementation
-- Distributed caching with Redis cluster
-
-### Event-Driven Architecture
-- Real-time message delivery
-- Event sourcing for message history
-- Asynchronous processing
+- **Repository Pattern**: Abstracts data access through repositories from Ollama_DB_layer
+- **Unit of Work**: Manages transactions and repository coordination via IUnitOfWork
+- **Dependency Injection**: Comprehensive service registration in ServiceExtensions.cs
+- **Observer Pattern**: Server-sent events for streaming AI responses
+- **Strategy Pattern**: Different strategies for cache retrieval and fallback
+- **Factory Pattern**: Creation of chat histories and response objects
+- **Decorator Pattern**: Enhanced services with caching behavior
+- **Adapter Pattern**: OllamaConnector adapting to the OllamaSharp client
+- **Cache-Aside Pattern**: GetOrSetAsync with database fallback strategy
+- **Circuit Breaker Pattern**: Timeout and retry logic for cache operations
 
 ## Component Relationships
+```
+Controllers → Services → Repositories/Connectors → Database/External Services
+       ↓              ↓
+ Validators      Cache Manager
+```
 
-### Chat Flow
-1. API Gateway routes and authenticates request
-2. ChatController receives request
-3. Validation middleware validates request
-4. ChatService processes message
-5. HistoryManager manages chat history
-6. CacheManager handles caching
-7. Response sent to client
+- **Controllers**: Handle HTTP requests, validate inputs, manage authentication
+- **Validators**: Ensure request data integrity through FluentValidation
+- **Services**: Implement business logic, coordinate with repositories and caching
+- **ChatHistoryManager**: Manages conversation history with caching integration
+- **CacheManager**: Provides caching abstraction with fallback mechanisms
+- **RedisCacheService**: Offers low-level Redis operations with error handling
+- **Repositories**: Access database via the shared Ollama_DB_layer
+- **OllamaConnector**: Integrates with the Ollama AI service via ngrok endpoint
 
-### Conversation Management
-1. API Gateway routes and authenticates request
-2. ConversationController receives request
-3. Validation middleware validates request
-4. ConversationService processes request
-5. HistoryManager updates history
-6. CacheManager updates cache
-7. Response sent to client
+## Service Organization
+- **ConversationService**: Manages conversation CRUD, search, and organization
+  - CreateConversationAsync
+  - GetConversationsAsync
+  - SearchConversationsAsync
+  - UpdateConversationAsync
+  - DeleteConversationAsync
+  - MoveConversationToFolderAsync
+- **ChatService**: Handles chat interactions and streaming responses
+  - GetModelResponse (non-streaming)
+  - GetStreamedModelResponse (streaming)
+  - Internal processing methods for response handling
+- **ChatHistoryManager**: Manages conversation history
+  - GetChatHistoryWithCachingAsync
+  - SaveChatInteractionAsync
+  - SaveStreamedChatInteractionAsync
+  - InvalidateChatHistoryCacheAsync
+- **FolderService**: Manages folder CRUD operations and organization
+- **NoteService**: Manages note CRUD operations
+- **FeedbackService**: Handles feedback collection and management
 
-## Security Patterns
-- API Gateway-based authentication
-- JWT token validation
-- Role-based authorization
-- Input validation
-- Rate limiting
-- CORS configuration
+## Configuration Management
+- **ServiceExtensions.cs**: Extension methods for service registration:
+  - AddDatabaseAndIdentity: Database context and identity setup
+  - AddJwtAuthentication: JWT authentication configuration
+  - AddRepositories: Repository registration
+  - AddApplicationServices: Service and connector registration
+  - ConfigureCors: CORS policy setup
+  - ConfigureCache: Redis cache configuration
+  - ConfigureSwagger: Swagger documentation setup
+- **appsettings.json**: Environment-specific configuration for:
+  - Database connection (SQL Server)
+  - Redis connection (Upstash)
+  - JWT settings with 30-day duration
+  - RedisCacheSettings with domain-specific TTLs
+  - Logging configuration
+
+## API Design
+- **RESTful Endpoints**: Organized by resource type with clear URLs
+- **HTTP Methods**: Proper use of GET, POST, PUT, DELETE
+- **Streaming Endpoint**: SSE for real-time AI responses
+- **Authentication**: JWT tokens for secure access
+- **Authorization**: Role-based with [Authorize] attribute
+- **ProducesResponseType**: Explicit response type documentation
+- **Swagger Documentation**: API documentation with status codes
+- **Status Codes**: Consistent HTTP status codes
+
+## Caching Strategy
+- **Multi-level Caching**: Redis-based distributed caching via Upstash
+- **Cache Keys**: Centralized key management in CacheKeys.cs:
+  - Conversation-specific keys: ConversationList, ConversationInfo, ConversationMessages
+  - Chat-specific keys: ChatHistory
+- **TTL Management**: Domain-specific expiration times in RedisCacheSettings
+  - Default: 60 minutes
+  - Model Info: 24 hours
+  - Tags: 24 hours
+  - Search Results: 30 minutes
+- **Cache Invalidation**: Targeted invalidation on data mutations
+- **Fallback Mechanism**: Database retrieval on cache miss
+- **Exception Handling**: Specialized exception hierarchy in CacheExceptions.cs
+- **Retry Logic**: Configurable retry parameters with exponential backoff
+- **Performance Monitoring**: Stopwatch for operation timing
 
 ## Error Handling
-- Global exception handling
-- Custom exception types
-- Error logging
-- Client-friendly error messages
+- **Controller-Level Try/Catch**: Specific exception handling with status codes
+- **Logging**: Comprehensive logging with Stopwatch for performance timing
+- **HTTP Status Codes**: Mapped from exception types:
+  - 400: Bad Request (validation failures, ArgumentException)
+  - 401: Unauthorized (missing authentication)
+  - 404: Not Found (KeyNotFoundException, InvalidOperationException)
+  - 500: Internal Server Error (general exceptions)
+- **Custom Exceptions**: Domain-specific exception types
+- **Validation Errors**: Structured response format
+- **Cache Exceptions**: Specialized hierarchy for different cache failures
+
+## Streaming Implementation
+- **Server-Sent Events**: Real-time streaming for chat responses
+- **Content-Type**: text/event-stream for proper SSE implementation
+- **IAsyncEnumerable**: In OllamaConnector.GetStreamedChatMessageContentsAsync
+- **Response.BodyWriter**: Direct streaming to HTTP response
+- **Cancellation Support**: EnumeratorCancellation for proper cancellation
+- **JSON Serialization**: Response objects serialized with consistent format
+- **Background Processing**: Task.Run for post-streaming operations
+
+## Data Consistency
+- **Unit of Work Pattern**: For atomic operations via IUnitOfWork
+- **Cache Synchronization**: Invalidation on data changes
+- **Cache-Aside Pattern**: Consistent data retrieval strategy
+- **Input Validation**: FluentValidation before persistence
+- **Error Handling**: Transaction management
+- **Contextual Logging**: Operation context in all data operations
+
+## Cross-Cutting Concerns
+- **Logging**: Contextual logging with operation metadata and timing
+- **Authentication**: JWT-based user identification
+- **Authorization**: Role-based access control with policies
+- **Caching**: Redis-based performance optimization
+- **Validation**: Request validation with FluentValidation
+- **Exception Handling**: Controller-level with appropriate status codes
+- **Performance Monitoring**: Stopwatch for timing metrics
+
+## Security Patterns
+- **JWT Authentication**: Token validation with comprehensive checks
+- **User Identification**: Claims-based identity and X-User-Id header
+- **Role-based Authorization**: Admin and User policies
+- **Input Validation**: FluentValidation for request validation
+- **HTTPS Enforcement**: In middleware pipeline
+- **CORS Configuration**: Specific origin allowance (localhost:5173)
+- **Token Security**: 30-day lifetime with full validation
 
 ## Deployment Patterns
 - Kubernetes-based deployment
