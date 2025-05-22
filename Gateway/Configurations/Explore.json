@@ -1,0 +1,63 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/models",
+      "DownstreamScheme": "${Services.Explore.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Explore.Host}",
+          "Port": "${Services.Explore.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/models",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
+      "DownstreamScheme": "${Services.Explore.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Explore.Host}",
+          "Port": "${Services.Explore.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/models/{id}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags",
+      "DownstreamScheme": "${Services.Explore.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Explore.Host}",
+          "Port": "${Services.Explore.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+
+
+    
+
+    {
+      "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
+      "DownstreamScheme": "${Services.Explore.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Explore.Host}",
+          "Port": "${Services.Explore.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ]
+}

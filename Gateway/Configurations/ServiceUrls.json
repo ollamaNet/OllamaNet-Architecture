@@ -1,0 +1,24 @@
+{
+  "Services": {
+    "Auth": {
+      "Host": "authenticationservice.runasp.net",
+      "Port": 80,
+      "Scheme": "http"
+    },
+    "Admin": {
+      "Host": "adminservice.runasp.net",
+      "Port": 80,
+      "Scheme": "http"
+    },
+    "Explore": {
+      "Host": "exploreservice.runasp.net",
+      "Port": 80,
+      "Scheme": "http"
+    },
+    "Conversation": {
+      "Host": "conversationservice.runasp.net",
+      "Port": 80,
+      "Scheme": "http"
+    }
+  }
+}

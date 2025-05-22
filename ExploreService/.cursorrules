@@ -1,0 +1,85 @@
+# ExploreService Project Rules and Patterns
+
+## Code Organization
+- Controllers are placed in the Controllers/ directory
+- DTOs are placed in the DTOs/ directory
+- Cache-related components are in the Cache/ directory
+- Exception definitions are in ExploreService/Exceptions/ and Cache/Exceptions/
+- Mappers are in Mappers/ directory for entity-to-DTO conversion
+- Service registrations are organized in ServiceExtensions.cs
+- Program.cs contains the application startup configuration
+
+## Naming Conventions
+- Controllers use the suffix "Controller" (e.g., ExploreController)
+- Interfaces are prefixed with "I" (e.g., IExploreService)
+- DTOs use descriptive names with purpose suffix (e.g., ModelInfoResponse)
+- Repository interfaces follow the pattern I[Entity]Repository
+- Cache keys defined as constants with descriptive names
+- Exception classes use the "Exception" suffix (e.g., CacheException)
+
+## Architecture Patterns
+- Clean architecture with controllers, services, repositories
+- Dependency injection used throughout
+- Two-tier caching (CacheManager and RedisCacheService)
+- Service extension methods for organizing service registration
+- Entity to DTO mapping using static mapper classes
+- Exception handling with domain and infrastructure separation
+
+## Caching Patterns
+- Cache keys defined in CacheKeys static class
+- Cache-aside pattern using GetOrSetAsync
+- Fallback strategy on cache failure
+- Timeouts handled with CancellationTokenSource
+- Retry mechanism with exponential backoff
+- Separate expiration times per data type
+- Logging of cache hits/misses
+- Performance tracking with Stopwatch
+
+## Exception Handling
+- Domain exceptions inherit from ExploreServiceException
+- Infrastructure exceptions inherit from CacheException
+- ExceptionConverter for mapping infrastructure to domain
+- Controller returns appropriate HTTP status codes
+- Cache failures gracefully handled with fallback
+- Detailed logging for all exception scenarios
+
+## API Patterns
+- RESTful API design with versioning (api/v1/...)
+- Use of ActionResult<T> for strongly-typed responses
+- HTTP status codes properly used with meaningful responses
+- Swagger documentation on all endpoints
+- Consistent error response format
+
+## Logging Patterns
+- Appropriate log levels:
+  - Information: Standard operations
+  - Debug: Detailed operation information
+  - Warning: Recoverable errors
+  - Error: Critical issues
+- Include context in log messages (keys, IDs, etc.)
+- Performance metrics logged for monitoring
+- Log structured data for better analysis
+
+## Project-Specific Guidelines
+- Always use Redis cache for frequently accessed data via CacheManager
+- Model-related queries cached with appropriate timeouts from settings
+- All API endpoints must have Swagger documentation
+- New exceptions should follow the established hierarchy
+- Always handle cache failures with graceful fallback
+- Use cache keys from CacheKeys class for consistency
+- Log both cache hits and misses for monitoring
+
+## Performance Considerations
+- Use Stopwatch for timing critical operations
+- Configure cache expiration based on data change frequency
+- Implement retry logic for transient failures
+- Handle timeouts gracefully for all external services
+- Log performance metrics for monitoring
+
+## Security Practices
+- JWT authentication for secure endpoints
+- Proper exception handling to avoid information leakage
+- HTTPS required in production
+- Sensitive data (connection strings) should be secured
+
+These rules help maintain consistency and quality in the ExploreService project. 

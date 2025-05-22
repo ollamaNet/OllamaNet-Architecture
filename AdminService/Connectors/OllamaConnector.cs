@@ -4,14 +4,12 @@ using Azure.Core;
 using System.Threading;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using AdminService.DTOs;
 using OllamaSharp;
 using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using Model = OllamaSharp.Models.Model;
 using OpenTelemetry.Trace;
-using AdminService.Mappers;
-using AdminService.DTOs;
+using AdminService.Services.InferenceOperations.DTOs;
 
 namespace AdminService.Connectors
 {

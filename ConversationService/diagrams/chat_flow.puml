@@ -1,0 +1,64 @@
+@startuml Chat Flow Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "ChatController" as CC
+participant "PromptRequestValidator" as PRV
+participant "IChatService" as ICS
+participant "ChatHistoryManager" as HM
+participant "CacheManager" as Cache
+participant "Database" as DB
+
+User -> FE: Send Message
+FE -> CC: POST /api/chats
+activate CC
+
+CC -> CC: Extract UserId from Headers
+CC -> PRV: ValidateAsync(request)
+activate PRV
+PRV --> CC: Validation Result
+deactivate PRV
+
+alt Validation Failed
+    CC --> FE: Return 400 Bad Request
+    deactivate CC
+else Validation Success
+    CC -> ICS: GetModelResponse(request)
+    activate ICS
+    
+    ICS -> HM: GetChatHistoryWithCachingAsync(request)
+    activate HM
+    
+    HM -> Cache: Get Chat History
+    activate Cache
+    alt Cache Hit
+        Cache --> HM: Return Cached History
+    else Cache Miss
+        Cache --> HM: Cache Miss
+        HM -> DB: LoadChatHistoryFromDatabaseAsync
+        activate DB
+        DB --> HM: Return History
+        deactivate DB
+        HM -> Cache: Update Cache
+    end
+    deactivate Cache
+    
+    HM --> ICS: Return Chat History
+    deactivate HM
+    
+    ICS -> HM: SaveChatInteractionAsync
+    activate HM
+    HM -> DB: Save Interaction
+    HM -> Cache: Update Cache
+    deactivate HM
+    
+    ICS --> CC: Return Response
+    deactivate ICS
+    
+    CC --> FE: Return 200 OK
+    deactivate CC
+end
+
+FE -> User: Display Message
+
+@enduml 

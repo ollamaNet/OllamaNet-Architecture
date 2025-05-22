@@ -26,7 +26,8 @@ namespace ConversationService.Mappers
                 ModelName = conversation.AI_Id,
                 SystemMessage = conversation.SystemMessage,
                 CreatedAt = conversation.CreatedAt,
-                TokenUsage = conversation.TokensUsed.ToString()
+                TokenUsage = conversation.TokensUsed.ToString(),
+                FolderId = conversation.Folder_Id
             };
         }
         
@@ -44,7 +45,8 @@ namespace ConversationService.Mappers
             {
                 ConversationId = conversation.Id,
                 Title = conversation.Title,
-                Modelname = conversation.AI_Id
+                Modelname = conversation.AI_Id,
+                FolderId = conversation.Folder_Id
             };
         }
 
@@ -52,20 +54,20 @@ namespace ConversationService.Mappers
         /// Maps an OpenConversationRequest DTO to a Conversation entity.
         /// </summary>
         /// <param name="request">The request DTO to map</param>
-        /// <param name="userId">The user ID to associate with the conversation</param>
+        /// <param name="folderId">The folder ID to associate with the conversation</param>
         /// <returns>A Conversation entity</returns>
-        public static Conversation ToConversationEntity(OpenConversationRequest request, string userId)
+        public static Conversation ToConversationEntity(OpenConversationRequest request, string folderId)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
                 
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
+            if (string.IsNullOrEmpty(folderId))
+                throw new ArgumentException("Folder ID cannot be null or empty", nameof(folderId));
                 
             return new Conversation
             {
                 Title = request.Title,
-                User_Id = userId,
+                Folder_Id = folderId,
                 AI_Id = request.ModelName,
                 SystemMessage = request.SystemMessage,
                 CreatedAt = DateTime.UtcNow

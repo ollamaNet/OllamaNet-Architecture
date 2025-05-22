@@ -1,0 +1,365 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/Admin/AIModelOperations/{modelId}",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/AIModelOperations/{modelId}",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Admin/AIModelOperations",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/AIModelOperations",
+      "UpstreamHttpMethod": [ "POST", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/AIModelOperations/tags/add",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/AIModelOperations/tags/add",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/AIModelOperations/tags/remove",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/AIModelOperations/tags/remove",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/AIModelOperations/{modelId}/softdelete",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/AIModelOperations/{modelId}/softdelete",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+
+
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/admin/InferenceOperations/models/info",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/InferenceOperations/models/info",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/InferenceOperations/models",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/InferenceOperations/models",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/InferenceOperations/models/pull",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/inference/models/pull",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/admin/TagOperations/{id}",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/TagOperations/{id}",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/TagOperations/",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/TagOperations",
+      "UpstreamHttpMethod": [ "POST", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}",
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/search",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/search",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/role",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}/role",
+      "UpstreamHttpMethod": [ "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/status",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}/status",
+      "UpstreamHttpMethod": [ "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/soft-delete",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}/soft-delete",
+      "UpstreamHttpMethod": [ "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/lock",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}/lock",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/unlock",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/{id}/unlock",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/roles",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/roles",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/roles",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/roles",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/UserOperations/roles/{id}",
+      "DownstreamScheme": "${Services.Admin.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Admin.Host}",
+          "Port": "${Services.Admin.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/UserOperations/roles/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    }
+  ]
+}

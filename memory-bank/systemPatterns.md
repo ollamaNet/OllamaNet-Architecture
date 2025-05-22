@@ -1,3 +1,193 @@
+# System Architecture Patterns for OllamaNet
+
+## Microservices Architecture Overview
+
+The OllamaNet platform employs a microservices architecture with the following key components:
+
+1. **Gateway Service**: API gateway using Ocelot for unified access to all microservices
+2. **ConversationService**: Manages conversations and real-time chat interactions
+3. **AuthService**: Handles authentication and user management
+4. **AdminService**: Provides comprehensive administration capabilities
+5. **ExploreService**: Enables discovery and browsing of available AI models
+6. **Shared Database Layer**: Common data access components for all services
+
+### Service Components in Detail
+
+#### Gateway Service
+- **Core Functionality**: Routes client requests to appropriate backend microservices
+- **Key Components**: 
+  - Ocelot routing engine with modular configuration
+  - Authentication middleware for JWT validation
+  - Rate limiting implementation
+  - Request routing to appropriate services
+- **Configuration**: Split into service-specific files for maintainability
+- **Integration Points**: All backend microservices
+
+#### ConversationService
+- **Core Functionality**: Manages conversations, real-time chat, and streaming
+- **Key Components**:
+  - ConversationController for conversation management
+  - ChatController for real-time chat with streaming
+  - FolderController for organization
+  - NoteController for annotations
+  - FeedbackController for user feedback
+  - ChatHistoryManager with caching integration
+  - OllamaConnector for AI model integration
+- **Patterns**: Streaming responses via Server-Sent Events, Cache-Aside pattern
+- **Specialized Features**: IAsyncEnumerable streaming, Redis caching
+
+#### AuthService
+- **Core Functionality**: User authentication, authorization, profile management
+- **Key Components**:
+  - AccountController for authentication
+  - UserController for user management
+  - RefreshTokenManager for persistent sessions
+  - Role-based authorization system
+- **Patterns**: JWT authentication with refresh tokens, Claims-based identity
+- **Specialized Features**: Password reset flows, role management
+
+#### AdminService
+- **Core Functionality**: Platform administration and management
+- **Key Components**:
+  - UserManagementController for user administration
+  - ModelManagementController for AI model management
+  - TagManagementController for organizational tagging
+  - ModelOperationsController for inference operations
+- **Patterns**: Administrative operations, progress streaming
+- **Specialized Features**: Streaming progress for long-running operations
+
+#### ExploreService
+- **Core Functionality**: Model discovery and browsing
+- **Key Components**:
+  - ModelController for model discovery
+  - TagController for tag browsing
+- **Patterns**: Cache-Aside for performance optimization
+- **Specialized Features**: Efficient caching of model metadata
+
+## Common Design Patterns Across Services
+
+### Architecture Patterns
+- **Clean Architecture**: Controllers → Services → Repositories → Database
+- **Layered Design**: API, Service, Data Access, and Integration layers
+- **API Gateway Pattern**: Unified entry point with routing
+- **Repository Pattern**: Data access abstraction across all services
+- **Unit of Work**: Transaction management for data operations
+- **Cache-Aside Pattern**: Performance optimization with fallback
+
+### Implementation Patterns
+- **Dependency Injection**: Constructor-based DI throughout all services
+- **Service Registration**: Centralized in ServiceExtensions.cs files
+- **Options Pattern**: Configuration binding to strongly-typed classes
+- **Controller Pattern**: RESTful APIs with consistent HTTP methods
+- **Validator Pattern**: FluentValidation for request validation
+- **Factory Pattern**: Creation of complex objects
+
+### Caching Strategy
+All services implement a consistent Redis-based caching strategy:
+
+- **RedisCacheService**: Low-level Redis operations with error handling
+- **CacheManager**: High-level abstraction with fallback mechanisms
+- **CacheKeys**: Centralized key management with domain-specific formats:
+  - Resource-specific: "resource:type:{0}" 
+  - List-specific: "resource:list:param:{0}"
+- **TTL Management**: Domain-specific expiration times
+- **Retry Logic**: Configurable with exponential backoff
+- **Exception Handling**: Specialized exception hierarchy
+- **Fallback Strategy**: Graceful degradation to database access
+
+### Streaming Implementation
+ConversationService implements real-time streaming responses:
+
+- **Server-Sent Events (SSE)**: Content-Type: text/event-stream
+- **IAsyncEnumerable**: Asynchronous streaming from AI models
+- **Response.BodyWriter**: Direct streaming to HTTP response
+- **Cancellation Support**: EnumeratorCancellation attribute
+- **Background Processing**: Post-streaming operations
+
+### Data Access Pattern
+- **Shared Database Approach**: Single database instance with shared schema
+- **Repository Abstraction**: IRepositories from Ollama_DB_layer
+- **Unit of Work**: IUnitOfWork for transaction management
+- **Entity Framework Core**: ORM for data access operations
+
+### Authentication & Authorization Pattern
+- **JWT Authentication**: Token-based with validation
+- **Role-Based Access**: User and Admin roles
+- **Claims-Based Identity**: User identification from claims
+- **Token Refresh**: Persistent sessions with refresh tokens
+- **Resource Ownership**: Validation of user access to resources
+
+### Error Handling Pattern
+- **Controller-Level Try/Catch**: With appropriate status codes
+- **HTTP Status Mapping**: 400, 401, 404, 500 based on exception type
+- **Validation Error Format**: Consistent structure with details
+- **Logging Strategy**: Contextual with operation metadata
+- **Performance Monitoring**: Stopwatch for timing metrics
+
+## Component Relationships
+
+### Service Dependencies
+```
+Client Applications → Gateway → [AuthService, ConversationService, AdminService, ExploreService]
+                                        ↓
+                                 Shared Database Layer
+                                        ↓
+                                  SQL Server Database
+```
+
+### Shared Resources
+- **Authentication**: JWT validation common across services
+- **Database**: Shared SQL Server instance at db19911.public.databaseasp.net
+- **Cache**: Redis cache at content-ghoul-42217.upstash.io (Upstash)
+- **Ollama**: AI model inference via ngrok endpoints
+- **Logging**: Common logging patterns and severity levels
+
+### Communication Patterns
+- **Synchronous REST**: Service-to-service API calls
+- **Streaming Responses**: Server-Sent Events for real-time data
+- **Database Synchronization**: Shared database for data consistency
+- **Cache Coordination**: Redis for distributed caching
+
+## Technology-Specific Patterns
+
+### ASP.NET Core Patterns
+- **Middleware Pipeline**: Authentication, Authorization, CORS
+- **Service Registration**: Extension methods for DI setup
+- **Options Configuration**: Strongly-typed settings classes
+- **Controller Attribute Routing**: Consistent URL structure
+- **Filters**: For cross-cutting concerns
+- **Model Binding**: Request deserialization and validation
+
+### Entity Framework Core Patterns
+- **Repository Abstraction**: IRepository<T> for data access
+- **Context Configuration**: Fluent API for entity mapping
+- **Lazy Loading**: For efficient relationship loading
+- **Query Projection**: DTOs for optimized queries
+- **Transaction Management**: Via IUnitOfWork
+
+### Caching Patterns
+- **Distributed Caching**: Redis-based with Upstash
+- **Cache Key Management**: Consistent naming convention
+- **TTL Strategy**: Domain-specific expiration times
+- **Multi-level Cache**: Redis with memory fallback
+- **Cache Invalidation**: On data modification events
+- **Cache-or-Compute**: GetOrSetAsync pattern
+
+### Validation Patterns
+- **FluentValidation**: For request model validation
+- **Validator Registration**: Extension methods for DI setup
+- **Conditional Validation**: Business rules enforcement
+- **Validation Response**: Consistent error format
+- **Custom Validators**: For complex validation scenarios
+
+### Security Patterns
+- **JWT Authentication**: Token validation and generation
+- **Claims-Based Identity**: User identification
+- **Role-Based Authorization**: Access control policies
+- **Password Hashing**: Secure credential storage
+- **HTTPS Enforcement**: Secure communications
+- **Cross-Origin Resource Sharing**: Controlled access
+
 # System Architecture Patterns
 
 ## Microservices Architecture
