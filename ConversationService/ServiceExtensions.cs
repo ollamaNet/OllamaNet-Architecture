@@ -44,6 +44,7 @@ using ConversationService.FolderService;
 using ConversationService.NoteService;
 using ConversationService.FeedbackService;
 using ConversationService.FeedbackService.DTOs;
+using ConversationService.ChatService.RagService;
 
 
 namespace ConversationService
@@ -95,6 +96,7 @@ namespace ConversationService
             });
         }
 
+
         // Register Repositories
         public static void AddRepositories(this IServiceCollection services)
         {
@@ -144,6 +146,11 @@ namespace ConversationService
             services.AddScoped<IFeedbackService, FeedbackService.FeedbackService>();
             services.AddScoped<IValidator<AddFeedbackRequest>, AddFeedbackRequestValidator>();
             services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
+
+            // Register RagService
+             services.AddScoped<IRagIndexingService, RagIndexingService>();
+             services.AddScoped<IRagRetrievalService, RagRetrievalService>();
+
 
             // Register validators from the new location
             services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();

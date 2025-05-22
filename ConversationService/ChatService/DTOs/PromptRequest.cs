@@ -13,6 +13,11 @@ namespace ConversationService.ChatService.DTOs
         public string ConversationId { get; set; }
 
 
+        //temporary property
+        public string DocumentUrl { get; set; }
+
+
+
         [NotMapped]
         [JsonPropertyName("model")]
         public string Model { get; set; }

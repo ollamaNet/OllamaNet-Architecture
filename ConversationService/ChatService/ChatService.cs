@@ -1,8 +1,10 @@
 ﻿using ConversationService.Cache;
 using ConversationService.ChatService.DTOs;
 using ConversationService.ChatService.Mappers;
+using ConversationService.ChatService.RagService;
 using ConversationService.Connectors;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System;
 using System.Collections.Generic;
@@ -18,15 +20,23 @@ namespace ConversationService.ChatService
        private readonly ILogger<ChatService> _logger;
        private readonly ChatHistoryManager _chatHistoryManager;
 
-       public ChatService(
+        private readonly IRagRetrievalService _ragRetrievalService;
+
+        private readonly RagOptions _ragOptions;
+
+
+        public ChatService(
            IOllamaConnector connector,
            ILogger<ChatService> logger,
-           ChatHistoryManager chatHistoryManager)
+           ChatHistoryManager chatHistoryManager, IRagRetrievalService ragRetrievalService,
+            IOptions<RagOptions> ragOptions)
        {
            _connector = connector ?? throw new ArgumentNullException(nameof(connector));
            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
            _chatHistoryManager = chatHistoryManager ?? throw new ArgumentNullException(nameof(chatHistoryManager));
-       }
+            _ragRetrievalService = ragRetrievalService;
+            _ragOptions = ragOptions.Value;
+        }
 
 
 
@@ -184,8 +194,28 @@ namespace ConversationService.ChatService
                throw;
            }
 
-           // Add latest user message and system message to chat history
-           if (!string.IsNullOrEmpty(request.SystemMessage))
+
+            // RAG Retrieval
+            var contextChunks = await _ragRetrievalService.GetRelevantContextAsync(request);
+            if (contextChunks?.Any() == true)
+            {
+                var retrievedContext = string.Join("\n---\n", contextChunks);
+                var systemContext = $"Use the following retrieved context from the user's uploaded document to answer the query:\n{retrievedContext}";
+
+                _logger.LogInformation(systemContext);
+
+                // add systemcontext to history
+                history.AddSystemMessage(systemContext);
+
+
+                _logger.LogInformation("RAG context prepended to chat history.");
+
+
+            }
+
+
+            // Add latest user message and system message to chat history
+            if (!string.IsNullOrEmpty(request.SystemMessage))
            {
                history.AddSystemMessage(request.SystemMessage);
            }
