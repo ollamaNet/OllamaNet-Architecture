@@ -1,3 +1,4 @@
+using AuthService.DataSeeding.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 
@@ -19,23 +20,19 @@ public class Program
         builder.Services.ConfigureCache(builder.Configuration);
         builder.Services.ConfigureSwagger();
         builder.Services.AddControllers();
+        builder.Services.AddDataSeeding(builder.Configuration);
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
 
-        // Seed roles
+        // Seed roles and admin user using new DataSeeder
         using (var scope = app.Services.CreateScope())
         {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            string[] roles = { "User", "Admin" }; // Add other roles as needed
-
-            foreach (var role in roles)
+            var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();
+            if (await seeder.ShouldSeedAsync())
             {
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(role));
-                }
+                await seeder.SeedAsync();
             }
         }
 

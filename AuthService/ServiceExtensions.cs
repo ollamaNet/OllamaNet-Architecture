@@ -27,6 +27,8 @@ using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.AttachmentRepo;
 using Ollama_DB_layer.Repositories.FolderRepo;
 using Ollama_DB_layer.Repositories.NoteRepo;
+using AuthService.DataSeeding.Interfaces;
+using AuthService.DataSeeding.Services;
 
 namespace AuthenticationService
 {
@@ -103,7 +105,6 @@ namespace AuthenticationService
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IFolderRepository, FolderRepository>();
             services.AddScoped<INoteRepository, NoteRepository>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
@@ -111,8 +112,26 @@ namespace AuthenticationService
         public static void AddApplicationServices(this IServiceCollection services)
         {
 
-
         }
+
+
+
+
+        // Register Data Seeding Services
+        public static void AddDataSeeding(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<AuthService.DataSeeding.Options.DataSeedingOptions>(
+                configuration.GetSection("DataSeeding"));
+            services.AddScoped<IDataSeeder, DataSeeder>();
+            services.AddScoped<IRoleSeeder, RoleSeeder>();
+            services.AddScoped<IUserSeeder, UserSeeder>();
+        }
+
+
+
+
+
+
 
         // Register CORS
         public static void ConfigureCors(this IServiceCollection services)
@@ -129,6 +148,10 @@ namespace AuthenticationService
             });
         }
 
+
+
+
+
         // Register Redis Cache
         public static void ConfigureCache(this IServiceCollection services, IConfiguration configuration)
         {
@@ -137,6 +160,10 @@ namespace AuthenticationService
                 ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
             //services.AddScoped<CacheManager>();
         }
+
+
+
+
 
         // Register Swagger with JWT Support
         public static void ConfigureSwagger(this IServiceCollection services)
@@ -172,6 +199,7 @@ namespace AuthenticationService
                 });
             });
         }
+
     }
 
 }
