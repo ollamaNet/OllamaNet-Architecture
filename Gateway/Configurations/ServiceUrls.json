@@ -6,9 +6,9 @@
       "Scheme": "http"
     },
     "Admin": {
-      "Host": "adminservice.runasp.net",
-      "Port": 80,
-      "Scheme": "http"
+      "Host": "localhost",
+      "Port": 7239,
+      "Scheme": "https"
     },
     "Explore": {
       "Host": "exploreservice.runasp.net",

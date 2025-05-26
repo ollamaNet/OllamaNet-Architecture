@@ -5,11 +5,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/Admin/AIModelOperations/{modelId}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/AIModelOperations/{modelId}",
@@ -24,11 +24,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/Admin/AIModelOperations",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/AIModelOperations",
@@ -43,11 +43,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/AIModelOperations/tags/add",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/AIModelOperations/tags/add",
@@ -61,11 +61,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/AIModelOperations/tags/remove",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/AIModelOperations/tags/remove",
@@ -79,11 +79,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/AIModelOperations/{modelId}/softdelete",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/AIModelOperations/{modelId}/softdelete",
@@ -97,11 +97,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/InferenceOperations/models/info",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/InferenceOperations/models/info",
@@ -115,11 +115,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/InferenceOperations/models",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/InferenceOperations/models",
@@ -134,11 +134,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/InferenceOperations/models/pull",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/inference/models/pull",
@@ -152,11 +152,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/TagOperations/{id}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/TagOperations/{id}",
@@ -170,12 +170,12 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/TagOperations/",
-      "DownstreamScheme": "http",
+      "DownstreamPathTemplate": "/api/admin/TagOperations/",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/TagOperations",
@@ -190,11 +190,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations",
@@ -208,11 +208,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}",
@@ -227,11 +227,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/search",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/search",
@@ -245,11 +245,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/role",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}/role",
@@ -263,11 +263,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/status",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}/status",
@@ -281,11 +281,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/soft-delete",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}/soft-delete",
@@ -299,11 +299,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/lock",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}/lock",
@@ -317,11 +317,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/{id}/unlock",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/{id}/unlock",
@@ -335,11 +335,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/roles",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/roles",
@@ -353,11 +353,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/roles",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/roles",
@@ -371,11 +371,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/admin/UserOperations/roles/{id}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "adminservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "7239"
         }
       ],
       "UpstreamPathTemplate": "/admin/UserOperations/roles/{id}",
