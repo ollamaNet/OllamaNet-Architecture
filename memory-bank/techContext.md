@@ -1,226 +1,252 @@
-# Technical Context
+# Technical Context for OllamaNet
 
-## Technology Stack
+## Technology Stack Overview
 
 ### Core Technologies
-- **.NET Core** - Primary development framework
-- **ASP.NET Core** - Web API framework
-- **Entity Framework Core** - ORM and database access
-- **SQL Server** - Primary database
-- **Redis** - Distributed caching
-- **RabbitMQ** - Message queue for asynchronous communication
+- **.NET 9.0**: Modern .NET platform for building all services
+- **ASP.NET Core**: Web API framework for RESTful endpoints and streaming responses
+- **Entity Framework Core**: ORM for database operations through shared Ollama_DB_layer
+- **SQL Server**: Primary relational database for data persistence (db19911.public.databaseasp.net)
+- **Redis**: Distributed caching for performance optimization using Upstash (content-ghoul-42217.upstash.io)
+- **Ocelot**: API Gateway implementation for request routing and load balancing
+- **OllamaSharp**: Client library for interacting with Ollama AI models
+- **Semantic Kernel**: Microsoft's framework for chat completion capabilities
+- **FluentValidation**: Request validation framework for input validation
+- **Swagger/OpenAPI**: API documentation and interactive testing
 
-### Development Tools
-- Visual Studio 2022
-- Docker
-- Redis CLI
-- Postman
-- Git
+## Microservice-Specific Technologies
 
-### Authentication & Authorization
-- **JWT** - Token-based authentication
-- **Identity Framework** - User management
+### Gateway Service
+- **Ocelot**: Core routing and gateway capabilities
+- **JWT Bearer Authentication**: Token validation middleware
+- **Rate Limiting**: Configurable limits by endpoint
+- **Configuration Management**: Split into service-specific files
+- **CORS Configuration**: For frontend application access
 
-### Required Services
-1. Redis
-   - Token caching
-   - Rate limiting
-   - Session management
-   - Configuration: appsettings.json
+### ConversationService
+- **Server-Sent Events**: Real-time streaming responses
+- **IAsyncEnumerable**: Asynchronous streaming via OllamaConnector
+- **Redis Cache**: Multi-level caching architecture with fallback
+- **OllamaSharp**: Client for AI model interactions
+- **Entity Framework Core**: Data access via Ollama_DB_layer
+- **FluentValidation**: Request model validation
+- **JWT Authentication**: Security implementation with roles
 
-2. Ocelot Gateway
-   - Request routing
-   - Load balancing
-   - Configuration: ocelot.json
+### AuthService
+- **ASP.NET Identity**: User management framework
+- **JWT Authentication**: Token generation and validation
+- **Refresh Tokens**: Persistent session management
+- **Password Management**: Reset and change functionality
+- **Role-Based Authorization**: Access control policies
+- **Entity Framework Core**: Identity storage and access
 
-3. Authentication Service
-   - JWT token generation
-   - User management
-   - Token validation
+### AdminService
+- **OllamaSharp**: Client for Ollama API integration
+- **Entity Framework Core**: Data access via Ollama_DB_layer
+- **FluentValidation**: Administrative request validation
+- **Server-Sent Events**: Progress streaming for long operations
+- **Repository Pattern**: Data access abstraction
+- **JWT Authentication**: Security (configured but commented out)
 
-### Configuration Files
-1. appsettings.json
-   ```json
-   {
-     "TokenCaching": {
-       "Redis": {
-         "ConnectionString": "localhost:6379",
-         "Database": 1
-       },
-       "Options": {
-         "SlidingExpiration": "00:30:00",
-         "AbsoluteExpiration": "01:00:00",
-         "CachePrefix": "token:"
-       }
-     },
-     "RateLimiting": {
-       "Redis": {
-         "ConnectionString": "localhost:6379",
-         "Database": 0
-       },
-       "GlobalRules": [
-         {
-           "Endpoint": "*",
-           "Period": "1s",
-           "Limit": 100
-         }
-       ]
-     }
-   }
-   ```
+### ExploreService
+- **Redis Cache**: Performance optimization for model metadata
+- **Entity Framework Core**: Data access via Ollama_DB_layer
+- **JWT Authentication**: Secure access to endpoints
+- **Repository Pattern**: Data access abstraction
+- **Pagination**: Efficient data retrieval
 
-2. ocelot.json
-   ```json
-   {
-     "GlobalConfiguration": {
-       "BaseUrl": "https://localhost:7270",
-       "RateLimitOptions": {
-         "ClientIdHeader": "ClientId",
-         "QuotaExceededMessage": "Rate limit exceeded",
-         "HttpStatusCode": 429
-       }
-     },
-     "Routes": [
-       {
-         "UpstreamPathTemplate": "/gateway/{service}/{everything}",
-         "DownstreamPathTemplate": "/api/{service}/{everything}",
-         "DownstreamScheme": "https",
-         "RateLimitOptions": {
-           "EnableRateLimiting": true
-         }
-       }
-     ]
-   }
-   ```
-
-## Technical Constraints
-
-### Authentication
-- JWT token validation at Gateway
-- Redis-based token caching
-- Token blacklisting support
-- Role-based authorization
-
-### Rate Limiting
-- Distributed rate limiting using Redis
-- Configurable limits per endpoint
-- Client-based rate limiting
-- IP-based rate limiting
-
-### Caching
-- Redis-based token caching
-- Sliding expiration for tokens
-- Absolute expiration as fallback
-- Cache invalidation strategies
-
-### Security
-- HTTPS required
-- JWT token validation
-- Rate limiting
-- Request validation
-- CORS configuration
-
-## Dependencies
+## Key Dependencies
 
 ### NuGet Packages
-```xml
-<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
-<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
-<PackageReference Include="Ocelot" Version="18.0.0" />
-<PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
+- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication implementation
+- **Microsoft.AspNetCore.Identity**: User identity and role management
+- **Microsoft.EntityFrameworkCore**: Data access and ORM functionality
+- **Microsoft.Extensions.Caching.StackExchangeRedis**: Redis caching support
+- **Microsoft.SemanticKernel**: AI chat completion frameworks
+- **StackExchange.Redis**: Redis client for distributed caching
+- **OllamaSharp**: Ollama API client for AI model interactions
+- **FluentValidation.AspNetCore**: Request validation framework
+- **Swashbuckle.AspNetCore**: Swagger integration for API documentation
+- **Ocelot**: API Gateway framework
+- **Ollama_DB_layer**: Shared database access layer with repositories and entities
+
+## Shared Configuration Patterns
+
+### appsettings.json Structure
+Each service follows a consistent configuration pattern:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=db19911.public.databaseasp.net;Database=Ollama_DB;User Id=xxx;Password=xxx;TrustServerCertificate=True;"
+  },
+  "Redis": {
+    "ConnectionString": "content-ghoul-42217.upstash.io:42217,password=xxx,ssl=True,abortConnect=False"
+  },
+  "JwtSettings": {
+    "SecretKey": "xxx",
+    "Issuer": "OllamaNetAuth",
+    "Audience": "OllamaNetClients",
+    "ExpirationMinutes": 43200
+  },
+  "RedisCacheSettings": {
+    "ConnectionString": "content-ghoul-42217.upstash.io:42217,password=xxx,ssl=True,abortConnect=False",
+    "DefaultTTLMinutes": 60,
+    "ModelInfoTTLMinutes": 1440,
+    "TagsTTLMinutes": 1440,
+    "SearchResultsTTLMinutes": 30,
+    "MaxRetryAttempts": 3,
+    "RetryDelayMilliseconds": 100,
+    "RetryDelayMultiplier": 5,
+    "OperationTimeoutMilliseconds": 2000
+  },
+  "OllamaApiSettings": {
+    "BaseUrl": "https://704e-35-196-162-195.ngrok-free.app"
+  },
+  "AllowedHosts": "*",
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:5173"
+    ]
+  }
+}
 ```
 
-### External Services
-- Redis Server
-- Authentication Service
-- Microservices (Auth, Admin, Explore, Conversation)
+### ServiceExtensions.cs Pattern
+Each service implements extension methods for registration:
 
-## Development Guidelines
+```csharp
+public static class ServiceExtensions
+{
+    public static IServiceCollection AddDatabaseAndIdentity(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Database and Identity registration
+    }
 
-### Code Organization
-- Middleware for authentication
-- Middleware for rate limiting
-- Services for token validation
-- Services for Redis caching
-- Configuration classes
-- Extension methods for setup
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        // JWT authentication setup
+    }
+    
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        // Repository registration
+    }
+    
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Service registration
+    }
+    
+    public static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        // CORS configuration
+    }
+    
+    public static IServiceCollection ConfigureCache(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Redis cache configuration
+    }
+    
+    public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
+    {
+        // Swagger documentation setup
+    }
+}
+```
 
-### Best Practices
-- Async/await throughout
-- Proper error handling
-- Comprehensive logging
-- Unit testing
-- Documentation
-- Configuration validation
+## Caching Implementation
 
-### Performance Considerations
-- Redis connection pooling
-- Token cache optimization
-- Rate limit counter optimization
-- Request/response transformation
-- Connection management
-
-## Monitoring and Logging
-
-### Metrics to Track
-- Authentication success/failure rates
-- Token cache hit/miss ratios
-- Rate limit violations
-- Request latency
-- Redis connection status
-- Service health
-
-### Logging Strategy
-- Structured logging
-- Correlation IDs
-- Request tracing
-- Error logging
-- Performance metrics
-- Security events
-
-## Caching Architecture
-
-The application uses a multi-layered Redis caching architecture for performance optimization:
+The OllamaNet platform implements a sophisticated Redis-based caching architecture:
 
 ### Core Caching Components
+- **RedisCacheSettings**: Configuration for Redis connection and domain-specific TTL values
+- **CacheKeys**: Centralized cache key management with specific key formats by domain
+- **RedisCacheService**: Low-level Redis operations implementation with error handling
+- **CacheManager**: High-level caching abstraction with fallback mechanisms
+- **CacheExceptions**: Specialized exception types for different cache failure scenarios
 
-1. **RedisCacheSettings**: Configuration class managing connection strings and cache duration settings
-2. **CacheKeys**: Static class defining standardized cache key formats
-3. **RedisCacheService**: Low-level Redis operations handling with robust error management
-4. **CacheManager**: High-level abstraction providing cache-or-compute pattern with fallback strategies
-5. **Exception Handling**: Specialized cache exceptions converting to service-appropriate exceptions
+### Key Caching Patterns
+- **Cache-Aside Pattern**: GetOrSetAsync methods with database fallback
+- **TTL Management**: Domain-specific expiration times:
+  - Default: 60 minutes
+  - Model Info: 1440 minutes (24 hours)
+  - Tags: 1440 minutes (24 hours)
+  - Search Results: 30 minutes
+- **Retry Logic**: Configured with exponential backoff:
+  - MaxRetryAttempts: 3
+  - RetryDelayMilliseconds: 100
+  - RetryDelayMultiplier: 5
+- **Exception Handling**: Specialized exceptions with graceful degradation
+- **Performance Monitoring**: Stopwatch for operation timing
 
-### Caching Pattern
+## Streaming Implementation
 
-The caching implementation follows these principles:
+The ConversationService implements real-time streaming using Server-Sent Events:
 
-- **Cache-Aside Pattern**: Used throughout services with GetOrSetAsync for transparent caching
-- **Error Resilience**: Graceful fallback to database when Redis is unavailable
-- **Timeout Handling**: Operations have configurable timeouts to prevent cascading failures
-- **Structured Logging**: Comprehensive logging at appropriate levels for observability
+- **Content-Type**: text/event-stream for SSE format
+- **IAsyncEnumerable**: Asynchronous streaming via OllamaConnector
+- **Response.BodyWriter**: Direct writing to the response stream
+- **JSON Serialization**: Response objects serialized to JSON for streaming
+- **Error Handling**: Status code responses within the streaming context
+- **Background Processing**: Task.Run for post-streaming operations
+- **Cancellation Support**: EnumeratorCancellation attribute for proper cancellation
 
-### Implementation Guide
+## Authentication & Authorization
 
-A detailed implementation guide is available at `docs/RedisCache_Implementation_Guide.md` to maintain consistency across services.
+All services implement a consistent authentication approach:
 
-## Error Handling Strategy
+- **JWT Authentication**: Token-based authentication via JwtBearer
+- **Token Duration**: 30-day token lifetime (43200 minutes)
+- **User Identification**: UserId from JWT token claims or X-User-Id header
+- **Role-Based Authorization**: Admin and User role policies
+- **Token Validation**: Comprehensive validation in JwtBearerOptions:
+  - ValidateIssuerSigningKey: true
+  - ValidateIssuer: true
+  - ValidateAudience: true
+  - ValidateLifetime: true
+- **HTTPS Requirements**: Enforced in pipeline
+- **CORS Configuration**: Configured for frontend application
 
-The application implements a layered exception handling approach:
+## API Design Patterns
 
-1. **Cache-Level Exceptions**: CacheException hierarchy with specific types for different failure modes
-2. **Service-Level Exceptions**: Service-specific exceptions providing business context
-3. **Exception Conversion**: ExceptionConverter utility translating between layers
-4. **Controller-Level Handling**: HTTP-appropriate status codes based on exception types
+All services follow RESTful API conventions:
 
-## Logging Strategy
+- **Resource-Based Endpoints**: /{resource} pattern
+- **HTTP Method Usage**: GET, POST, PUT, DELETE for appropriate operations
+- **Status Codes**: Consistent mapping from operations and exceptions
+- **Validation**: FluentValidation for request models
+- **Documentation**: Swagger with ProducesResponseType attributes
+- **Paging**: Consistent paging parameters (page, pageSize)
+- **Filtering**: Query parameters for resource filtering
+- **Error Responses**: Consistent error format
 
-The application uses structured logging with the following level convention:
+## Data Access Patterns
 
-- **Debug**: Detailed diagnostic information (cache operations, timing)
-- **Information**: Normal application flow (method entry/exit, cache hits/misses)
-- **Warning**: Potential issues that don't impact functionality (cache fallbacks)
-- **Error**: Runtime errors affecting functionality (database failures, timeout issues)
+All services use a shared database approach:
 
-## Other Technical Details
+- **Shared Database**: Single SQL Server instance
+- **Ollama_DB_layer**: Common data access layer with:
+  - Entity definitions
+  - Repository interfaces
+  - Repository implementations
+  - Database context
+- **Unit of Work**: Transaction management
+- **Repository Pattern**: Data access abstraction
+- **Entity Framework Core**: ORM for database operations
 
-[Keep existing content about other technical aspects of the system] 
+## External Services
+
+- **Ollama AI Service**: AI model inference engine via ngrok endpoint
+  - Current endpoint: https://704e-35-196-162-195.ngrok-free.app
+- **SQL Server Database**: Data persistence at db19911.public.databaseasp.net
+- **Redis Cache**: Distributed caching via Upstash at content-ghoul-42217.upstash.io
+
+## Development Environment
+
+- **IDE**: Visual Studio or VS Code
+- **Local Database**: SQL Server (local or containerized)
+- **Redis**: Upstash cloud service or local Redis instance
+- **API Testing**: Swagger UI, Postman, and .http files
+- **Logging**: Console and file-based logging during development
+- **Containerization**: Docker support (incomplete) 
