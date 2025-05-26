@@ -29,6 +29,7 @@ using Ollama_DB_layer.Repositories.FolderRepo;
 using Ollama_DB_layer.Repositories.NoteRepo;
 using AuthService.DataSeeding.Interfaces;
 using AuthService.DataSeeding.Services;
+using AuthService.DataSeeding.Options;
 
 namespace AuthenticationService
 {
@@ -120,7 +121,7 @@ namespace AuthenticationService
         // Register Data Seeding Services
         public static void AddDataSeeding(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<AuthService.DataSeeding.Options.DataSeedingOptions>(
+            services.Configure<DataSeedingOptions>(
                 configuration.GetSection("DataSeeding"));
             services.AddScoped<IDataSeeder, DataSeeder>();
             services.AddScoped<IRoleSeeder, RoleSeeder>();
