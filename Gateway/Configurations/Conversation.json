@@ -152,6 +152,109 @@
       ],
       "UpstreamPathTemplate": "/chats/stream",
       "UpstreamHttpMethod": [ "POST" ]
+    },
+
+
+
+
+
+
+    
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}/soft",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}/soft",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     }
   ]
 }
