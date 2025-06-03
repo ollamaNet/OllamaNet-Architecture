@@ -101,6 +101,12 @@ namespace ConversationService.ChatService
                    continue;
                }
 
+               // Set CreatedAt if not already set
+               if (response.CreatedAt == default)
+               {
+                   response.CreatedAt = DateTime.UtcNow;
+               }
+
                // Add assistant message to history for tracking
                if (!string.IsNullOrEmpty(response.Content))
                {
@@ -207,6 +213,9 @@ namespace ConversationService.ChatService
                        CreatedAt = DateTime.UtcNow
                    };
                }
+
+               // Ensure CreatedAt is set in the service layer
+               ollamaResponses[0].CreatedAt = DateTime.UtcNow;
 
                // Map response
                var response = ModelResponseMapper.ToModelResponse(ollamaResponses[0], request);

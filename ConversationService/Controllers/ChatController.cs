@@ -53,7 +53,6 @@ namespace ConversationService.Controllers
             if (userId == null)
                 return Unauthorized();
 
-            request.CreatedAt = DateTime.UtcNow;
 
             var validationResult = await _chatValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -85,7 +84,6 @@ namespace ConversationService.Controllers
                 return;
             }
 
-            request.CreatedAt = DateTime.UtcNow;
             var validationResult = await _chatValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
