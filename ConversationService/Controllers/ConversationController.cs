@@ -1,6 +1,4 @@
-﻿using ConversationService.ConversationService;
-using ConversationService.ConversationService.DTOs;
-using ConversationService.Controllers.Validators;
+﻿using ConversationService.Services.ConversationService;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,8 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ConversationServices.Services.ConversationService;
+using ConversationServices.Services.ConversationService.DTOs;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [Route("api/conversations")]
     [ApiController]

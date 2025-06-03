@@ -1,5 +1,5 @@
-using ConversationService.ChatService;
-using ConversationService.ChatService.DTOs;
+using ConversationServices.Services.ChatService;
+using ConversationServices.Services.ChatService.DTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [Route("api/chats")]
     [ApiController]

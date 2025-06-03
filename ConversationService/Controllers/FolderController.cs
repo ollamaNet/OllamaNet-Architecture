@@ -1,5 +1,5 @@
-﻿using ConversationService.FolderService;
-using ConversationService.FolderService.DTOs;
+﻿using ConversationServices.Services.FolderService;
+using ConversationServices.Services.FolderService.DTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
