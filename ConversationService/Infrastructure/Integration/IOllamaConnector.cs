@@ -1,5 +1,4 @@
-﻿using ConversationService.ChatService.DTOs;
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;
@@ -7,8 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ConversationServices.Services.ChatService.DTOs;
 
-namespace ConversationService.Connectors
+namespace ConversationService.Infrastructure.Integration
 {
     public interface IOllamaConnector
     {
