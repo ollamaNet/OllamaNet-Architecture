@@ -1,6 +1,0 @@
-@Ollama_Component_HostAddress = http://localhost:5082
-
-GET {{Ollama_Component_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
