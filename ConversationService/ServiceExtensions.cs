@@ -122,7 +122,7 @@ namespace ConversationService
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://704e-35-196-162-195.ngrok-free.app"));
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://1cf3-34-125-232-124.ngrok-free.app/"));
             services.AddScoped<IOllamaConnector, OllamaConnector>();
 
             // Chat-related services
