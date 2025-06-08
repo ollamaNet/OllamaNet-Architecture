@@ -11,10 +11,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddDatabaseAndIdentity(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddRepositories();
-builder.Services.AddApplicationServices();
-builder.Services.ConfigureCors();
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.ConfigureCors(builder.Configuration);
 builder.Services.ConfigureCache(builder.Configuration);
-builder.Services.ConfigureSwagger();
+builder.Services.ConfigureSwagger(builder.Configuration);
 
 var app = builder.Build();
 
@@ -29,7 +29,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+        var version = builder.Configuration["Swagger:Version"] ?? "v1";
+        var title = builder.Configuration["Swagger:Title"] ?? "API";
+        options.SwaggerEndpoint($"/swagger/{version}/swagger.json", $"{title} {version}");
         options.DisplayRequestDuration();
     });
 

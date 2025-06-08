@@ -1,7 +1,4 @@
-﻿using ConversationServices.Services.ConversationService;
-using ConversationServices.Services.ConversationService.DTOs;
-using ConversationServices.Controllers.Validators;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +25,16 @@ using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
 using Ollama_DB_layer.Repositories.TagRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
-using Ollama_DB_layer.Repositories.AttachmentRepo;
-using Ollama_DB_layer.Repositories.FolderRepo;
-using Ollama_DB_layer.Repositories.NoteRepo;
+using ConversationServices.Services.ConversationService;
+using ConversationServices.Services.ConversationService.DTOs;
+using ConversationServices.Controllers.Validators;
 using ConversationServices.Services.ChatService;
 using ConversationServices.Services.ChatService.DTOs;
 using ConversationServices.Infrastructure.Caching;
@@ -119,9 +119,9 @@ namespace ConversationServices
         }
 
         // Register Services
-        public static void AddApplicationServices(this IServiceCollection services)
+        public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://704e-35-196-162-195.ngrok-free.app"));
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient(configuration["OllamaApi:BaseUrl"]));
             services.AddScoped<ConversationService.Infrastructure.Integration.IOllamaConnector, ConversationService.Infrastructure.Integration.OllamaConnector>();
 
             // Chat-related services
@@ -163,13 +163,13 @@ namespace ConversationServices
         }
 
         // Register CORS
-        public static void ConfigureCors(this IServiceCollection services)
+        public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
+                    policy.WithOrigins(configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>())
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
@@ -191,11 +191,13 @@ namespace ConversationServices
         }
 
         // Register Swagger with JWT Support
-        public static void ConfigureSwagger(this IServiceCollection services)
+        public static void ConfigureSwagger(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ConversationService", Version = "v1" });
+                var version = configuration["Swagger:Version"] ?? "v1";
+                var title = configuration["Swagger:Title"] ?? "ConversationService";
+                c.SwaggerDoc(version, new OpenApiInfo { Title = title, Version = version });
 
                 // ✅ Add JWT Authentication support in Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
