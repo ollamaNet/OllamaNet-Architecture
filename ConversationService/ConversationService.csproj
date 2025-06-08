@@ -1,10 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FolderService\**" />
+    <Content Remove="FolderService\**" />
+    <EmbeddedResource Remove="FolderService\**" />
+    <None Remove="FolderService\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.11.0" />
@@ -20,10 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Ollama_DB_layer\Ollama_DB_layer.csproj" />
     <ProjectReference Include="..\OllamaNet_Components.ServiceDefaults\OllamaNet_Components.ServiceDefaults.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="FolderService\DTOs\" />
   </ItemGroup>
 
 </Project>
