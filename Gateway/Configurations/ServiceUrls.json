@@ -1,23 +1,48 @@
+//{
+//  "Services": {
+//    "Auth": {
+//      "Host": "authenticationservice.runasp.net",
+//      "Port": 80,
+//      "Scheme": "http"
+//    },
+//    "Admin": {
+//      "Host": "adminservice.runasp.net",
+//      "Port": 80,
+//      "Scheme": "http"
+//    },
+//    "Explore": {
+//      "Host": "exploreservice.runasp.net",
+//      "Port": 80,
+//      "Scheme": "http"
+//    },
+//    "Conversation": {
+//      "Host": "conversationservice.runasp.net",
+//      "Port": 80,
+//      "Scheme": "http"
+//    }
+//  }
+//}
+
 {
   "Services": {
     "Auth": {
-      "Host": "authenticationservice.runasp.net",
-      "Port": 80,
+      "Host": "localhost",
+      "Port": 5249,
       "Scheme": "http"
     },
     "Admin": {
-      "Host": "adminservice.runasp.net",
-      "Port": 80,
+      "Host": "localhost",
+      "Port": 5038,
       "Scheme": "http"
     },
     "Explore": {
-      "Host": "exploreservice.runasp.net",
-      "Port": 80,
+      "Host": "localhost",
+      "Port": 5167,
       "Scheme": "http"
     },
     "Conversation": {
-      "Host": "conversationservice.runasp.net",
-      "Port": 80,
+      "Host": "localhost",
+      "Port": 5156,
       "Scheme": "http"
     }
   }

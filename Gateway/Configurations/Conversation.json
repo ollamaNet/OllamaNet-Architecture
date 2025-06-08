@@ -255,6 +255,125 @@
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
+    },
+
+
+
+    
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/Note",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/soft-delete/{responseId}/{noteId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/soft-delete/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/response/{responseId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/response/{responseId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/conversation/{conversationId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/conversation/{conversationId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     }
   ]
 }

@@ -121,12 +121,15 @@ namespace AuthenticationService
             var jwtSecurityToken = await _jwtManager.CreateJwtToken(user, _userManager);
             var rolesList = await _userManager.GetRolesAsync(user);
 
+            var rootFolderId = await _unitOfWork.FolderRepo.GetRootFolderIdAsync(user.Id);
+
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             authModel.Email = user.Email;
             authModel.Username = user.UserName;
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
+            authModel.RootFolderId = rootFolderId;
 
             //refreshtoken
             if (user.RefreshTokens.Any(t => t.IsActive))
