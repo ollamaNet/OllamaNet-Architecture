@@ -170,7 +170,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/TagOperations/",
+      "DownstreamPathTemplate": "/api/admin/TagOperations/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -697,6 +697,114 @@
       "UpstreamHttpMethod": [
         "POST"
       ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Folder/{folderId}/soft",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Folder/{folderId}/soft",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/models",

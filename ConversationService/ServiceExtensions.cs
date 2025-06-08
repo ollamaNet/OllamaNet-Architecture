@@ -1,11 +1,4 @@
-﻿using ConversationService.Cache;
-using ConversationService.ChatService;
-using ConversationService.ChatService.DTOs;
-using ConversationService.Connectors;
-using ConversationService.ConversationService;
-using ConversationService.ConversationService.DTOs;
-using ConversationService.Controllers.Validators;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,22 +25,27 @@ using Ollama_DB_layer.Repositories.RefreshTokenRepo;
 using Ollama_DB_layer.Repositories.SetHistoryRepo;
 using Ollama_DB_layer.Repositories.SystemMessageRepo;
 using Ollama_DB_layer.Repositories.TagRepo;
+using Ollama_DB_layer.Repositories.AttachmentRepo;
+using Ollama_DB_layer.Repositories.FolderRepo;
+using Ollama_DB_layer.Repositories.NoteRepo;
 using Ollama_DB_layer.UOW;
 using OllamaSharp;
 using StackExchange.Redis;
 using System.Text;
-using Ollama_DB_layer.Repositories.AttachmentRepo;
-using Ollama_DB_layer.Repositories.FolderRepo;
-using Ollama_DB_layer.Repositories.NoteRepo;
-using ConversationService.FolderService.DTOs;
-using ConversationService.FolderService;
-using ConversationService.NoteService;
-using ConversationService.FeedbackService;
-using ConversationService.FeedbackService.DTOs;
-using ConversationService.ChatService.RagService;
+using ConversationServices.Services.ConversationService;
+using ConversationServices.Services.ConversationService.DTOs;
+using ConversationServices.Controllers.Validators;
+using ConversationServices.Services.ChatService;
+using ConversationServices.Services.ChatService.DTOs;
+using ConversationServices.Infrastructure.Caching;
+using ConversationServices.Services.NoteService;
+using ConversationServices.Services.FolderService.DTOs;
+using ConversationServices.Services.FeedbackService;
+using ConversationServices.Services.FeedbackService.DTOs;
+using ConversationServices.Services.FolderService;
+using ConversationService.Infrastructure.Integration;
 
-
-namespace ConversationService
+namespace ConversationServices
 {
     public static class ServiceExtensions
     {
@@ -122,28 +120,27 @@ namespace ConversationService
         }
 
         // Register Services
-        public static void AddApplicationServices(this IServiceCollection services)
+        public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient("https://704e-35-196-162-195.ngrok-free.app"));
-            services.AddScoped<IOllamaConnector, OllamaConnector>();
+            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient(configuration["OllamaApi:BaseUrl"]));
+            services.AddScoped<ConversationService.Infrastructure.Integration.IOllamaConnector, ConversationService.Infrastructure.Integration.OllamaConnector>();
 
             // Chat-related services
             services.AddScoped<ChatHistoryManager>();
-            services.AddScoped<IChatService, ChatService.ChatService>();
+            services.AddScoped<IChatService, ChatService>();
 
             // folder service 
-            services.AddScoped<IFolderService, FolderService.FolderService>();
+            services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IValidator<CreateFolderRequest>, CreateFolderRequestValidator>();
             services.AddScoped<IValidator<UpdateFolderRequest>, UpdateFolderRequestValidator>();
 
             // Register ConversationService
-            services.AddScoped<IConversationService, ConversationService.ConversationService>();
-
+            services.AddScoped<IConversationService, Services.ConversationService.ConversationService>();
             // Register NoteService
-            services.AddScoped<INoteService, NoteService.NoteService>();
+            services.AddScoped<INoteService, NoteService>();
 
             // Register FeedbackService
-            services.AddScoped<IFeedbackService, FeedbackService.FeedbackService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<IValidator<AddFeedbackRequest>, AddFeedbackRequestValidator>();
             services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
 
@@ -153,18 +150,18 @@ namespace ConversationService
 
 
             // Register validators from the new location
-            services.AddScoped<IValidator<OpenConversationRequest>, Controllers.Validators.OpenConversationRequestValidator>();
-            services.AddScoped<IValidator<UpdateConversationRequest>, Controllers.Validators.UpdateConversationRequestValidator>();
+            services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
+            services.AddScoped<IValidator<UpdateConversationRequest>, UpdateConversationRequestValidator>();
 
             // Register PromptRequestValidator (keep for backward compatibility)
-            services.AddScoped<Controllers.Validators.PromptRequestValidator>();
+            services.AddScoped<PromptRequestValidator>();
 
             // Register ChatRequestValidator for the ChatController
-            services.AddScoped<Controllers.Validators.ChatRequestValidator>();
+            services.AddScoped<ChatRequestValidator>();
             services.AddScoped<IValidator<PromptRequest>>(provider =>
             {
                 // Use ChatRequestValidator for the ChatController
-                return provider.GetRequiredService<Controllers.Validators.ChatRequestValidator>();
+                return provider.GetRequiredService<ChatRequestValidator>();
             });
 
             // Register HTTP context accessor
@@ -172,13 +169,13 @@ namespace ConversationService
         }
 
         // Register CORS
-        public static void ConfigureCors(this IServiceCollection services)
+        public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
+                    policy.WithOrigins(configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>())
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
@@ -200,11 +197,13 @@ namespace ConversationService
         }
 
         // Register Swagger with JWT Support
-        public static void ConfigureSwagger(this IServiceCollection services)
+        public static void ConfigureSwagger(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ConversationService", Version = "v1" });
+                var version = configuration["Swagger:Version"] ?? "v1";
+                var title = configuration["Swagger:Title"] ?? "ConversationService";
+                c.SwaggerDoc(version, new OpenApiInfo { Title = title, Version = version });
 
                 // ✅ Add JWT Authentication support in Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

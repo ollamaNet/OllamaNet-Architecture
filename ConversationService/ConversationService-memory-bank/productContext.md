@@ -1,5 +1,7 @@
 # Product Context for ConversationService
 
+> **Note:** As of the latest migration (Phases 1-9), ConversationService now uses a fully modular, best-practices folder and namespace structure. All legacy folders have been removed, all files are in their correct locations, and documentation/diagrams are up to date. The current focus is on feature enhancements and performance optimization.
+
 ## Business Purpose
 ConversationService addresses the critical need for a robust, scalable solution for managing AI-powered conversations in the OllamaNet platform. It serves as the backbone for all user interactions with AI models, enabling persistent, organized, and context-aware conversations. This service provides the necessary infrastructure for users to create, manage, and interact with AI conversations while maintaining context and organization across sessions, delivering a seamless and productive AI chat experience.
 

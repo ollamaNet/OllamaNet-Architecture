@@ -1,9 +1,9 @@
-using ConversationService.ChatService.DTOs;
-using ConversationService.ConversationService.DTOs;
+using ConversationServices.Services.ConversationService.DTOs;
 using FluentValidation;
 using System;
+using ConversationServices.Services.ChatService.DTOs;
 
-namespace ConversationService.Controllers.Validators
+namespace ConversationServices.Controllers.Validators
 {
     public class OpenConversationRequestValidator : AbstractValidator<OpenConversationRequest>
     {

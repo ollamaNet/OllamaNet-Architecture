@@ -1,7 +1,7 @@
-using ConversationService.FolderService.DTOs;
+using ConversationServices.Services.FolderService.DTOs;
 using FluentValidation;
 
-namespace ConversationService.Controllers.Validators
+namespace ConversationServices.Controllers.Validators
 {
     public class CreateFolderRequestValidator : AbstractValidator<CreateFolderRequest>
     {

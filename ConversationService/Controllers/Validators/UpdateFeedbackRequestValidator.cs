@@ -1,7 +1,7 @@
-﻿using ConversationService.FeedbackService.DTOs;
+﻿using ConversationServices.Services.FeedbackService.DTOs;
 using FluentValidation;
 
-namespace ConversationService.Controllers.Validators
+namespace ConversationServices.Controllers.Validators
 {
     public class UpdateFeedbackRequestValidator : AbstractValidator<UpdateFeedbackRequest>
     {

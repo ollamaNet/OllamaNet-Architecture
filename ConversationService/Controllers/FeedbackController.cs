@@ -1,7 +1,5 @@
-﻿using ConversationService.FeedbackService;
-using ConversationService.FeedbackService.DTOs;
-using ConversationService.NoteService;
-using ConversationService.NoteService.DTOs;
+﻿using ConversationServices.Services.FeedbackService;
+using ConversationServices.Services.FeedbackService.DTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
