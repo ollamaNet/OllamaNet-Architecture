@@ -376,4 +376,9 @@ memory-bank/activeContext.md
 /ConversationService/appsettings.json
 /ConversationService/conversationservice.runasp.net-WebDeploy.publishSettings
 /Gateway/ollamanetgateway.runasp.net-WebDeploy.publishSettings
+/AuthService/appsettings.json
+/AdminService/appsettings.json
+/ConversationService/appsettings.json
+/ExploreService/appsettings.json
+/Gateway/appsettings.json
 /ConversationService/Gateway-Note-Endpoints-Plan.md
