@@ -1,6 +1,12 @@
 # Progress Tracking for ConversationService
 
 ## Completed Components
+- RAG system refactoring completed:
+  - Infrastructure layer with embedding and vector database operations
+  - Service layer with indexing and retrieval services
+  - Clean architecture implementation with proper separation of concerns
+  - Updated service registrations and dependencies
+  - Temporarily disabled query cleaning functionality
 - Modular folder and namespace structure implemented (Phases 1-9 complete)
 - All legacy folders removed; all files are in correct locations with consistent namespaces
 - Documentation and diagrams updated to reflect the new structure
@@ -42,6 +48,11 @@
   - HTTP status code documentation
 
 ## Working Functionality
+- RAG system:
+  - Document indexing with PDF text extraction
+  - Vector storage in Pinecone database
+  - Context retrieval for chat enhancement
+  - Integration with chat service
 - Conversation management:
   - Creation with model selection and folder organization
   - Retrieval with pagination and folder filtering
@@ -80,11 +91,13 @@
   - Detailed error logging with performance timing
 
 ## In Progress
+- Re-evaluation of query cleaning functionality in RAG system
 - Feature enhancements: advanced search, caching optimization, conversation archiving, rate limiting, error handling, and integration testing
 - Ongoing optimization of caching strategies for large conversation histories
 - Implementation of conversation archiving strategy
 
 ## Pending Work
+- Decision on re-enabling query cleaning in RAG system
 - Full implementation of advanced search functionality (currently returning regular pagination)
 - Performance optimization for large conversation histories
 - Rate limiting for chat endpoints to prevent abuse
@@ -96,6 +109,7 @@
 - Enhanced audit logging for security-sensitive operations
 
 ## Known Issues
+- Query cleaning functionality temporarily disabled in RAG system
 - Search functionality is limited and returns regular pagination results instead of actual search
 - Caching strategy may need optimization for large conversation datasets
 - No comprehensive error handling for Redis connection failures
@@ -107,6 +121,7 @@
 - ChatHistoryManager.SaveStreamedChatInteractionAsync lacks proper error recovery
 
 ## Recent Milestones
+- Completed RAG system refactoring with clean architecture implementation
 - Migration to modular, best-practices folder and namespace structure completed (Phases 1-9)
 - Memory bank documentation reviewed and aligned with current architecture
 - Integration with Upstash Redis for distributed caching
@@ -116,6 +131,7 @@
 - Full code review completed with identified optimization opportunities
 
 ## Next Milestones
+- Evaluate and decide on query cleaning functionality in RAG system
 - Implement enhanced search functionality with proper indexing
 - Optimize cache strategy for conversation history with size-based limits
 - Develop integration testing approach for critical paths
@@ -189,4 +205,4 @@
 - Application health: Good
 - Redis performance: Optimal
 - Database performance: Good
-- API availability: 99.9% 
+- API availability: 99.9%
