@@ -707,7 +707,7 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder",
+      "UpstreamPathTemplate": "/Folder",
       "UpstreamHttpMethod": [
         "POST"
       ],
@@ -725,7 +725,7 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder",
+      "UpstreamPathTemplate": "/Folder",
       "UpstreamHttpMethod": [
         "PUT"
       ],
@@ -743,7 +743,7 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder",
+      "UpstreamPathTemplate": "/Folder",
       "UpstreamHttpMethod": [
         "GET"
       ],
@@ -761,7 +761,7 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder/{folderId}",
+      "UpstreamPathTemplate": "/Folder/{folderId}",
       "UpstreamHttpMethod": [
         "GET"
       ],
@@ -779,7 +779,7 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder/{folderId}",
+      "UpstreamPathTemplate": "/Folder/{folderId}",
       "UpstreamHttpMethod": [
         "DELETE"
       ],
@@ -797,9 +797,135 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/conversation/Folder/{folderId}/soft",
+      "UpstreamPathTemplate": "/Folder/{folderId}/soft",
       "UpstreamHttpMethod": [
         "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/soft-delete/{responseId}/{noteId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/soft-delete/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/response/{responseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/response/{responseId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/{responseId}/{noteId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Note/conversation/{conversationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "conversationservice.runasp.net",
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/notes/conversation/{conversationId}",
+      "UpstreamHttpMethod": [
+        "GET"
       ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
