@@ -1,9 +1,9 @@
-﻿using ConversationService.ChatService.DTOs;
-using Microsoft.AspNetCore.Builder.Extensions;
+﻿using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.Extensions.Options;
 using System.Text;
 using Pinecone;
 using UglyToad.PdfPig;
+using ConversationServices.Services.ChatService.DTOs;
 
 namespace ConversationService.ChatService.RagService
 {

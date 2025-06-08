@@ -1,4 +1,5 @@
-﻿using ConversationService.ChatService.DTOs;
+﻿
+using ConversationServices.Services.ChatService.DTOs;
 
 namespace ConversationService.ChatService.RagService
 {
