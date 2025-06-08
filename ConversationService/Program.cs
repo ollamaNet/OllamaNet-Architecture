@@ -1,8 +1,8 @@
 using ConversationService;
-using ConversationService.ChatService.DTOs;
-using ConversationService.ChatService.RagService;
+using ConversationService.Services.Rag.Interfaces;
+using ConversationServices;
+using ConversationServices.Services.ChatService.DTOs;
 using Pinecone;
-
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
@@ -19,44 +19,11 @@ builder.Services.ConfigureCors(builder.Configuration);
 builder.Services.ConfigureCache(builder.Configuration);
 builder.Services.ConfigureSwagger(builder.Configuration);
 
-
-
-builder.Services.Configure<RagOptions>(builder.Configuration.GetSection("RAG"));
-builder.Services.Configure<PineconeOptions>(builder.Configuration.GetSection("Pinecone"));
-
-
-builder.Services.AddSingleton<PineconeClient>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
-    var apiKey = config["Pinecone:ApiKey"];
-    var cloud = config["Pinecone:cloud"];
-    var regin = config["Pinecone:region"];
-    return new PineconeClient(apiKey);
-});
-
-
-
-builder.Services.AddSingleton<ITextEmbeddingGeneration>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
-    var modelId = config["RAG:OllamaEmbeddingModelId"];
-    var endpoint = config["RAG:OllamaEndpoint"];
-    return new OllamaTextEmbeddingGeneration(modelId, endpoint);
-});
-
-
-
-builder.Services.AddScoped<IRagIndexingService, RagIndexingService>();
-builder.Services.AddScoped<IRagRetrievalService, RagRetrievalService>();
-
-
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     var logger = services.GetRequiredService<ILogger<Program>>();
 
     try
@@ -102,9 +69,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, " An error occurred during RAG processing.");
     }
 }
-await app.RunAsync();
-
-
 
 app.MapDefaultEndpoints();
 
@@ -121,9 +85,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         options.SwaggerEndpoint($"/swagger/{version}/swagger.json", $"{title} {version}");
         options.DisplayRequestDuration();
     });
-
-    //app.MapScalarApiReference();
 }
+
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

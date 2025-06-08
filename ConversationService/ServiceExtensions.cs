@@ -44,6 +44,11 @@ using ConversationServices.Services.FeedbackService;
 using ConversationServices.Services.FeedbackService.DTOs;
 using ConversationServices.Services.FolderService;
 using ConversationService.Infrastructure.Integration;
+using ConversationService.Infrastructure.Rag.Embedding;
+using ConversationService.Infrastructure.Rag.VectorDb;
+using ConversationService.Infrastructure.Rag.Options;
+using ConversationService.Services.Rag.Interfaces;
+using ConversationService.Services.Rag.Implementation;
 
 namespace ConversationServices
 {
@@ -144,12 +149,23 @@ namespace ConversationServices
             services.AddScoped<IValidator<AddFeedbackRequest>, AddFeedbackRequestValidator>();
             services.AddScoped<IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
 
-            // Register RagService
-             services.AddScoped<IRagIndexingService, RagIndexingService>();
-             services.AddScoped<IRagRetrievalService, RagRetrievalService>();
+            // Configure RAG Options
+            services.Configure<RagOptions>(configuration.GetSection("Rag"));
+            services.Configure<PineconeOptions>(configuration.GetSection("Pinecone"));
 
+            // Register RAG Infrastructure
+            services.AddSingleton<ITextEmbeddingGeneration, OllamaTextEmbeddingGeneration>(sp =>
+            {
+                var ragOptions = sp.GetRequiredService<IOptions<RagOptions>>().Value;
+                return new OllamaTextEmbeddingGeneration(ragOptions.OllamaEmbeddingModelId, ragOptions.OllamaEndpoint);
+            });
+            services.AddSingleton<IPineconeService, PineconeService>();
 
-            // Register validators from the new location
+            // Register RAG Services
+            services.AddScoped<IRagIndexingService, ConversationService.Services.Rag.Implementation.RagIndexingService>();
+            services.AddScoped<IRagRetrievalService, ConversationService.Services.Rag.Implementation.RagRetrievalService>();
+
+            // Register validators 
             services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
             services.AddScoped<IValidator<UpdateConversationRequest>, UpdateConversationRequestValidator>();
 

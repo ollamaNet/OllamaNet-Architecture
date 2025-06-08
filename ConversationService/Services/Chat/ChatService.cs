@@ -1,9 +1,4 @@
-﻿using ConversationService.Cache;
-using ConversationService.ChatService.DTOs;
-using ConversationService.ChatService.Mappers;
-using ConversationService.ChatService.RagService;
-using ConversationService.Connectors;
-using ConversationServices.Infrastructure.Caching;
+﻿using ConversationServices.Infrastructure.Caching;
 using ConversationServices.Services.ChatService.DTOs;
 using ConversationServices.Services.ChatService.Mappers;
 using Microsoft.Extensions.Logging;
@@ -15,6 +10,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ConversationService.Infrastructure.Integration;
+using ConversationService.Services.Rag.Interfaces;
+using ConversationService.Infrastructure.Rag.Options;
 
 namespace ConversationServices.Services.ChatService
 {
@@ -217,19 +214,17 @@ namespace ConversationServices.Services.ChatService
                 // add systemcontext to history
                 history.AddSystemMessage(systemContext);
 
-
                 _logger.LogInformation("RAG context prepended to chat history.");
-
-
             }
 
 
             // Add latest user message and system message to chat history
             if (!string.IsNullOrEmpty(request.SystemMessage))
-           {
+            {
                history.AddSystemMessage(request.SystemMessage);
-           }
-           history.AddUserMessage(request.Content);
+            }
+            
+            history.AddUserMessage(request.Content);
 
            try
            {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OpenAI.Responses;
+//using OpenAI.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
