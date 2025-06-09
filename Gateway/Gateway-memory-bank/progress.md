@@ -26,17 +26,29 @@
 - ✅ Set up file system watcher for configuration files
 - ✅ Implemented configuration reload on changes
 
+### Recent Route Additions
+- ✅ Added Folder Controller routes to Conversation.json
+  - Implemented all CRUD operations
+  - Added soft delete functionality
+  - Used consistent path structure (/Folder/*)
+- ✅ Added Note Controller routes to Conversation.json
+  - Implemented all CRUD operations
+  - Added specialized endpoints (soft-delete, by-response, by-conversation)
+  - Used consistent path structure (/notes/*)
+
 ## In Progress
 
 ### Testing & Validation
 - 🔄 Validate all routes are working correctly
 - 🔄 Test configuration reloading
 - 🔄 Verify variable replacement accuracy
+- 🔄 Test new Folder and Note controller routes
 
 ### Documentation
 - 🔄 Documenting the new configuration approach
 - 🔄 Creating diagrams for configuration flow
 - 🔄 Updating project documentation
+- 🔄 Documenting new route patterns and conventions
 
 ## Planned Work
 
@@ -68,4 +80,5 @@
 - **Routes Migrated**: 46/46 (100%)
 - **Services Configured**: 4/4 (100%)
 - **Variables Implemented**: All service URLs
-- **Test Coverage**: ~60% (estimated) 
+- **Test Coverage**: ~60% (estimated)
+- **New Routes Added**: 13 (6 Folder + 7 Note controller routes) 

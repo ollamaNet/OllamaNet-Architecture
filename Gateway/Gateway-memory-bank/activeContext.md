@@ -22,11 +22,22 @@ The current focus is on implementing a modular configuration system for the Ocel
 - Updated Program.cs to use the new configuration loader
 - Added configuration file watching
 
+### Recent Route Additions
+- Added Folder Controller routes to Conversation.json
+  - Implemented all CRUD operations
+  - Added soft delete functionality
+  - Used consistent path structure (/Folder/*)
+- Added Note Controller routes to Conversation.json
+  - Implemented all CRUD operations
+  - Added specialized endpoints (soft-delete, by-response, by-conversation)
+  - Used consistent path structure (/notes/*)
+
 ## Current State
 - The basic configuration splitting is implemented
 - Variable substitution is working correctly
 - File watching is implemented but needs testing
 - Combined configuration is generated at runtime
+- All Conversation service controllers are now properly routed
 
 ## Decisions in Progress
 
@@ -48,6 +59,7 @@ The current focus is on implementing a modular configuration system for the Ocel
 2. Implement proper error handling for configuration loading
 3. Enhance logging for configuration changes
 4. Document the new configuration approach
+5. Verify all new Conversation service routes are working correctly
 
 ### Medium-term Tasks
 1. Begin implementation of the configuration dashboard
