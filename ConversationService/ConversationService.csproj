@@ -14,17 +14,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.11.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.0" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.55.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.14.0-alpha" />
-    <PackageReference Include="OllamaSharp" Version="5.1.13" />
-    <PackageReference Include="PdfPig" Version="0.1.9" />
-    <PackageReference Include="Pinecone.Client" Version="2.1.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+    <PackageReference Include="OllamaSharp" Version="5.2.2" />
+    <PackageReference Include="PdfPig" Version="0.1.10" />
+    <PackageReference Include="Pinecone.Client" Version="4.0.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
   </ItemGroup>
 
   <ItemGroup>

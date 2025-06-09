@@ -28,12 +28,39 @@ ConversationService/
 │   │   ├── DTOs/
 │   │   ├── Mappers/
 │   │   └── FeedbackService.cs, IFeedbackService.cs
+│   ├── Rag/                    # RAG service layer components
+│   │   ├── DTOs/
+│   │   │   └── DocumentChunk.cs
+│   │   ├── Interfaces/
+│   │   │   ├── IRagIndexingService.cs
+│   │   │   └── IRagRetrievalService.cs
+│   │   ├── Helpers/
+│   │   │   └── QueryCleaner.cs
+│   │   └── Implementation/
+│   │       ├── RagIndexingService.cs
+│   │       └── RagRetrievalService.cs
 │   └── Shared/                 # (Optional) Shared logic, interfaces, or base classes
-├── Infrastructure/             # Cross-cutting concerns (see below)
-│   ├── Caching/                # Redis, MemoryCache, etc. (CacheManager, RedisCacheService, settings)
+├── Infrastructure/             # Cross-cutting concerns
+│   ├── Caching/                # Redis, MemoryCache, etc.
+│   │   ├── CacheManager.cs
+│   │   ├── RedisCacheService.cs
+│   │   ├── RedisCacheSettings.cs
+│   │   ├── CacheKeys.cs
+│   │   └── Exceptions/
 │   ├── Logging/                # Logging abstractions/services (future)
 │   ├── Email/                  # Email sending infrastructure (future)
-│   └── Integration/            # External connectors (OllamaConnector, IOllamaConnector)
+│   ├── Integration/            # External connectors
+│   │   ├── OllamaConnector.cs
+│   │   └── IOllamaConnector.cs
+│   └── Rag/                    # RAG infrastructure components
+│       ├── Embedding/
+│       │   ├── ITextEmbeddingGeneration.cs
+│       │   └── OllamaTextEmbeddingGeneration.cs
+│       ├── VectorDb/
+│       │   └── PineconeService.cs
+│       └── Options/
+│           ├── PineconeOptions.cs
+│           └── RagOptions.cs
 ├── diagrams/                   # Architecture, class, and flow diagrams
 ├── Docs/                       # Documentation and system design
 ├── ConversationService-memory-bank/ # Project context and documentation
@@ -121,4 +148,47 @@ ConversationService/
 
 **This snapshot provides the current state after migration to the new structure.**
 
-**This plan ensures ConversationService remains simple, modular, and ready for future growth, following best practices for modern .NET microservices.** 
+**This plan ensures ConversationService remains simple, modular, and ready for future growth, following best practices for modern .NET microservices.**
+
+## 7. RAG System Architecture
+
+The RAG (Retrieval-Augmented Generation) system follows a clean architecture pattern with clear separation between infrastructure and service layers:
+
+### Infrastructure Layer (`Infrastructure/Rag/`)
+- **Embedding**
+  - `ITextEmbeddingGeneration`: Interface for text embedding generation
+  - `OllamaTextEmbeddingGeneration`: Ollama-based implementation
+- **Vector Database**
+  - `IPineconeService`: Interface for vector database operations
+  - `PineconeService`: Pinecone implementation for vector storage and retrieval
+- **Configuration**
+  - `RagOptions`: RAG system configuration
+  - `PineconeOptions`: Pinecone-specific settings
+
+### Service Layer (`Services/Rag/`)
+- **Interfaces**
+  - `IRagIndexingService`: Document indexing operations
+  - `IRagRetrievalService`: Context retrieval operations
+- **Implementation**
+  - `RagIndexingService`: Document processing and indexing
+  - `RagRetrievalService`: Query processing and context retrieval
+- **DTOs**
+  - `DocumentChunk`: Document chunk representation
+- **Helpers**
+  - `QueryCleaner`: Query preprocessing utilities (temporarily disabled for evaluation)
+
+### Key Features
+- Clean separation between infrastructure and business logic
+- Dependency injection for all components
+- Clear interface boundaries
+- Configuration-driven behavior
+- Proper error handling and logging
+- Integration with chat service for enhanced responses
+
+### Current Status
+- Core RAG functionality implemented and operational
+- Query cleaning functionality temporarily disabled for evaluation
+- Integration with chat service complete
+- Vector storage using Pinecone
+- Text embedding via Ollama
+- Document processing with proper chunking

@@ -20,9 +20,7 @@ namespace ConversationServices.Services.ChatService
        private readonly IOllamaConnector _connector;
        private readonly ILogger<ChatService> _logger;
        private readonly ChatHistoryManager _chatHistoryManager;
-
         private readonly IRagRetrievalService _ragRetrievalService;
-
         private readonly RagOptions _ragOptions;
 
 
