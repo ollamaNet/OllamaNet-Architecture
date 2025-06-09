@@ -23,8 +23,9 @@ namespace Gateway.Middlewares
                 if (context.User.FindFirst(ClaimTypes.Email) is { } email)
                     context.Request.Headers["X-User-Email"] = email.Value;
 
-                if (context.User.FindFirst(ClaimTypes.Role) is { } role)
-                    context.Request.Headers["X-User-Role"] = role.Value;
+                var roleClaims = context.User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
+                if (roleClaims.Any())
+                    context.Request.Headers["X-User-Role"] = string.Join(",", roleClaims);
             }
 
             await _next(context);

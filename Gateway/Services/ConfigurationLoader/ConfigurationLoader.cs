@@ -67,6 +67,7 @@ namespace Gateway.Services.ConfigurationLoader
                     foreach (var route in routes)
                     {
                         // Replace variables in each route
+                        // RouteClaimsRequirement and AuthenticationOptions are preserved as part of the route object
                         ReplaceVariables(route, serviceUrls);
                         allRoutes.Add(route);
                     }
