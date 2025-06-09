@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ConversationService.NoteService;
-using ConversationService.NoteService.DTOs;
 using Ollama_DB_layer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ConversationServices.Services.NoteService;
+using ConversationServices.Services.NoteService.DTOs;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

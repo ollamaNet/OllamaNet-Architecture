@@ -1,20 +1,18 @@
-﻿using ConversationService.FeedbackService;
-using ConversationService.FeedbackService.DTOs;
-using ConversationService.NoteService;
-using ConversationService.NoteService.DTOs;
+﻿using ConversationServices.Services.FeedbackService;
+using ConversationServices.Services.FeedbackService.DTOs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OpenAI.Responses;
+//using OpenAI.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ConversationService.Controllers
+namespace ConversationServices.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

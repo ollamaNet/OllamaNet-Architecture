@@ -1,5 +1,7 @@
 # Technical Context for ConversationService
 
+> **Note:** As of the latest migration (Phases 1-9), ConversationService now uses a fully modular, best-practices folder and namespace structure. All legacy folders have been removed, all files are in their correct locations, and documentation/diagrams are up to date. The current focus is on feature enhancements and performance optimization.
+
 ## Core Technologies
 - **.NET 9.0**: Modern .NET platform for building the service
 - **ASP.NET Core**: Web API framework for REST endpoints and streaming responses
@@ -10,6 +12,8 @@
 - **Semantic Kernel**: Microsoft's framework for chat completion capabilities
 - **FluentValidation**: Request validation framework for input validation
 - **Swagger/OpenAPI**: API documentation and interactive testing
+- **Pinecone**: Vector database for RAG system document storage and retrieval
+- **PdfPig**: PDF text extraction for document processing
 
 ## Key Dependencies
 - **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication implementation
@@ -22,6 +26,8 @@
 - **FluentValidation.AspNetCore**: Request validation framework
 - **Swashbuckle.AspNetCore**: Swagger integration for API documentation
 - **Ollama_DB_layer**: Shared database access layer with repositories and entities
+- **Pinecone**: Vector database client for RAG operations
+- **UglyToad.PdfPig**: PDF text extraction and processing
 
 ## Key Components
 
@@ -39,6 +45,20 @@
 - **FolderService**: Manages folder operations and hierarchies
 - **NoteService**: Handles note operations
 - **FeedbackService**: Processes and stores user feedback
+- **RagIndexingService**: Handles document processing and indexing for RAG
+- **RagRetrievalService**: Manages context retrieval for RAG-enhanced responses
+
+### RAG Components
+- **Infrastructure Layer**
+  - **OllamaTextEmbeddingGeneration**: Generates text embeddings using Ollama
+  - **PineconeService**: Manages vector database operations
+  - **RagOptions**: Configuration for RAG system behavior
+  - **PineconeOptions**: Configuration for Pinecone integration
+- **Service Layer**
+  - **RagIndexingService**: Processes and indexes documents
+  - **RagRetrievalService**: Retrieves relevant context for queries
+  - **DocumentChunk**: DTO for document segments
+  - **QueryCleaner**: Helper for query preprocessing
 
 ### Caching Components
 - **RedisCacheService**: Low-level Redis operations implementation with error handling

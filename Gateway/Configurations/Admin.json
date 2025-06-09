@@ -160,7 +160,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/TagOperations/",
+      "DownstreamPathTemplate": "/api/admin/TagOperations/",
       "DownstreamScheme": "${Services.Admin.Scheme}",
       "DownstreamHostAndPorts": [
         {

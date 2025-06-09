@@ -8,15 +8,26 @@ AuthService follows a clean, layered architecture pattern within a microservices
 - **Security Layer**: JWT token generation, validation, and refresh token handling (JWTManager)
 - **Identity Layer**: User and role management (ASP.NET Identity)
 - **Data Access Layer**: Repository pattern for data operations (via IUnitOfWork)
+- **Infrastructure Layer**: Cross-cutting concerns (DataSeeding, Caching, Logging, Email, etc.)
 
 ## Design Patterns
 - **Repository Pattern**: Abstracts data access through repository interfaces
 - **Unit of Work**: Manages transactions and repository coordination (IUnitOfWork)
-- **Dependency Injection**: For loose coupling and testability
+- **Dependency Injection**: For loose coupling and testability; all services, helpers, and infrastructure components are registered and resolved via DI
+- **Options Pattern**: Strongly-typed settings with IOptions<T> for all configuration (e.g., JWT, DataSeeding)
 - **Factory Pattern**: JWTManager for token generation and validation
 - **Options Pattern**: Strongly-typed settings with IOptions<JWT>
 - **Singleton Pattern**: For token validation and generation services
+- **Single Responsibility Principle**: Each class/folder has one clear purpose
 - **Cookie-Based Token Storage**: HTTP-only cookies for refresh tokens
+
+## Folder Structure & Cross-Cutting Concerns
+- All cross-cutting concerns are placed under `Infrastructure/`:
+  - `DataSeeding/`: Seeding logic (Interfaces, Options, Services)
+  - `Caching/`: (Future) Caching strategies/services
+  - `Logging/`: (Future) Logging abstractions/services
+  - `Email/`: (Future) Email sending infrastructure
+- This structure ensures consistency, readability, and future extensibility.
 
 ## Component Relationships
 ```
@@ -29,6 +40,7 @@ Controllers → IAuthService → UserManager/JWTManager → Repositories → Dat
 - UserManager from ASP.NET Identity handles user operations
 - Repositories provide data access for user-related entities
 - RefreshToken entities are linked to ApplicationUser entities
+- Infrastructure services (e.g., DataSeeding) are injected where needed
 
 ## Authentication Flow
 1. **Registration**:
@@ -48,11 +60,11 @@ Controllers → IAuthService → UserManager/JWTManager → Repositories → Dat
 - Expiration set to match refresh token expiration
 
 ## Configuration Management
-- JWT settings organized in appsettings.json
-- Identity options configured in service registration
-- Service registrations organized via extension methods
+- All configuration sections use the Options pattern (IOptions<T>)
+- JWT, DataSeeding, and future concerns (e.g., Caching, Logging) are strongly-typed and bound from appsettings.json
+- No direct use of IConfiguration for settings that can be options-bound
+- Service registrations are organized via extension methods
 - Environment-specific configurations for development and production
-- Role seeding performed on application startup
 
 ## API Design
 - RESTful endpoints following REST principles
@@ -72,20 +84,14 @@ Controllers → IAuthService → UserManager/JWTManager → Repositories → Dat
 - Secure cookie handling for refresh tokens
 - Explicit input validation at controller level
 
-## Input Validation
+## Exception Handling & Input Validation
+- Structured error responses with appropriate HTTP status codes
 - ModelState validation at controller level
 - Explicit null/empty checks for critical fields
 - Email format validation using EmailAddressAttribute
 - Password validation via ASP.NET Identity
-- Structured error responses for validation failures
-- Authentication failure handling with appropriate messages
-
-## Exception Handling
-- Structured error responses with appropriate HTTP status codes
-- Validation errors returned with descriptive messages
 - Authentication/authorization failures handled gracefully
-- Return of minimal error information to avoid security leaks
-- Business logic errors returned as operation-specific messages
+- Minimal error information to avoid security leaks
 
 ## Cross-Cutting Concerns
 - CORS configuration for frontend integration
@@ -93,6 +99,7 @@ Controllers → IAuthService → UserManager/JWTManager → Repositories → Dat
 - Authorization policies for role-based access
 - Input validation across all endpoints
 - Secure transport of sensitive information
+- Infrastructure folder reserved for future concerns (Caching, Logging, Email, etc.)
 
 ## Data Management
 - User creation with automatic role assignment

@@ -1,5 +1,7 @@
 # System Patterns for ConversationService
 
+> **Note:** As of the latest migration (Phases 1-9), ConversationService now uses a fully modular, best-practices folder and namespace structure. All legacy folders have been removed, all files are in their correct locations, and documentation/diagrams are up to date. The current focus is on feature enhancements and performance optimization.
+
 ## Architecture Overview
 ConversationService follows a clean, layered architecture pattern within a microservices ecosystem:
 
@@ -16,12 +18,39 @@ ConversationService follows a clean, layered architecture pattern within a micro
   - FolderService for folder organization
   - NoteService for note management
   - FeedbackService for feedback handling
-- **Caching Layer**: Redis-based caching for performance optimization
+  - RagService for document retrieval and indexing
+- **Infrastructure Layer**: Technical implementations and external service integrations
   - RedisCacheService for low-level Redis operations
   - CacheManager for high-level caching abstraction
-  - Cache-specific exception handling
+  - OllamaConnector for AI model integration
+  - RagInfrastructure for embedding and vector operations
 - **Data Access Layer**: Repository pattern via IUnitOfWork from shared Ollama_DB_layer
-- **Integration Layer**: OllamaConnector for AI model integration
+
+## RAG System Architecture
+The RAG (Retrieval-Augmented Generation) system follows a clean architecture pattern:
+
+### Infrastructure Layer (`Infrastructure/Rag/`)
+- **Embedding**
+  - `ITextEmbeddingGeneration`: Interface for text embedding generation
+  - `OllamaTextEmbeddingGeneration`: Ollama-based implementation
+- **Vector Database**
+  - `IPineconeService`: Interface for vector database operations
+  - `PineconeService`: Pinecone implementation for vector storage and retrieval
+- **Configuration**
+  - `RagOptions`: RAG system configuration
+  - `PineconeOptions`: Pinecone-specific settings
+
+### Service Layer (`Services/Rag/`)
+- **Interfaces**
+  - `IRagIndexingService`: Document indexing operations
+  - `IRagRetrievalService`: Context retrieval operations
+- **Implementation**
+  - `RagIndexingService`: Document processing and indexing
+  - `RagRetrievalService`: Query processing and context retrieval
+- **DTOs**
+  - `DocumentChunk`: Document chunk representation
+- **Helpers**
+  - `QueryCleaner`: Query preprocessing utilities
 
 ## Design Patterns
 - **Repository Pattern**: Abstracts data access through repositories from Ollama_DB_layer
