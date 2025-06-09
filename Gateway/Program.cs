@@ -17,6 +17,7 @@ public class Program
         // Add JWT authentication and CORS
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.ConfigureCors();
+        builder.Services.AddGatewayAuthorization(builder.Configuration);
 
         // Use the new configuration loader instead of direct JSON file
         builder.Services.AddOcelotWithSplitConfigurations(builder.Configuration);
@@ -71,6 +72,7 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<Gateway.Middlewares.RoleAuthorizationMiddleware>();
 
 
         app.MapControllers();

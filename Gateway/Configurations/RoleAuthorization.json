@@ -1,0 +1,8 @@
+{
+  "/admin/users": ["Admin"],
+  "/admin/models": ["Admin"],
+  "/conversations": ["User", "Admin"],
+  "/explore": ["User", "Admin"],
+  "/auth/assignrole": ["Admin"],
+  "/auth/deassignrole": ["Admin"]
+} 

@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace Gateway
 {
@@ -49,6 +52,21 @@ namespace Gateway
                           .AllowCredentials();
                 });
             });
+        }
+
+        // Register Role-based Authorization Middleware
+        public static void AddGatewayAuthorization(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Register the role map as a singleton (loaded from RoleAuthorization.json)
+            var configDir = Path.Combine(Directory.GetCurrentDirectory(), "Configurations");
+            var roleAuthPath = Path.Combine(configDir, "RoleAuthorization.json");
+            Dictionary<string, string[]> roleMap = new();
+            if (File.Exists(roleAuthPath))
+            {
+                var json = File.ReadAllText(roleAuthPath);
+                roleMap = JsonSerializer.Deserialize<Dictionary<string, string[]>>(json) ?? new();
+            }
+            services.AddSingleton(roleMap);
         }
     }
 }
