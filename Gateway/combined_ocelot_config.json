@@ -500,7 +500,11 @@
       "UpstreamPathTemplate": "/auth/assignrole",
       "UpstreamHttpMethod": [
         "POST"
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/auth/deassignrole",
@@ -944,7 +948,11 @@
       "UpstreamPathTemplate": "/explore/models",
       "UpstreamHttpMethod": [
         "GET"
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
@@ -958,7 +966,11 @@
       "UpstreamPathTemplate": "/explore/models/{id}",
       "UpstreamHttpMethod": [
         "GET"
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags",
@@ -972,7 +984,11 @@
       "UpstreamPathTemplate": "/explore/tags",
       "UpstreamHttpMethod": [
         "GET"
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
@@ -986,7 +1002,11 @@
       "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
       "UpstreamHttpMethod": [
         "GET"
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     }
   ]
 }
