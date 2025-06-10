@@ -5,7 +5,7 @@
 ```
 ConversationService/
 │
-├── Controllers/                # API endpoints (Chat, Conversation, Note, Folder, Feedback)
+├── Controllers/                # API endpoints (Chat, Conversation, Note, Folder, Feedback, Document)
 │   └── Validators/             # FluentValidation classes for requests
 ├── Services/                   # All domain services grouped here
 │   ├── Chat/                   # Chat domain logic
@@ -28,6 +28,18 @@ ConversationService/
 │   │   ├── DTOs/
 │   │   ├── Mappers/
 │   │   └── FeedbackService.cs, IFeedbackService.cs
+│   ├── Document/               # Document management and processing
+│   │   ├── DTOs/
+│   │   │   ├── Requests/
+│   │   │   └── Responses/
+│   │   ├── Implementation/
+│   │   ├── Interfaces/
+│   │   ├── Mappers/
+│   │   └── Processors/
+│   │       ├── Base/
+│   │       ├── PDF/
+│   │       ├── Text/
+│   │       └── Word/
 │   ├── Rag/                    # RAG service layer components
 │   │   ├── DTOs/
 │   │   │   └── DocumentChunk.cs
@@ -46,6 +58,10 @@ ConversationService/
 │   │   ├── RedisCacheService.cs
 │   │   ├── RedisCacheSettings.cs
 │   │   ├── CacheKeys.cs
+│   │   └── Exceptions/
+│   ├── Document/               # Document storage infrastructure
+│   │   ├── Storage/
+│   │   ├── Options/
 │   │   └── Exceptions/
 │   ├── Logging/                # Logging abstractions/services (future)
 │   ├── Email/                  # Email sending infrastructure (future)
@@ -84,9 +100,15 @@ ConversationService/
   - **Chat/**, **Conversation/**, **Note/**, **Folder/**, **Feedback/**: Each encapsulates business logic for a domain.
     - **DTOs/**: Data Transfer Objects for each feature.
     - **Mappers/**: Feature-specific mappers (all mappers are now feature-specific and reside in their respective domain folders).
+  - **Document/**: Document management, processing, and storage integration.
+    - **DTOs/**: Document-related data transfer objects.
+    - **Implementation/**: Document service implementations.
+    - **Interfaces/**: Document service interfaces.
+    - **Processors/**: Document format-specific text extraction processors.
   - **Shared/**: (Optional) Shared logic, interfaces, or base classes used by multiple domains.
 - **Infrastructure/**: Cross-cutting concerns.
   - **Caching/**: `CacheManager.cs`, `RedisCacheService.cs`, `RedisCacheSettings.cs`, `CacheKeys.cs`, cache exceptions.
+  - **Document/**: Document storage, options, and exceptions.
   - **Logging/**: (future) Logging abstractions, adapters, or providers.
   - **Email/**: (future) SMTP, SendGrid, or notification services.
   - **Integration/**: `OllamaConnector.cs`, `IOllamaConnector.cs`, any other external system connectors.
@@ -103,7 +125,7 @@ ConversationService/
 - **Services**: All business logic, one service per domain, grouped under Services/.
 - **Dependency Injection**: All services, helpers, and infrastructure registered via DI.
 - **Single Responsibility Principle**: Each class/folder has one clear purpose.
-- **Options Pattern**: For all configuration (e.g., caching, integration).
+- **Options Pattern**: For all configuration (e.g., caching, integration, document management).
 - **Documentation**: Keep Docs/ and memory-bank/ up to date with every major change.
 - **Reserve Folders**: For future cross-cutting concerns (Caching, Logging, Email, etc.), even if not yet implemented.
 
@@ -130,16 +152,18 @@ ConversationService/
 - Services/Note/: NoteService.cs, INoteService.cs, DTOs/, Mappers/
 - Services/Folder/: FolderService.cs, IFolderService.cs, DTOs/, Mappers/
 - Services/Feedback/: FeedbackService.cs, IFeedbackService.cs, DTOs/, Mappers/
+- Services/Document/: IDocumentManagementService.cs, DocumentManagementService.cs, IDocumentProcessingService.cs, DocumentProcessingService.cs, DTOs/, Processors/
 
 **Shared, Infrastructure, and Helper Files:**
 - Infrastructure/Caching/: CacheManager.cs, RedisCacheService.cs, RedisCacheSettings.cs, CacheKeys.cs, Exceptions/
+- Infrastructure/Document/: IDocumentStorage.cs, FileSystemDocumentStorage.cs, Options/, Exceptions/
 - Infrastructure/Integration/: OllamaConnector.cs, IOllamaConnector.cs
 - Infrastructure/Logging/: (placeholder for future use)
 - Infrastructure/Email/: (placeholder for future use)
 - ServiceExtensions.cs, Program.cs, RedisCache_Implementation_Guide.md, .cursorrules
 
 **Controllers and Validators:**
-- Controllers/: ChatController.cs, ConversationController.cs, NoteController.cs, FolderController.cs, FeedbackController.cs, Validators/
+- Controllers/: ChatController.cs, ConversationController.cs, NoteController.cs, FolderController.cs, FeedbackController.cs, DocumentController.cs, Validators/
 
 **Legacy/Deprecated Files:**
 - No files explicitly marked as deprecated or legacy in the current structure.
@@ -192,3 +216,60 @@ The RAG (Retrieval-Augmented Generation) system follows a clean architecture pat
 - Vector storage using Pinecone
 - Text embedding via Ollama
 - Document processing with proper chunking
+- Document metadata support for enhanced context retrieval
+
+## 8. Document Processing Architecture
+
+The Document Processing system follows a modular, extensible architecture with separate infrastructure and service layers:
+
+### Infrastructure Layer (`Infrastructure/Document/`)
+- **Storage**
+  - `IDocumentStorage`: Interface for document storage operations
+  - `FileSystemDocumentStorage`: Implementation for file system storage
+- **Options**
+  - `DocumentManagementOptions`: Configuration for document management including:
+    - Allowed file types
+    - Maximum file size
+    - Storage paths
+    - Security settings
+- **Exceptions**
+  - `DocumentException`: Base exception for document operations
+  - `DocumentStorageException`: Storage-specific exceptions
+  - `DocumentProcessingException`: Processing-specific exceptions
+  - `UnsupportedDocumentTypeException`: Format validation exceptions
+
+### Service Layer (`Services/Document/`)
+- **Interfaces**
+  - `IDocumentManagementService`: Document lifecycle management
+  - `IDocumentProcessingService`: Document processing operations
+- **Implementation**
+  - `DocumentManagementService`: Handles document storage and metadata
+  - `DocumentProcessingService`: Manages text extraction and processing
+- **DTOs**
+  - `Requests/UploadDocumentRequest`: Document upload parameters
+  - `Responses/AttachmentResponse`: Document metadata response
+  - `Responses/ProcessingResponse`: Processing result with metrics
+- **Processors**
+  - `Base/IDocumentProcessor`: Base interface for all processors
+  - `PDF/PdfDocumentProcessor`: PDF-specific text extraction
+  - `Text/TextDocumentProcessor`: Plain text processing
+  - `Word/WordDocumentProcessor`: Word document processing
+  - `Markdown/MarkdownDocumentProcessor`: Markdown processing
+
+### Key Features
+- Extensible processor architecture for multiple document formats
+- Clean separation of concerns with interface-based design
+- Format-specific text extraction strategies
+- Performance monitoring with detailed metrics
+- Comprehensive error handling and logging
+- Secure file storage with access control
+- Integration with RAG system for context-enhanced conversations
+- Text chunking with configurable size and overlap
+
+### Current Status
+- Document upload API implemented and operational
+- Multiple format processors functioning (PDF, Text, Word, Markdown)
+- RAG integration complete with document chunking
+- Security implementation with content validation
+- Performance monitoring with processing metrics
+- Error handling and logging integrated

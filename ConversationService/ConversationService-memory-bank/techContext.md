@@ -14,6 +14,7 @@
 - **Swagger/OpenAPI**: API documentation and interactive testing
 - **Pinecone**: Vector database for RAG system document storage and retrieval
 - **PdfPig**: PDF text extraction for document processing
+- **DocumentFormat.OpenXml**: Processing Word documents for text extraction
 
 ## Key Dependencies
 - **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication implementation
@@ -28,6 +29,7 @@
 - **Ollama_DB_layer**: Shared database access layer with repositories and entities
 - **Pinecone**: Vector database client for RAG operations
 - **UglyToad.PdfPig**: PDF text extraction and processing
+- **DocumentFormat.OpenXml**: Word document processing and text extraction
 
 ## Key Components
 
@@ -37,6 +39,7 @@
 - **FolderController**: Manages folder organization for conversations
 - **NoteController**: Handles note creation and management
 - **FeedbackController**: Manages user feedback on AI responses
+- **DocumentController**: Handles document upload, retrieval, and management
 
 ### Services
 - **ConversationService**: Business logic for conversation management
@@ -45,6 +48,8 @@
 - **FolderService**: Manages folder operations and hierarchies
 - **NoteService**: Handles note operations
 - **FeedbackService**: Processes and stores user feedback
+- **DocumentManagementService**: Manages document lifecycle and storage
+- **DocumentProcessingService**: Handles document text extraction and processing
 - **RagIndexingService**: Handles document processing and indexing for RAG
 - **RagRetrievalService**: Manages context retrieval for RAG-enhanced responses
 
@@ -59,6 +64,24 @@
   - **RagRetrievalService**: Retrieves relevant context for queries
   - **DocumentChunk**: DTO for document segments
   - **QueryCleaner**: Helper for query preprocessing
+
+### Document Processing Components
+- **Infrastructure Layer**
+  - **IDocumentStorage**: Interface for document storage operations
+  - **FileSystemDocumentStorage**: File system storage implementation
+  - **DocumentManagementOptions**: Configuration for document management
+  - **DocumentException**: Base exception for document operations
+- **Service Layer**
+  - **IDocumentManagementService**: Document lifecycle management interface
+  - **DocumentManagementService**: Implementation for document lifecycle
+  - **IDocumentProcessingService**: Document processing interface
+  - **DocumentProcessingService**: Implementation for text extraction
+  - **IDocumentProcessor**: Base interface for document processors
+  - **PdfDocumentProcessor**: PDF-specific text extraction
+  - **TextDocumentProcessor**: Text file processing
+  - **WordDocumentProcessor**: Word document processing
+  - **MarkdownDocumentProcessor**: Markdown processing
+  - **ProcessingResponse**: Result DTO with metrics and metadata
 
 ### Caching Components
 - **RedisCacheService**: Low-level Redis operations implementation with error handling
@@ -77,6 +100,7 @@
 - **ChatRequestValidator**: Validates chat message requests
 - **CreateFolderRequestValidator**: Validates folder creation requests
 - **AddFeedbackRequestValidator**: Validates feedback submission requests
+- **DocumentRequestValidator**: Validates document upload requests
 
 ## API Structure
 All endpoints follow RESTful conventions with appropriate HTTP methods:
@@ -116,6 +140,12 @@ All endpoints follow RESTful conventions with appropriate HTTP methods:
 - `PUT /api/feedback/{feedbackId}`: Update feedback
 - `DELETE /api/feedback/{feedbackId}`: Delete feedback
 
+### Document Endpoints
+- `POST /api/documents`: Upload a document to a conversation
+- `GET /api/documents/{id}`: Get document metadata by ID
+- `DELETE /api/documents/{id}`: Delete a document
+- `GET /api/documents/conversation/{conversationId}`: Get all documents for a conversation
+
 ## Caching Implementation
 The service implements a comprehensive Redis-based caching strategy using Upstash:
 
@@ -142,6 +172,24 @@ The service implements a comprehensive Redis-based caching strategy using Upstas
 - **Operation Timeout**: 2000 milliseconds (configurable)
 - **Cache-Aside Pattern**: GetOrSetAsync methods with database fallback
 
+## Document Processing Implementation
+Document processing and RAG integration are implemented with:
+
+- **Storage Strategy**: File system storage with secure paths
+- **Processing Pipeline**: Format-specific processors for different document types
+- **Chunking Strategy**: Text segmentation with configurable size and overlap
+- **Metadata Extraction**: Format-specific metadata from document files
+- **Security Measures**:
+  - Content type validation
+  - File size limits
+  - Secure file paths
+  - Access control
+- **Performance Monitoring**:
+  - Processing time tracking
+  - Text extraction metrics
+  - Chunking metrics
+  - RAG indexing time
+
 ## Streaming Implementation
 Real-time chat responses are implemented using Server-Sent Events (SSE):
 
@@ -164,6 +212,7 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
   - ValidateLifetime: true
 - **HTTPS Requirements**: Enforced in pipeline
 - **Cross-Origin Resource Sharing**: Configured for localhost:5173
+- **Resource Authorization**: Ownership validation for documents and conversations
 
 ## Error Handling Strategy
 - **Exception Types**: Specialized exceptions for different scenarios
@@ -175,6 +224,7 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
 - **Logging**: Structured logging with Stopwatch for performance timing
 - **Transient Error Handling**: Retry logic for cache and external service calls
 - **Error Response Format**: Consistent JSON structure with error details
+- **Document Processing Errors**: Specialized handling for document-specific issues
 
 ## Development Environment
 - **IDE**: Visual Studio or VS Code
@@ -182,12 +232,14 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
 - **Redis**: Upstash cloud service or local Redis instance
 - **API Testing**: Swagger UI, Postman, and ConversationService.http
 - **Logging**: Console and file-based logging during development
+- **Document Storage**: Local file system with configurable paths
 
 ## External Services
 - **Ollama AI Service**: AI model inference engine via ngrok endpoint
   - Current endpoint: https://704e-35-196-162-195.ngrok-free.app
 - **SQL Server Database**: Data persistence at db19911.public.databaseasp.net
 - **Redis Cache**: Distributed caching via Upstash at content-ghoul-42217.upstash.io
+- **Pinecone**: Vector database for RAG at pinecone.io
 
 ## Configuration Management
 - **appsettings.json**: Main configuration for:
@@ -195,5 +247,7 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
   - Redis connection string
   - JWT settings
   - RedisCacheSettings with domain-specific TTLs
+  - DocumentManagement settings (allowed types, size limits, paths)
+  - RagOptions settings (chunk size, retrieval settings)
 - **ServiceExtensions.cs**: Centralized service registration
 - **Environment-Specific Settings**: Development vs Production configs 

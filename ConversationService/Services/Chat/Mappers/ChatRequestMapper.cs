@@ -45,13 +45,8 @@ namespace ConversationServices.Services.ChatService.Mappers
                     MiroStatEta = request.Options.MirostatEta,
                     MiroStatTau = request.Options.MirostatTau,
                     Stop = request.Options.Stop,
-                    Numa = request.Options.Numa,
                     NumCtx = request.Options.NumCtx,
                     NumBatch = request.Options.NumBatch,
-                    LowVram = request.Options.LowVram,
-                    VocabOnly = request.Options.VocabOnly,
-                    UseMmap = request.Options.UseMmap,
-                    UseMlock = request.Options.UseMlock,
                     NumThread = request.Options.NumThread
                 };
             }

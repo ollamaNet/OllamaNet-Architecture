@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
@@ -22,7 +23,7 @@
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.14.0-alpha" />
     <PackageReference Include="OllamaSharp" Version="5.2.2" />
     <PackageReference Include="PdfPig" Version="0.1.10" />
-    <PackageReference Include="Pinecone.Client" Version="4.0.1" />
+    <PackageReference Include="Pinecone.Client" Version="2.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
   </ItemGroup>

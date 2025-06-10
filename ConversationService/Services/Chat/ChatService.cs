@@ -168,6 +168,9 @@ namespace ConversationServices.Services.ChatService
 
 
 
+
+
+
        /// <summary>
        /// Gets a model response for a prompt request (non-streaming)
        /// </summary>
@@ -199,22 +202,66 @@ namespace ConversationServices.Services.ChatService
                throw;
            }
 
+           // Check if RAG should be enabled for this request
+           bool enableRag = _ragOptions.EnableRagByDefault;
+           if (request.Metadata?.TryGetValue("EnableRag", out var enableRagStr) == true)
+           {
+               enableRag = bool.Parse(enableRagStr);
+           }
 
+
+
+
+           // Perform RAG if enabled
+           if (enableRag)
+           {
+               try
+               {
             // RAG Retrieval
             var contextChunks = await _ragRetrievalService.GetRelevantContextAsync(request);
             if (contextChunks?.Any() == true)
             {
-                var retrievedContext = string.Join("\n---\n", contextChunks);
-                var systemContext = $"Use the following retrieved context from the user's uploaded document to answer the query:\n{retrievedContext}";
+                       var formattedChunks = contextChunks;
+                       
+                       // Format chunks with source information if enabled
+                       if (_ragOptions.IncludeSourceInfo)
+                       {
+                           formattedChunks = contextChunks.Select(chunk =>
+                           {
+                               // Extract source info from the chunk (added during indexing)
+                               var parts = chunk.Split("\nSource:", StringSplitOptions.RemoveEmptyEntries);
+                               if (parts.Length > 1)
+                               {
+                                   return $"Source: {parts[1].Trim()}\nContent: {parts[0].Trim()}";
+                               }
+                               return chunk;
+                           }).ToList();
+                       }
 
-                _logger.LogInformation(systemContext);
+                       var retrievedContext = string.Join("\n---\n", formattedChunks);
+                       var systemContext = string.Format(_ragOptions.RagContextTemplate, retrievedContext);
 
-                // add systemcontext to history
+                       _logger.LogInformation("Adding RAG context to conversation {ConversationId}: {Context}",request.ConversationId, systemContext);
+
+
+                       // Add RAG context as system message
                 history.AddSystemMessage(systemContext);
+                       _logger.LogInformation("RAG context added to chat history for conversation {ConversationId}",request.ConversationId);
 
-                _logger.LogInformation("RAG context prepended to chat history.");
-            }
-
+                   }
+                   else
+                   {
+                       _logger.LogInformation("No relevant context found for conversation {ConversationId}",
+                           request.ConversationId);
+                   }
+               }
+               catch (Exception ex)
+               {
+                   _logger.LogError(ex, "Error retrieving RAG context for conversation {ConversationId}",
+                       request.ConversationId);
+                   // Continue without RAG context rather than failing the request
+               }
+           }
 
             // Add latest user message and system message to chat history
             if (!string.IsNullOrEmpty(request.SystemMessage))

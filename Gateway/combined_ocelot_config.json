@@ -811,8 +811,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes",
@@ -829,8 +829,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
@@ -847,8 +847,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/soft-delete/{responseId}/{noteId}",
@@ -865,8 +865,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
@@ -883,8 +883,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/response/{responseId}",
@@ -901,8 +901,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/{responseId}/{noteId}",
@@ -919,8 +919,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "conversationservice.runasp.net",
-          "Port": "80"
+          "Host": "localhost",
+          "Port": "5156"
         }
       ],
       "UpstreamPathTemplate": "/notes/conversation/{conversationId}",
