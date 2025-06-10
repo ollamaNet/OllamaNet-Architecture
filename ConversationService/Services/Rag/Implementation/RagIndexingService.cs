@@ -1,6 +1,4 @@
 using Microsoft.Extensions.Options;
-using System.Text;
-using UglyToad.PdfPig;
 using ConversationServices.Services.ChatService.DTOs;
 using ConversationService.Infrastructure.Rag.Options;
 using ConversationService.Infrastructure.Rag.VectorDb;
@@ -29,83 +27,29 @@ namespace ConversationService.Services.Rag.Implementation
 
         public async Task IndexDocumentAsync(PromptRequest request)
         {
-            // 1. Extract chunks from PDF
-            var chunks = ExtractTextFromPdf(request.DocumentUrl);
-
-            if (chunks == null || !chunks.Any())
+            if (string.IsNullOrEmpty(request.Content))
             {
-                // TODO: Replace with proper logging
-                Console.WriteLine("No content extracted from the document.");
-                return;
+                throw new ArgumentException("Document content cannot be empty", nameof(request));
             }
 
-            // 2. Embed chunks into vectors
-            var vectors = await EmbedDocumentAsync(chunks, request.ConversationId);
+            if (string.IsNullOrEmpty(request.ConversationId))
+            {
+                throw new ArgumentException("Conversation ID is required", nameof(request));
+            }
 
-            // 3. Upsert vectors into Pinecone
+            // Generate vectors for the document content
+            var vectors = await EmbedDocumentAsync(request.Content, request.ConversationId);
+
+            // Upsert vectors into Pinecone
             await _pineconeService.UpsertVectorsAsync(vectors, _ragOptions.PineconeNamespace);
         }
 
-        private List<DocumentChunk> ExtractTextFromPdf(string filePath, int chunkSize = 500, int overlap = 50)
-        {
-            var chunks = new List<DocumentChunk>();
-
-            filePath = filePath.Trim();
-            filePath = Path.GetFullPath(filePath);
-
-            if (!File.Exists(filePath))
-            {
-                // TODO: Replace with proper logging and error handling
-                Console.WriteLine("Error: File not found!");
-                return chunks;
-            }
-
-            StringBuilder text = new StringBuilder();
-            using (PdfDocument pdf = PdfDocument.Open(filePath))
-            {
-                foreach (var page in pdf.GetPages())
-                {
-                    text.AppendLine(page.Text);
-                }
-            }
-
-            string fullText = text.ToString();
-            int textLength = fullText.Length;
-            int index = 0;
-
-            if (textLength <= chunkSize)
-            {
-                chunks.Add(new DocumentChunk
-                {
-                    IndexOnPage = index++,
-                    Text = fullText
-                });
-            }
-            else
-            {
-                for (int i = 0; i < textLength; i += chunkSize - overlap)
-                {
-                    int end = Math.Min(i + chunkSize, textLength);
-                    string chunkText = fullText.Substring(i, end - i);
-
-                    chunks.Add(new DocumentChunk
-                    {
-                        IndexOnPage = index++,
-                        Text = chunkText
-                    });
-                }
-            }
-
-            return chunks;
-        }
-
-        private async Task<List<Vector>> EmbedDocumentAsync(List<DocumentChunk> chunks, string conversationId)
+        private async Task<List<Vector>> EmbedDocumentAsync(string content, string conversationId)
         {
             List<Vector> vectors = new();
 
-            foreach (var chunk in chunks)
-            {
-                var embedding = await _pineconeService.GenerateEmbeddingAsync(chunk.Text, _ragOptions.OllamaEmbeddingModelId);
+            // Generate embedding for the content
+            var embedding = await _pineconeService.GenerateEmbeddingAsync(content, _ragOptions.OllamaEmbeddingModelId);
 
                 vectors.Add(new Vector
                 {
@@ -113,12 +57,10 @@ namespace ConversationService.Services.Rag.Implementation
                     Values = new ReadOnlyMemory<float>(embedding.ToArray()),
                     Metadata = new Metadata
                     {
-                        ["text"] = chunk.Text,
+                    ["text"] = content,
                         ["ConversationId"] = conversationId,
-                        ["ChunkIndex"] = chunk.IndexOnPage,
                     }
                 });
-            }
 
             return vectors;
         }

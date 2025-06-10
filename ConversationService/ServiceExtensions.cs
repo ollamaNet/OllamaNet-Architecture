@@ -49,6 +49,16 @@ using ConversationService.Infrastructure.Rag.VectorDb;
 using ConversationService.Infrastructure.Rag.Options;
 using ConversationService.Services.Rag.Interfaces;
 using ConversationService.Services.Rag.Implementation;
+using ConversationService.Controllers.Document.Validators;
+using ConversationService.Infrastructure.Document.Options;
+using ConversationService.Infrastructure.Document.Storage;
+using ConversationService.Services.Document.Implementation;
+using ConversationService.Services.Document.Interfaces;
+using ConversationService.Services.Document.Processors.Base;
+using ConversationService.Services.Document.Processors.PDF;
+using ConversationService.Services.Document.Processors.Text;
+using ConversationService.Services.Document.Processors.Word;
+using ConversationService.Services.Document.DTOs.Requests;
 
 namespace ConversationServices
 {
@@ -157,13 +167,16 @@ namespace ConversationServices
             services.AddSingleton<ITextEmbeddingGeneration, OllamaTextEmbeddingGeneration>(sp =>
             {
                 var ragOptions = sp.GetRequiredService<IOptions<RagOptions>>().Value;
-                return new OllamaTextEmbeddingGeneration(ragOptions.OllamaEmbeddingModelId, ragOptions.OllamaEndpoint);
+                return new OllamaTextEmbeddingGeneration(ragOptions.OllamaEmbeddingModelId, configuration["OllamaApi:BaseUrl"]);
             });
             services.AddSingleton<IPineconeService, PineconeService>();
 
             // Register RAG Services
             services.AddScoped<IRagIndexingService, ConversationService.Services.Rag.Implementation.RagIndexingService>();
             services.AddScoped<IRagRetrievalService, ConversationService.Services.Rag.Implementation.RagRetrievalService>();
+
+            // Configure and register Document Services
+            ConfigureDocumentServices(services, configuration);
 
             // Register validators 
             services.AddScoped<IValidator<OpenConversationRequest>, OpenConversationRequestValidator>();
@@ -184,6 +197,34 @@ namespace ConversationServices
             services.AddHttpContextAccessor();
         }
 
+
+
+
+        // Configure Document Management Services
+        private static void ConfigureDocumentServices(IServiceCollection services, IConfiguration configuration)
+        {
+            // Configure document options
+            services.Configure<DocumentManagementOptions>(
+                configuration.GetSection("DocumentManagement"));
+
+            // Register document storage
+            services.AddSingleton<IDocumentStorage, FileSystemDocumentStorage>();
+
+            // Register document processors
+            services.AddSingleton<IDocumentProcessor, PdfDocumentProcessor>();
+            services.AddSingleton<IDocumentProcessor, TextDocumentProcessor>();
+            services.AddSingleton<IDocumentProcessor, WordDocumentProcessor>();
+
+            // Register document services
+            services.AddScoped<IDocumentManagementService, DocumentManagementService>();
+            services.AddScoped<IDocumentProcessingService, DocumentProcessingService>();
+
+            // Register document validators
+            services.AddScoped<IValidator<UploadDocumentRequest>, DocumentRequestValidator>();
+        }
+
+
+
         // Register CORS
         public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
@@ -198,6 +239,8 @@ namespace ConversationServices
                 });
             });
         }
+
+
 
         // Register Redis Cache
         public static void ConfigureCache(this IServiceCollection services, IConfiguration configuration)

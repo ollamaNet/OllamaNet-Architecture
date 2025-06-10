@@ -30,11 +30,9 @@ namespace ConversationService.Services.Rag.Implementation
             //string cleanedQuery = QueryCleaner.CleanQueryAndExtractKeywords(request.Content);
 
             // Generate the embedding for the query
-            var queryEmbedding = await _pineconeService.GenerateEmbeddingAsync(
-                //cleanedQuery, 
-                request.Content,
-                _ragOptions.OllamaEmbeddingModelId,
-                isQuery: true);
+            var queryEmbedding = await _pineconeService.GenerateEmbeddingAsync(//cleanedQuery, 
+            request.Content, _ragOptions.OllamaEmbeddingModelId, isQuery: true);
+
 
             // Perform vector search
             var queryResponse = await _pineconeService.QueryAsync(
@@ -43,14 +41,17 @@ namespace ConversationService.Services.Rag.Implementation
                 request.ConversationId,
                 _ragOptions.RetrievalTopK);
 
+
             // Format results
             List<string> searchResults = queryResponse.Matches.Select(match =>
             {
                 var metadata = match.Metadata;
                 var content = metadata.TryGetValue("text", out var text) ? text?.ToString() : "No content";
+                var documentId = metadata.TryGetValue("DocumentId", out var docId) ? docId?.ToString() : "Unknown";
+                var fileName = metadata.TryGetValue("FileName", out var file) ? file?.ToString() : "Unknown";
                 var chunkIndex = metadata.TryGetValue("ChunkIndex", out var chunkValue) ? chunkValue?.ToString() : "Unknown";
 
-                return $"\nChunk: {chunkIndex}\nContent:\n{content}\n";
+                return $"\nSource: {fileName} (ID: {documentId})\nChunk: {chunkIndex}\nContent:\n{content}\n";
             }).ToList();
 
             return searchResults;

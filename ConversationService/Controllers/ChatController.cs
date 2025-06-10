@@ -110,5 +110,10 @@ namespace ConversationServices.Controllers
                 await Response.WriteAsync(JsonSerializer.Serialize(new { error = "Streaming failed", details = ex.Message }));
             }
         }
+
+
+
+        //here an endpoint the user can upload a document
+        
     }
 }

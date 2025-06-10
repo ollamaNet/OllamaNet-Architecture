@@ -11,6 +11,7 @@ ConversationService follows a clean, layered architecture pattern within a micro
   - FolderController for folder organization
   - NoteController for note management
   - FeedbackController for feedback collection
+  - DocumentController for document upload and management
 - **Service Layer**: Domain-specific services containing business logic
   - ConversationService for conversation management
   - ChatService for AI model interactions
@@ -19,11 +20,14 @@ ConversationService follows a clean, layered architecture pattern within a micro
   - NoteService for note management
   - FeedbackService for feedback handling
   - RagService for document retrieval and indexing
+  - DocumentManagementService for document lifecycle management
+  - DocumentProcessingService for text extraction and processing
 - **Infrastructure Layer**: Technical implementations and external service integrations
   - RedisCacheService for low-level Redis operations
   - CacheManager for high-level caching abstraction
   - OllamaConnector for AI model integration
   - RagInfrastructure for embedding and vector operations
+  - DocumentStorage for secure file system operations
 - **Data Access Layer**: Repository pattern via IUnitOfWork from shared Ollama_DB_layer
 
 ## RAG System Architecture
@@ -52,6 +56,38 @@ The RAG (Retrieval-Augmented Generation) system follows a clean architecture pat
 - **Helpers**
   - `QueryCleaner`: Query preprocessing utilities
 
+## Document Processing Architecture
+
+### Infrastructure Layer (`Infrastructure/Document/`)
+- **Storage**
+  - `IDocumentStorage`: Interface for document storage operations
+  - `FileSystemDocumentStorage`: Implementation for file system storage
+- **Options**
+  - `DocumentManagementOptions`: Configuration for document management
+- **Exceptions**
+  - `DocumentException`: Base exception for document operations
+  - `DocumentStorageException`: Storage-specific exceptions
+  - `DocumentProcessingException`: Processing-specific exceptions
+  - `UnsupportedDocumentTypeException`: Format validation exceptions
+
+### Service Layer (`Services/Document/`)
+- **Interfaces**
+  - `IDocumentManagementService`: Document lifecycle management
+  - `IDocumentProcessingService`: Document processing operations
+- **Implementation**
+  - `DocumentManagementService`: Handles document storage and metadata
+  - `DocumentProcessingService`: Manages text extraction and processing
+- **DTOs**
+  - `Requests/UploadDocumentRequest`: Document upload parameters
+  - `Responses/AttachmentResponse`: Document metadata response
+  - `Responses/ProcessingResponse`: Processing result with metrics
+- **Processors**
+  - `Base/IDocumentProcessor`: Base interface for all processors
+  - `PDF/PdfDocumentProcessor`: PDF-specific text extraction
+  - `Text/TextDocumentProcessor`: Plain text processing
+  - `Word/WordDocumentProcessor`: Word document processing
+  - `Markdown/MarkdownDocumentProcessor`: Markdown processing
+
 ## Design Patterns
 - **Repository Pattern**: Abstracts data access through repositories from Ollama_DB_layer
 - **Unit of Work**: Manages transactions and repository coordination via IUnitOfWork
@@ -63,12 +99,14 @@ The RAG (Retrieval-Augmented Generation) system follows a clean architecture pat
 - **Adapter Pattern**: OllamaConnector adapting to the OllamaSharp client
 - **Cache-Aside Pattern**: GetOrSetAsync with database fallback strategy
 - **Circuit Breaker Pattern**: Timeout and retry logic for cache operations
+- **Chain of Responsibility**: Document processor selection based on file type
+- **Template Method**: Common document processing flow with format-specific implementations
 
 ## Component Relationships
 ```
 Controllers → Services → Repositories/Connectors → Database/External Services
-       ↓              ↓
- Validators      Cache Manager
+       ↓              ↓                  ↓
+ Validators      Cache Manager    Document Storage
 ```
 
 - **Controllers**: Handle HTTP requests, validate inputs, manage authentication
@@ -79,6 +117,8 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **RedisCacheService**: Offers low-level Redis operations with error handling
 - **Repositories**: Access database via the shared Ollama_DB_layer
 - **OllamaConnector**: Integrates with the Ollama AI service via ngrok endpoint
+- **DocumentStorage**: Manages secure file storage operations
+- **DocumentProcessors**: Handle format-specific text extraction
 
 ## Service Organization
 - **ConversationService**: Manages conversation CRUD, search, and organization
@@ -100,6 +140,15 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **FolderService**: Manages folder CRUD operations and organization
 - **NoteService**: Manages note CRUD operations
 - **FeedbackService**: Handles feedback collection and management
+- **DocumentManagementService**: Manages document lifecycle
+  - UploadDocumentAsync
+  - GetDocumentAsync
+  - DeleteDocumentAsync
+  - GetConversationDocumentsAsync
+- **DocumentProcessingService**: Handles document processing
+  - ProcessDocumentAsync
+  - ExtractTextAsync
+  - ChunkTextAsync
 
 ## Configuration Management
 - **ServiceExtensions.cs**: Extension methods for service registration:
@@ -110,11 +159,13 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
   - ConfigureCors: CORS policy setup
   - ConfigureCache: Redis cache configuration
   - ConfigureSwagger: Swagger documentation setup
+  - AddDocumentServices: Document processors and storage
 - **appsettings.json**: Environment-specific configuration for:
   - Database connection (SQL Server)
   - Redis connection (Upstash)
   - JWT settings with 30-day duration
   - RedisCacheSettings with domain-specific TTLs
+  - DocumentManagement settings (file size, types, paths)
   - Logging configuration
 
 ## API Design
@@ -126,6 +177,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **ProducesResponseType**: Explicit response type documentation
 - **Swagger Documentation**: API documentation with status codes
 - **Status Codes**: Consistent HTTP status codes
+- **File Upload**: Multipart form-data for document uploads
 
 ## Caching Strategy
 - **Multi-level Caching**: Redis-based distributed caching via Upstash
@@ -154,6 +206,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **Custom Exceptions**: Domain-specific exception types
 - **Validation Errors**: Structured response format
 - **Cache Exceptions**: Specialized hierarchy for different cache failures
+- **Document Exceptions**: Specialized hierarchy for document operations
 
 ## Streaming Implementation
 - **Server-Sent Events**: Real-time streaming for chat responses
@@ -180,6 +233,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **Validation**: Request validation with FluentValidation
 - **Exception Handling**: Controller-level with appropriate status codes
 - **Performance Monitoring**: Stopwatch for timing metrics
+- **Document Security**: Content validation and secure storage
 
 ## Security Patterns
 - **JWT Authentication**: Token validation with comprehensive checks
@@ -189,6 +243,11 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **HTTPS Enforcement**: In middleware pipeline
 - **CORS Configuration**: Specific origin allowance (localhost:5173)
 - **Token Security**: 30-day lifetime with full validation
+- **Document Security**: 
+  - Content type validation
+  - File size validation
+  - Secure file paths
+  - Access control
 
 ## Deployment Patterns
 - Kubernetes-based deployment
