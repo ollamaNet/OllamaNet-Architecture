@@ -1,0 +1,154 @@
+@startuml RAG Integration Flow
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+
+!define SUCCESS #34A853
+!define WARNING #FBBC05
+!define FAILURE #EA4335
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceArrowThickness 1
+skinparam SequenceGroupHeaderFontStyle bold
+
+skinparam sequence {
+    ArrowColor #5C5C5C
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #EEEEEE
+    
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontColor #000000
+    
+    ActorBorderColor #CCCCCC
+    ActorBackgroundColor #FFFFFF
+    ActorFontColor #000000
+}
+
+title RAG Integration Flow Sequence Diagram
+
+actor "Client" as client
+participant "DocumentProcessingService" as procService
+participant "RagIndexingService" as indexingService
+participant "TextEmbeddingGeneration" as embeddingService
+participant "PineconeService" as vectorDb
+participant "ChatService" as chatService
+participant "RagRetrievalService" as retrievalService
+participant "OllamaConnector" as llm
+
+== Document Indexing Flow ==
+
+client -> procService : ProcessDocumentAsync(attachmentId)
+activate procService
+
+procService -> procService : ChunkText(text, chunkSize, overlap)
+note right of procService
+  Document is split into chunks
+  for efficient vector storage
+end note
+
+loop For Each Chunk
+    procService -> indexingService : IndexDocumentAsync(promptRequest)
+    activate indexingService
+    
+    indexingService -> embeddingService : EmbedDocumentAsync(content, conversationId)
+    activate embeddingService
+    
+    embeddingService -> vectorDb : GenerateEmbeddingAsync(content, modelId)
+    activate vectorDb
+    vectorDb --> embeddingService : Embedding Vector
+    deactivate vectorDb
+    
+    embeddingService --> indexingService : Document Vectors
+    deactivate embeddingService
+    
+    indexingService -> vectorDb : UpsertVectorsAsync(vectors, namespace)
+    activate vectorDb
+    note right of vectorDb
+      Each vector contains:
+      - Document text
+      - Document ID
+      - Chunk index
+      - Filename
+      - Content type
+    end note
+    vectorDb --> indexingService : Success
+    deactivate vectorDb
+    
+    indexingService --> procService : Success
+    deactivate indexingService
+end
+
+procService --> client : Processing Complete
+deactivate procService
+
+== RAG Query Flow ==
+
+client -> chatService : GetModelResponse(promptRequest)
+activate chatService
+
+opt EnableRag = true
+    chatService -> retrievalService : GetRelevantContextAsync(request)
+    activate retrievalService
+    
+    retrievalService -> vectorDb : GenerateEmbeddingAsync(query, modelId, isQuery=true)
+    activate vectorDb
+    vectorDb --> retrievalService : Query Vector
+    deactivate vectorDb
+    
+    retrievalService -> vectorDb : QueryAsync(queryVector, namespace, conversationId, topK)
+    activate vectorDb
+    vectorDb --> retrievalService : Matching Vectors
+    deactivate vectorDb
+    
+    retrievalService -> retrievalService : Format Search Results
+    note right of retrievalService
+      Formats results with:
+      - Source document info
+      - Content from document
+      - Relevance score
+    end note
+    
+    retrievalService --> chatService : Relevant Context Chunks
+    deactivate retrievalService
+    
+    chatService -> chatService : Format RAG Context
+    chatService -> chatService : Add Context as System Message
+    note right of chatService
+      System message format:
+      "Answer using this context: {context}"
+    end note
+end
+
+chatService -> llm : GetChatMessageContentsAsync(history, request)
+activate llm
+llm --> chatService : Enhanced Response
+deactivate llm
+
+chatService --> client : Response with RAG Knowledge
+deactivate chatService
+
+== RAG Fallback Handling ==
+
+alt RAG Error Handling
+    chatService -> retrievalService : GetRelevantContextAsync(request)
+    activate retrievalService
+    retrievalService -> vectorDb : QueryAsync()
+    vectorDb --> retrievalService : Error
+    retrievalService --> chatService : Exception
+    deactivate retrievalService
+    
+    note right of chatService
+      On RAG error, continue without context
+      rather than failing the entire request
+    end note
+    
+    chatService -> llm : GetChatMessageContentsAsync(history without RAG)
+    llm --> chatService : Basic Response
+    chatService --> client : Response without RAG
+end
+
+@enduml 

@@ -1,0 +1,125 @@
+@startuml Chat Message Flow
+
+' Styling
+skinparam sequence {
+  ArrowColor #2c3e50
+  ActorBorderColor #2c3e50
+  LifeLineBorderColor #2c3e50
+  LifeLineBackgroundColor #f0f0f0
+  ParticipantBorderColor #2c3e50
+  ParticipantBackgroundColor #f0f0f0
+  ParticipantFontColor #2c3e50
+  ActorBackgroundColor #f0f0f0
+  ActorFontColor #2c3e50
+}
+skinparam DatabaseBackgroundColor #c5e1a5
+skinparam DatabaseBorderColor #558b2f
+skinparam ParticipantBackgroundColor<<External>> #ffecb3
+skinparam ParticipantBorderColor<<External>> #ff8f00
+
+title "Chat Message Flow - Sequence Diagram"
+
+actor User
+participant "API Gateway" as Gateway
+participant "ChatController" as ChatCtrl
+participant "ChatService" as ChatSvc
+participant "ChatHistoryManager" as HistoryMgr
+participant "RagRetrievalService" as RagSvc
+participant "OllamaConnector" as OllamaConn
+participant "Ollama API" as OllamaAPI <<External>>
+participant "PineconeService" as PineconneSvc
+participant "Pinecone API" as PineconeAPI <<External>>
+database "Redis Cache" as Cache
+database "SQL Database" as DB
+
+== Chat Message Processing ==
+
+User -> Gateway : Send chat message
+activate Gateway
+
+Gateway -> ChatCtrl : POST /api/chat/message
+activate ChatCtrl
+
+ChatCtrl -> ChatSvc : SendMessageAsync(request)
+activate ChatSvc
+
+' Storing the user message
+ChatSvc -> HistoryMgr : AddMessageToHistoryAsync(conversationId, userMessage)
+activate HistoryMgr
+HistoryMgr -> Cache : Set message in cache
+HistoryMgr -> DB : Save message to DB
+HistoryMgr --> ChatSvc : Message stored
+deactivate HistoryMgr
+
+' Getting conversation history
+ChatSvc -> HistoryMgr : GetChatHistoryAsync(conversationId)
+activate HistoryMgr
+HistoryMgr -> Cache : Try get history
+alt Cache hit
+  Cache --> HistoryMgr : Return history
+else Cache miss
+  HistoryMgr -> DB : Load history from DB
+  DB --> HistoryMgr : Return history
+  HistoryMgr -> Cache : Update cache
+end
+HistoryMgr --> ChatSvc : Conversation history
+deactivate HistoryMgr
+
+' RAG processing
+ChatSvc -> RagSvc : EnhancePromptWithContextAsync(query, conversationId)
+activate RagSvc
+
+' Creating query embedding
+RagSvc -> OllamaConn : GenerateEmbeddingAsync(cleanedQuery)
+activate OllamaConn
+OllamaConn -> OllamaAPI : POST /api/embeddings
+activate OllamaAPI
+OllamaAPI --> OllamaConn : Embedding vector
+deactivate OllamaAPI
+OllamaConn --> RagSvc : Query embedding
+deactivate OllamaConn
+
+' Vector search
+RagSvc -> PineconneSvc : QueryAsync(indexName, queryEmbedding, topK)
+activate PineconneSvc
+PineconneSvc -> PineconeAPI : POST /query
+activate PineconeAPI
+PineconeAPI --> PineconneSvc : Similar vectors
+deactivate PineconeAPI
+PineconneSvc --> RagSvc : Retrieval results
+deactivate PineconneSvc
+
+' Enhancing the prompt with context
+RagSvc -> RagSvc : Format context into prompt
+RagSvc --> ChatSvc : Enhanced prompt
+deactivate RagSvc
+
+' Generating response from LLM
+ChatSvc -> OllamaConn : GenerateCompletionAsync(enhancedPrompt, model)
+activate OllamaConn
+OllamaConn -> OllamaAPI : POST /api/generate
+activate OllamaAPI
+OllamaAPI --> OllamaConn : Generated text
+deactivate OllamaAPI
+OllamaConn --> ChatSvc : LLM response
+deactivate OllamaConn
+
+' Storing the assistant response
+ChatSvc -> HistoryMgr : AddMessageToHistoryAsync(conversationId, assistantMessage)
+activate HistoryMgr
+HistoryMgr -> Cache : Set response in cache
+HistoryMgr -> DB : Save response to DB
+HistoryMgr --> ChatSvc : Response stored
+deactivate HistoryMgr
+
+ChatSvc -> ChatSvc : Create response DTO
+ChatSvc --> ChatCtrl : ChatResponseDto
+deactivate ChatSvc
+
+ChatCtrl --> Gateway : HTTP 200 OK with response
+deactivate ChatCtrl
+
+Gateway --> User : Chat response
+deactivate Gateway
+
+@enduml 

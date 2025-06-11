@@ -1,0 +1,124 @@
+@startuml ConversationService Data Flow Diagram
+
+' Styling
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor #2c3e50
+  FontColor #2c3e50
+}
+skinparam database {
+  BackgroundColor #c5e1a5
+  BorderColor #558b2f
+  FontColor #2c3e50
+}
+skinparam arrow {
+  Color #2c3e50
+  FontColor #2c3e50
+}
+skinparam cloud {
+  BackgroundColor #bbdefb
+  BorderColor #1976d2
+  FontColor #2c3e50
+}
+skinparam actor {
+  BackgroundColor #f0f0f0
+  BorderColor #2c3e50
+  FontColor #2c3e50
+}
+skinparam rectangle<<external>> {
+  BackgroundColor #ffecb3
+  BorderColor #ff8f00
+  FontColor #2c3e50
+}
+skinparam rectangle<<storage>> {
+  BackgroundColor #c5e1a5
+  BorderColor #558b2f
+  FontColor #2c3e50
+}
+
+title "ConversationService - Data Flow Diagram"
+
+' External entities
+actor User
+rectangle "API Gateway" as Gateway
+rectangle "Ollama LLM" as LLM <<external>>
+rectangle "Pinecone Vector DB" as VectorDB <<external>>
+
+' Data stores
+database "SQL Database" as SqlDb
+rectangle "Redis Cache" as Cache <<storage>>
+rectangle "File System" as FileSystem <<storage>>
+
+' Processes
+rectangle "Document Processing" as DocProcess {
+  rectangle "Upload Handler" as UploadHandler
+  rectangle "Document Processor" as Processor
+  rectangle "Text Chunker" as Chunker
+  rectangle "Embedding Generator" as EmbeddingGen
+  rectangle "Vector Indexer" as Indexer
+  
+  UploadHandler --> Processor : Raw Document
+  Processor --> Chunker : Extracted Text
+  Chunker --> EmbeddingGen : Text Chunks
+  EmbeddingGen --> Indexer : Embeddings
+}
+
+rectangle "RAG Query Processing" as RagProcess {
+  rectangle "Query Cleaner" as QueryCleaner
+  rectangle "Query Embedding" as QueryEmbed
+  rectangle "Context Retrieval" as ContextRetrieval
+  rectangle "Prompt Enhancer" as PromptEnhancer
+  
+  QueryCleaner --> QueryEmbed : Cleaned Query
+  QueryEmbed --> ContextRetrieval : Query Embedding
+  ContextRetrieval --> PromptEnhancer : Retrieved Context
+}
+
+rectangle "Chat Processing" as ChatProcess {
+  rectangle "Message Handler" as MessageHandler
+  rectangle "Response Generator" as ResponseGen
+  rectangle "History Manager" as HistoryManager
+  
+  MessageHandler --> HistoryManager : Store Message
+  MessageHandler --> RagProcess : User Query
+  RagProcess --> ResponseGen : Enhanced Prompt
+  ResponseGen --> HistoryManager : Store Response
+}
+
+rectangle "Conversation Management" as ConvProcess {
+  rectangle "Conversation Handler" as ConvHandler
+  rectangle "Conversation Store" as ConvStore
+  
+  ConvHandler --> ConvStore : Conversation Data
+  ConvStore --> ConvHandler : Conversation Data
+}
+
+' Data flows
+User --> Gateway : Requests
+Gateway --> ChatProcess : Chat Messages
+Gateway --> DocProcess : Document Upload
+Gateway --> ConvProcess : Conversation Management
+
+' Document Processing Flow
+UploadHandler --> FileSystem : Store File
+Processor --> FileSystem : Read File
+Indexer --> VectorDB : Store Vectors
+DocProcess --> SqlDb : Store Document Metadata
+
+' RAG Query Flow
+QueryEmbed --> LLM : Generate Embedding
+ContextRetrieval --> VectorDB : Vector Search
+RagProcess --> ChatProcess : Context for Prompt
+
+' Chat Processing Flow
+ResponseGen --> LLM : Generate Response
+HistoryManager --> Cache : Cache History
+HistoryManager --> SqlDb : Persist History
+ChatProcess --> Gateway : Response
+
+' Conversation Management Flow
+ConvStore --> Cache : Cache Conversation
+ConvStore --> SqlDb : Persist Conversation
+ConvProcess --> Gateway : Conversation Data
+
+@enduml 

@@ -16,7 +16,7 @@ public class Program
 
         // Add JWT authentication and CORS
         builder.Services.AddJwtAuthentication(builder.Configuration);
-        builder.Services.ConfigureCors();
+        builder.Services.ConfigureCors(builder.Configuration);
         builder.Services.AddGatewayAuthorization(builder.Configuration);
 
         // Use the new configuration loader instead of direct JSON file
@@ -35,10 +35,6 @@ public class Program
             };
         });
         builder.Services.AddHostedService<ConfigurationChangeMonitor>();
-
-
-
-
 
         // Add services to the container.
         builder.Services.AddControllers();

@@ -1,0 +1,94 @@
+@startuml Conversation State Machine
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+!define GRAY #9E9E9E
+
+!define ARROW_COLOR #5C5C5C
+!define BORDER_COLOR #DDDDDD
+!define BACKGROUND_COLOR #FFFFFF
+
+skinparam state {
+    BackgroundColor BACKGROUND_COLOR
+    BorderColor BORDER_COLOR
+    ArrowColor ARROW_COLOR
+    StartColor ACCENT_COLOR
+    EndColor ERROR_COLOR
+    AttributeFontColor black
+    AttributeFontSize 12
+    FontSize 14
+}
+
+skinparam StateBorderThickness 1
+skinparam ArrowThickness 1.5
+
+title Conversation Lifecycle State Machine
+
+state "New" as New #ACCENT_COLOR
+state "Active" as Active #SECONDARY_COLOR {
+    state "Empty" as Empty #ADD8E6
+    state "With Messages" as WithMessages #ADD8E6
+    state "Updated" as Updated #ADD8E6
+    
+    Empty -right-> WithMessages : Add Message
+    WithMessages -right-> Updated : Update Title/System Message
+}
+
+state "Folder Assignment" as FolderAssignment #WARNING_COLOR {
+    state "Default Folder" as DefaultFolder #FFFFCC
+    state "Custom Folder" as CustomFolder #FFFFCC
+    
+    DefaultFolder -right-> CustomFolder : Move to Folder
+    CustomFolder -right-> CustomFolder : Move Between Folders
+}
+
+state "Archived" as Archived #GRAY
+state "Deleted" as Deleted #ERROR_COLOR {
+    state "Soft Delete" as SoftDelete #FFCCCC
+    state "Hard Delete" as HardDelete #FFCCCC
+    
+    SoftDelete -right-> HardDelete : Permanent Delete
+}
+
+[*] -right-> New : Create Conversation
+New -right-> Empty : Initialize
+Empty -down-> DefaultFolder : Assign to Default Folder
+
+Active -down-> Archived : Archive Conversation
+Active -down-> SoftDelete : Delete Conversation
+Archived -down-> Active : Restore Conversation
+Archived -right-> SoftDelete : Delete Conversation
+
+SoftDelete -up-> Active : Restore Conversation
+HardDelete -right-> [*] : Permanently Removed
+
+note right of New
+  Conversation created with
+  initial title, model, and
+  system message
+end note
+
+note right of Active
+  Conversation is accessible 
+  and can receive messages
+end note
+
+note right of FolderAssignment
+  Conversations are organized
+  in user-defined folders
+end note
+
+note right of Archived
+  Conversation is archived,
+  still accessible but marked
+  as inactive
+end note
+
+note right of Deleted
+  Soft delete allows restoration,
+  hard delete is permanent
+end note
+
+@enduml 

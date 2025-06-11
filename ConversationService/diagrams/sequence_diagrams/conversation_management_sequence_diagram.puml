@@ -1,0 +1,254 @@
+@startuml Conversation Management Flow
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+
+!define SUCCESS #34A853
+!define WARNING #FBBC05
+!define FAILURE #EA4335
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceArrowThickness 1
+skinparam SequenceGroupHeaderFontStyle bold
+
+skinparam sequence {
+    ArrowColor #5C5C5C
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #EEEEEE
+    
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontColor #000000
+    
+    ActorBorderColor #CCCCCC
+    ActorBackgroundColor #FFFFFF
+    ActorFontColor #000000
+}
+
+title Conversation Management Flow Sequence Diagram
+
+actor "Client" as client
+participant "ConversationController" as controller
+participant "Validator" as validator
+participant "ConversationService" as service
+participant "CacheManager" as cache
+database "Database" as db
+
+== Create Conversation ==
+
+client -> controller : Create (POST /api/conversations)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> validator : ValidateAsync(request)
+activate validator
+validator --> controller : ValidationResult
+deactivate validator
+
+alt Validation Failed
+    controller --> client : 400 Bad Request
+else Validation Passed
+    controller -> service : CreateConversationAsync(userId, request)
+    activate service
+    
+    service -> db : GetFolderAsync(request.FolderId)
+    activate db
+    db --> service : Folder
+    deactivate db
+    
+    service -> db : AddAsync(conversation)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service -> db : GetByIdAsync(conversation.Id)
+    activate db
+    db --> service : Conversation
+    deactivate db
+    
+    service -> cache : InvalidateCache(cacheKey)
+    activate cache
+    cache --> service : Success
+    deactivate cache
+    
+    service --> controller : OpenConversationResponse
+    deactivate service
+    
+    controller --> client : 201 Created with Response
+end
+deactivate controller
+
+== Get Conversations ==
+
+client -> controller : GetAll (GET /api/conversations?page=1&pageSize=15)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> service : GetConversationsAsync(userId, page, pageSize)
+activate service
+
+service -> db : GetAllFoldersWithConversationsAsync(userId)
+activate db
+db --> service : Folders with Conversations
+deactivate db
+
+service -> service : Format Paged Result
+service --> controller : PagedResult<ConversationCard>
+deactivate service
+
+controller --> client : 200 OK with Response
+deactivate controller
+
+== Search Conversations ==
+
+client -> controller : Search (GET /api/conversations/search?term=query)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> service : SearchConversationsAsync(userId, term, page, pageSize)
+activate service
+
+service -> db : Search Implementation
+activate db
+db --> service : Matching Conversations
+deactivate db
+
+service -> service : Format Paged Result
+service --> controller : PagedResult<ConversationCard>
+deactivate service
+
+controller --> client : 200 OK with Response
+deactivate controller
+
+== Get Conversation Details ==
+
+client -> controller : GetById (GET /api/conversations/{conversationId})
+activate controller
+
+controller -> service : GetConversationInfoAsync(conversationId)
+activate service
+
+service -> db : GetConversationDetailsAsync(conversationId)
+activate db
+db --> service : Conversation Details
+deactivate db
+
+service --> controller : GetConversationInfoResponse
+deactivate service
+
+controller --> client : 200 OK with Response
+deactivate controller
+
+== Update Conversation ==
+
+client -> controller : Update (PUT /api/conversations/{conversationId})
+activate controller
+
+controller -> validator : ValidateAsync(request)
+activate validator
+validator --> controller : ValidationResult
+deactivate validator
+
+alt Validation Failed
+    controller --> client : 400 Bad Request
+else Validation Passed
+    controller -> service : UpdateConversationAsync(conversationId, request)
+    activate service
+    
+    service -> db : GetByIdAsync(conversationId)
+    activate db
+    db --> service : Conversation
+    deactivate db
+    
+    service -> service : Update Properties
+    
+    service -> db : SaveChangesAsync()
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service -> cache : InvalidateCache(cacheKey)
+    activate cache
+    cache --> service : Success
+    deactivate cache
+    
+    service --> controller : Success
+    deactivate service
+    
+    controller --> client : 200 OK
+end
+deactivate controller
+
+== Delete Conversation ==
+
+client -> controller : Delete (DELETE /api/conversations/{conversationId})
+activate controller
+
+controller -> service : DeleteConversationAsync(conversationId)
+activate service
+
+service -> db : GetByIdAsync(conversationId)
+activate db
+db --> service : Conversation
+deactivate db
+
+service -> db : Delete(conversation)
+activate db
+db --> service : Success
+deactivate db
+
+service -> cache : InvalidateCache(cacheKey)
+activate cache
+cache --> service : Success
+deactivate cache
+
+service --> controller : Success
+deactivate service
+
+controller --> client : 200 OK
+deactivate controller
+
+== Move Conversation ==
+
+client -> controller : MoveConversationToFolder (PUT /api/conversations/{conversationId}/move)
+activate controller
+
+controller -> service : MoveConversationToFolderAsync(conversationId, targetFolderId)
+activate service
+
+service -> db : GetByIdAsync(conversationId)
+activate db
+db --> service : Conversation
+deactivate db
+
+service -> db : GetByIdAsync(targetFolderId)
+activate db
+db --> service : Target Folder
+deactivate db
+
+service -> service : Update Folder_Id
+service -> db : SaveChangesAsync()
+activate db
+db --> service : Success
+deactivate db
+
+service -> cache : InvalidateCache(sourceFolderCacheKey)
+activate cache
+cache --> service : Success
+deactivate cache
+
+service -> cache : InvalidateCache(targetFolderCacheKey)
+activate cache
+cache --> service : Success
+deactivate cache
+
+service --> controller : Success
+deactivate service
+
+controller --> client : 200 OK
+deactivate controller
+
+@enduml 

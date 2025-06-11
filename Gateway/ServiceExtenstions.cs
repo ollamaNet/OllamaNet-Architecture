@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Gateway.Configurations;
 
 namespace Gateway
 {
@@ -40,16 +41,51 @@ namespace Gateway
         }
 
         // Register CORS
-        public static void ConfigureCors(this IServiceCollection services)
+        public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
+            var corsSettings = configuration.GetSection("CorsSettings").Get<CorsSettings>();
+            
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                    if (corsSettings?.AllowAllOrigins ?? false)
+                    {
+                        policy.AllowAnyOrigin();
+                    }
+                    else if (corsSettings?.AllowedOrigins?.Length > 0)
+                    {
+                        policy.WithOrigins(corsSettings.AllowedOrigins);
+                        
+                        if (corsSettings.AllowCredentials)
+                        {
+                            policy.AllowCredentials();
+                        }
+                    }
+                    else
+                    {
+                        // Fallback to localhost if no origins are specified
+                        policy.WithOrigins("http://localhost:5173")
+                              .AllowCredentials();
+                    }
+
+                    if (corsSettings?.AllowedHeaders?.Length > 0)
+                    {
+                        policy.WithHeaders(corsSettings.AllowedHeaders);
+                    }
+                    else
+                    {
+                        policy.AllowAnyHeader();
+                    }
+
+                    if (corsSettings?.AllowedMethods?.Length > 0)
+                    {
+                        policy.WithMethods(corsSettings.AllowedMethods);
+                    }
+                    else
+                    {
+                        policy.AllowAnyMethod();
+                    }
                 });
             });
         }

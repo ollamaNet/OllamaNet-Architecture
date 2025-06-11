@@ -1,0 +1,208 @@
+@startuml Note Management Flow
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+
+!define SUCCESS #34A853
+!define WARNING #FBBC05
+!define FAILURE #EA4335
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceArrowThickness 1
+skinparam SequenceGroupHeaderFontStyle bold
+
+skinparam sequence {
+    ArrowColor #5C5C5C
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #EEEEEE
+    
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontColor #000000
+    
+    ActorBorderColor #CCCCCC
+    ActorBackgroundColor #FFFFFF
+    ActorFontColor #000000
+}
+
+title Note Management Flow Sequence Diagram
+
+actor "Client" as client
+participant "NoteController" as controller
+participant "NoteService" as service
+database "Database" as db
+
+== Add Note ==
+
+client -> controller : Add Note (POST /api/note)
+activate controller
+
+controller -> service : AddNoteAsync(request)
+activate service
+
+service -> db : SaveNoteAsync(note)
+activate db
+db --> service : Saved Note
+deactivate db
+
+service --> controller : Note
+controller --> client : 200 OK with NoteResponse
+deactivate service
+deactivate controller
+
+== Update Note ==
+
+client -> controller : Update Note (PUT /api/note/{responseId}/{noteId})
+activate controller
+
+controller -> service : UpdateNoteAsync(responseId, noteId, request)
+activate service
+
+service -> db : GetNoteAsync(responseId, noteId)
+activate db
+db --> service : Note
+deactivate db
+
+alt Note Not Found
+    service --> controller : KeyNotFoundException
+    controller --> client : 404 Not Found
+else
+    service -> service : Update Note Fields
+    
+    service -> db : SaveUpdatedNoteAsync(note)
+    activate db
+    db --> service : Updated Note
+    deactivate db
+    
+    service --> controller : Updated Note
+    controller --> client : 200 OK with NoteResponse
+end
+deactivate service
+deactivate controller
+
+== Delete Note ==
+
+client -> controller : Delete Note (DELETE /api/note/{responseId}/{noteId})
+activate controller
+
+controller -> service : DeleteNoteAsync(responseId, noteId)
+activate service
+
+service -> db : GetNoteAsync(responseId, noteId)
+activate db
+db --> service : Note
+deactivate db
+
+alt Note Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : DeleteNoteAsync(responseId, noteId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Soft Delete Note ==
+
+client -> controller : Soft Delete (DELETE /api/note/soft-delete/{responseId}/{noteId})
+activate controller
+
+controller -> service : SoftDeleteNoteAsync(responseId, noteId)
+activate service
+
+service -> db : GetNoteAsync(responseId, noteId) 
+activate db
+db --> service : Note
+deactivate db
+
+alt Note Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : SoftDeleteNoteAsync(responseId, noteId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Get Note ==
+
+client -> controller : Get Note (GET /api/note/{responseId}/{noteId})
+activate controller
+
+controller -> service : GetNoteAsync(responseId, noteId)
+activate service
+
+service -> db : GetNoteAsync(responseId, noteId)
+activate db
+db --> service : Note
+deactivate db
+
+alt Note Not Found
+    service --> controller : null
+    controller --> client : 404 Not Found
+else
+    service --> controller : Note
+    controller --> client : 200 OK with NoteResponse
+end
+deactivate service
+deactivate controller
+
+== Get Notes by Response ID ==
+
+client -> controller : Get Notes (GET /api/note/response/{responseId})
+activate controller
+
+controller -> service : GetNotesByResponseIdAsync(responseId)
+activate service
+
+service -> db : GetNotesByResponseIdAsync(responseId)
+activate db
+db --> service : Notes
+deactivate db
+
+service -> service : Map to Note Responses
+service --> controller : IEnumerable<NoteResponse>
+controller --> client : 200 OK with Note Responses
+deactivate service
+deactivate controller
+
+== Get Notes in Conversation ==
+
+client -> controller : Get Notes (GET /api/note/conversation/{conversationId})
+activate controller
+
+controller -> service : GetNotesInConversationAsync(conversationId)
+activate service
+
+service -> db : GetResponsesInConversationAsync(conversationId)
+activate db
+db --> service : Responses
+deactivate db
+
+service -> db : GetNotesForResponsesAsync(responses)
+activate db
+db --> service : Notes
+deactivate db
+
+service -> service : Map to Note Responses
+service --> controller : IEnumerable<NoteResponse>
+controller --> client : 200 OK with Note Responses
+deactivate service
+deactivate controller
+
+@enduml 

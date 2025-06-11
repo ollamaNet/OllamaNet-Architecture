@@ -1,0 +1,91 @@
+@startuml Document Processing State Machine
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+!define GRAY #9E9E9E
+
+!define ARROW_COLOR #5C5C5C
+!define BORDER_COLOR #DDDDDD
+!define BACKGROUND_COLOR #FFFFFF
+
+skinparam state {
+    BackgroundColor BACKGROUND_COLOR
+    BorderColor BORDER_COLOR
+    ArrowColor ARROW_COLOR
+    StartColor ACCENT_COLOR
+    EndColor ERROR_COLOR
+    AttributeFontColor black
+    AttributeFontSize 12
+    FontSize 14
+}
+
+skinparam StateBorderThickness 1
+skinparam ArrowThickness 1.5
+
+title Document Processing State Machine
+
+state "Uploaded" as Uploaded #DDDDDD {
+    state "Pending" as Pending #F0F8FF
+}
+
+state "Processing" as Processing #ACCENT_COLOR {
+    state "Content Extraction" as ContentExtraction #ADD8E6
+    state "Metadata Extraction" as MetadataExtraction #ADD8E6
+    state "Text Chunking" as TextChunking #ADD8E6
+    state "Vector Embedding" as VectorEmbedding #ADD8E6
+    state "Index Storage" as IndexStorage #ADD8E6
+    
+    ContentExtraction -down-> MetadataExtraction
+    MetadataExtraction -down-> TextChunking
+    TextChunking -down-> VectorEmbedding
+    VectorEmbedding -down-> IndexStorage
+}
+
+state "Completed" as Completed #SECONDARY_COLOR
+state "Failed" as Failed #ERROR_COLOR {
+    state "Document Not Found" as DocNotFound #FFCCCC
+    state "Unsupported Type" as UnsupportedType #FFCCCC
+    state "Processing Error" as ProcessingError #FFCCCC
+    state "Indexing Error" as IndexingError #FFCCCC
+}
+
+[*] -right-> Uploaded
+Uploaded -right-> Pending : Upload Document
+Pending -right-> Processing : Start Processing
+Processing -right-> Completed : Processing Success
+Processing -down-> Failed : Processing Failure
+
+Processing -down-> DocNotFound : Document Not Found
+Processing -down-> UnsupportedType : Unsupported Content Type
+ContentExtraction -down-> ProcessingError : Text Extraction Failure
+VectorEmbedding -down-> IndexingError : Embedding Generation Failure
+IndexStorage -down-> IndexingError : Vector Storage Failure
+
+Completed -right-> [*]
+Failed --> Pending : Retry Processing
+
+note right of Uploaded
+  File uploaded to storage
+  Entry created in database
+end note
+
+note right of Processing
+  Document text and metadata 
+  are extracted, chunked,
+  and indexed in vector DB
+end note
+
+note right of Completed
+  Document is fully processed
+  and available for RAG
+end note
+
+note right of Failed
+  Processing failed with specific
+  error state, requires retry
+  or manual intervention
+end note
+
+@enduml 

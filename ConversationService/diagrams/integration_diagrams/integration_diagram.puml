@@ -1,0 +1,160 @@
+@startuml ConversationService Integration Diagram
+
+' Styling
+skinparam component {
+  BackgroundColor #f0f0f0
+  BorderColor #2c3e50
+  FontColor #2c3e50
+}
+skinparam database {
+  BackgroundColor #c5e1a5
+  BorderColor #558b2f
+  FontColor #2c3e50
+}
+skinparam rectangle {
+  BackgroundColor #bbdefb
+  BorderColor #1976d2
+  FontColor #2c3e50
+}
+skinparam interface {
+  BackgroundColor #ffecb3
+  BorderColor #ff8f00
+  FontColor #2c3e50
+}
+skinparam node {
+  BackgroundColor #f8bbd0
+  BorderColor #c2185b
+  FontColor #2c3e50
+}
+skinparam arrow {
+  Color #2c3e50
+  FontColor #2c3e50
+}
+
+title "ConversationService - Integration Diagram"
+
+' External systems
+node "Client Applications" as Client
+node "Ollama LLM Service" as OllamaLLM {
+  interface "REST API" as OllamaAPI
+}
+node "Pinecone Vector Database" as Pinecone {
+  interface "REST API" as PineconeAPI
+}
+database "SQL Database" as SqlDb
+node "Redis Cache" as Redis
+node "File System" as FileSystem
+
+' Internal components
+rectangle "API Gateway" as Gateway {
+  component "Authentication Middleware" as AuthMiddleware
+  component "Routing & Load Balancing" as Routing
+}
+
+rectangle "ConversationService" as ConvService {
+  component "Controllers" {
+    component "ChatController" as ChatCtrl
+    component "ConversationController" as ConvCtrl
+    component "DocumentController" as DocCtrl
+    component "FeedbackController" as FeedbackCtrl
+    component "FolderController" as FolderCtrl
+    component "NoteController" as NoteCtrl
+  }
+  
+  component "Service Layer" {
+    component "ChatService" as ChatSvc
+    component "ConversationService" as ConvSvc
+    component "DocumentManagementService" as DocSvc
+    component "DocumentProcessingService" as DocProcSvc
+    component "RagIndexingService" as RagIdxSvc
+    component "RagRetrievalService" as RagRetrSvc
+  }
+  
+  component "Infrastructure" {
+    component "OllamaConnector" as OllamaConnect
+    component "PineconeService" as PineconeConnect
+    component "CacheManager" as CacheConnect
+    component "DocumentStorage" as StorageConnect
+  }
+
+  ' Internal relationships
+  ChatCtrl --> ChatSvc
+  ConvCtrl --> ConvSvc
+  DocCtrl --> DocSvc
+  
+  ChatSvc --> RagRetrSvc
+  DocSvc --> DocProcSvc
+  DocProcSvc --> RagIdxSvc
+  
+  OllamaConnect ..> OllamaAPI : HTTP REST
+  PineconeConnect ..> PineconeAPI : HTTP REST
+  CacheConnect ..> Redis : TCP
+  StorageConnect ..> FileSystem : File I/O
+  
+  RagRetrSvc --> OllamaConnect
+  RagRetrSvc --> PineconeConnect
+  RagIdxSvc --> OllamaConnect
+  RagIdxSvc --> PineconeConnect
+  
+  ChatSvc --> OllamaConnect
+  ChatSvc --> CacheConnect
+  ConvSvc --> CacheConnect
+  DocSvc --> StorageConnect
+}
+
+rectangle "AuthService" as AuthService {
+  component "Authentication Logic" as AuthLogic
+  component "Authorization Logic" as AuthzLogic
+}
+
+' External relationships
+Client --> Gateway : HTTPS
+Gateway --> AuthService : JWT Validation
+Gateway --> ConvService : HTTP REST
+
+' Integration points with error handling
+OllamaConnect --> OllamaLLM : "Circuit Breaker\nRetry Policy"
+PineconeConnect --> Pinecone : "Circuit Breaker\nRetry Policy"
+CacheConnect --> Redis : "Cache-aside Pattern\nFallback to DB"
+StorageConnect --> FileSystem : "Error Handling\nRetry Logic"
+
+' Data access layer
+ConvSvc --> SqlDb : "ADO.NET/EF Core"
+ChatSvc --> SqlDb : "ADO.NET/EF Core"
+DocSvc --> SqlDb : "ADO.NET/EF Core"
+
+' Authentication flow
+AuthMiddleware --> AuthService : "JWT Validation"
+
+' Integration options
+note right of OllamaConnect
+  Configuration Options:
+  - API Endpoint
+  - Model Name
+  - Timeout Settings
+  - Retry Policy
+end note
+
+note right of PineconeConnect
+  Configuration Options:
+  - API Key
+  - Environment
+  - Index Name
+  - Namespace
+end note
+
+note bottom of CacheConnect
+  Configuration Options:
+  - Connection String
+  - Expiration Settings
+  - Serialization Options
+end note
+
+note bottom of StorageConnect
+  Configuration Options:
+  - Storage Path
+  - Allowed Extensions
+  - Max File Size
+end note
+
+@enduml 

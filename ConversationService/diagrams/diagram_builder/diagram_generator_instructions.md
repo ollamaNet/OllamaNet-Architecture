@@ -44,11 +44,33 @@ Create diagrams in this order:
    - Show caching and persistence steps
    - Include all relevant components
 
-6. **Deployment Diagram**
-   - Show actual deployment architecture
-   - Include all necessary services
-   - Show proper communication paths
-   - Add configuration notes
+6. **Data Flow Diagrams**
+   - Document processing pipeline flows
+   - Show RAG query processing
+   - Illustrate conversation history management
+   - Include data transformation steps
+   - Show storage and retrieval patterns
+
+7. **State Machine Diagrams**
+   - Document conversation lifecycle states
+   - Show document processing transitions
+   - Illustrate user session management
+   - Detail RAG processing states
+   - Include error and recovery states
+
+8. **Infrastructure Diagrams**
+   - Detail caching architecture
+   - Show storage system layout
+   - Illustrate vector database integration
+   - Document service mesh configuration
+   - Include monitoring infrastructure
+
+9. **Integration Diagrams**
+   - Show external API connections
+   - Detail inter-service communication
+   - Document event flows
+   - Include message queue patterns
+   - Show error handling mechanisms
 
 ### 3. Common Pitfalls to Avoid
 
@@ -69,6 +91,18 @@ Create diagrams in this order:
 - **Solution**: Review controller validation logic
 - **Mistake**: Incorrect flow order
 - **Solution**: Follow the actual code execution path
+
+#### Data Flow Diagrams
+- **Mistake**: Missing transformation steps
+- **Solution**: Review processing pipelines thoroughly
+- **Mistake**: Incomplete storage patterns
+- **Solution**: Document all data persistence points
+
+#### State Machine Diagrams
+- **Mistake**: Missing error states
+- **Solution**: Include all possible state transitions
+- **Mistake**: Incomplete recovery flows
+- **Solution**: Document error handling paths
 
 ### 4. Best Practices
 
@@ -91,7 +125,7 @@ Create diagrams in this order:
 2. Check for missing components
 3. Verify relationships
 4. Ensure proper flow
-5. Validate against deployment
+5. Validate against implementation
 
 ### 5. Tools and Setup
 
@@ -162,7 +196,10 @@ diagrams/
    - Create component architecture
    - Add class diagram
    - Create sequence diagrams
-   - Add deployment diagram
+   - Add data flow diagrams
+   - Create state machine diagrams
+   - Add infrastructure diagrams
+   - Create integration diagrams
 
 4. **Compile Diagrams**
    ```bash

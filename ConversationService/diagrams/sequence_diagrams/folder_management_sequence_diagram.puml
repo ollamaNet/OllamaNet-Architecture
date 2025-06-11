@@ -1,0 +1,247 @@
+@startuml Folder Management Flow
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+
+!define SUCCESS #34A853
+!define WARNING #FBBC05
+!define FAILURE #EA4335
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceArrowThickness 1
+skinparam SequenceGroupHeaderFontStyle bold
+
+skinparam sequence {
+    ArrowColor #5C5C5C
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #EEEEEE
+    
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontColor #000000
+    
+    ActorBorderColor #CCCCCC
+    ActorBackgroundColor #FFFFFF
+    ActorFontColor #000000
+}
+
+title Folder Management Flow Sequence Diagram
+
+actor "Client" as client
+participant "FolderController" as controller
+participant "Validator" as validator
+participant "FolderService" as service
+database "Database" as db
+participant "CacheManager" as cache
+
+== Create Folder ==
+
+client -> controller : Create Folder (POST /api/folder)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> validator : ValidateAsync(request)
+activate validator
+validator --> controller : ValidationResult
+deactivate validator
+
+alt Validation Failed
+    controller --> client : 400 Bad Request
+else Validation Passed
+    controller -> service : CreateFolderAsync(userId, request)
+    activate service
+    
+    service -> service : Check Folder Name Uniqueness
+    
+    alt Name Already Exists
+        service --> controller : InvalidOperationException
+        controller --> client : 400 Bad Request
+    else
+        opt Root Folder Specified
+            service -> db : GetByIdAsync(rootFolderId)
+            activate db
+            db --> service : Root Folder
+            deactivate db
+        end
+        
+        service -> db : AddAsync(folder)
+        activate db
+        db --> service : Success
+        deactivate db
+        
+        service -> db : GetFolderWithConversationsByIdAsync(folder.Id)
+        activate db
+        db --> service : Folder With Conversations
+        deactivate db
+        
+        service --> controller : FolderWithConversations
+        controller --> client : 201 Created with FolderResponse
+    end
+    deactivate service
+end
+deactivate controller
+
+== Update Folder ==
+
+client -> controller : Update Folder (PUT /api/folder)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> validator : ValidateAsync(request)
+activate validator
+validator --> controller : ValidationResult
+deactivate validator
+
+alt Validation Failed
+    controller --> client : 400 Bad Request
+else Validation Passed
+    controller -> service : UpdateFolderAsync(userId, request)
+    activate service
+    
+    service -> db : GetByIdAsync(folderId)
+    activate db
+    db --> service : Folder
+    deactivate db
+    
+    alt Folder Not Found or Not Owned
+        service --> controller : false
+        controller --> client : 404 Not Found
+    else
+        service -> service : Check New Name Uniqueness
+        
+        alt Name Already Exists
+            service --> controller : InvalidOperationException
+            controller --> client : 400 Bad Request
+        else
+            service -> db : UpdateAsync(folder)
+            activate db
+            db --> service : Success
+            deactivate db
+            
+            service -> cache : InvalidateFolderCache(userId)
+            activate cache
+            cache --> service : Success
+            deactivate cache
+            
+            service --> controller : true
+            controller --> client : 200 OK
+        end
+    end
+    deactivate service
+end
+deactivate controller
+
+== Delete Folder ==
+
+client -> controller : Delete Folder (DELETE /api/folder/{folderId})
+activate controller
+
+controller -> service : DeleteFolderAsync(folderId)
+activate service
+
+service -> db : GetByIdAsync(folderId)
+activate db
+db --> service : Folder
+deactivate db
+
+alt Folder Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : DeleteAsync(folderId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service -> cache : InvalidateFolderCache(folder.User_Id)
+    activate cache
+    cache --> service : Success
+    deactivate cache
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Soft Delete Folder ==
+
+client -> controller : Soft Delete (DELETE /api/folder/{folderId}/soft)
+activate controller
+
+controller -> service : SoftDeleteFolderAsync(folderId)
+activate service
+
+service -> db : GetByIdAsync(folderId)
+activate db
+db --> service : Folder
+deactivate db
+
+alt Folder Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : SoftDeleteAsync(folderId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service -> cache : InvalidateFolderCache(folder.User_Id)
+    activate cache
+    cache --> service : Success
+    deactivate cache
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Get Folders ==
+
+client -> controller : Get Folders (GET /api/folder)
+activate controller
+
+controller -> controller : Extract User ID
+controller -> service : GetFoldersByUserIdAsync(userId)
+activate service
+
+service -> db : GetAllFoldersByUserIdAsync(userId)
+activate db
+db --> service : Folders
+deactivate db
+
+service -> service : Filter and Format Response
+service --> controller : IEnumerable<FolderWithConversations>
+deactivate service
+
+controller --> client : 200 OK
+deactivate controller
+
+== Get Folder by ID ==
+
+client -> controller : Get Folder (GET /api/folder/{folderId})
+activate controller
+
+controller -> service : GetFolderByIdAsync(folderId)
+activate service
+
+service -> db : GetFolderWithConversationsByIdAsync(folderId)
+activate db
+db --> service : Folder
+deactivate db
+
+alt Folder Not Found
+    service --> controller : null
+    controller --> client : 404 Not Found
+else
+    service --> controller : FolderWithConversations
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+@enduml 
