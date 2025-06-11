@@ -378,6 +378,166 @@
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
+    },
+
+
+
+
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/Document",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/documents",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Document/{id}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/documents/{id}",
+      "UpstreamHttpMethod": [ "DELETE", "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Document/conversation/{conversationId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/documents/conversation/{conversationId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Document/{id}/download",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/documents/{id}/download",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Document/{id}/process",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/documents/{id}/process",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+
+
+
+
+    
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/Feedback",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/feedbacks",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Feedback/{responseId}/{feedbackId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/feedbacks/{responseId}/{feedbackId}",
+      "UpstreamHttpMethod": [ "DELETE", "PUT", "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Feedback/soft-delete/{responseId}/{feedbackId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/feedbacks/soft-delete/{responseId}/{feedbackId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Feedback/response/{responseId}",
+      "DownstreamScheme": "${Services.Conversation.Scheme}",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${Services.Conversation.Host}",
+          "Port": "${Services.Conversation.Port}"
+        }
+      ],
+      "UpstreamPathTemplate": "/feedbacks/response/{responseId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     }
   ]
 }
