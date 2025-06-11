@@ -10,16 +10,8 @@
         }
       ],
       "UpstreamPathTemplate": "/explore/models",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      "UpstreamHttpMethod": [ "GET" ]
     },
-
-
-
-
     {
       "DownstreamPathTemplate": "/api/v1/explore/models/{id}",
       "DownstreamScheme": "${Services.Explore.Scheme}",
@@ -30,14 +22,8 @@
         }
       ],
       "UpstreamPathTemplate": "/explore/models/{id}",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      "UpstreamHttpMethod": [ "GET" ]
     },
-
-
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags",
       "DownstreamScheme": "${Services.Explore.Scheme}",
@@ -48,17 +34,8 @@
         }
       ],
       "UpstreamPathTemplate": "/explore/tags",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      "UpstreamHttpMethod": [ "GET" ]
     },
-
-
-
-    
-
     {
       "DownstreamPathTemplate": "/api/v1/explore/tags/{tagId}/models",
       "DownstreamScheme": "${Services.Explore.Scheme}",
@@ -69,11 +46,7 @@
         }
       ],
       "UpstreamPathTemplate": "/explore/tags/{tagId}/models",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ]
 }
