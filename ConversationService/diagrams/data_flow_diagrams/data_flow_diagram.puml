@@ -41,13 +41,13 @@ title "ConversationService - Data Flow Diagram"
 ' External entities
 actor User
 rectangle "API Gateway" as Gateway
-rectangle<<external>> "Ollama LLM" as LLM
-rectangle<<external>> "Pinecone Vector DB" as VectorDB
+rectangle "Ollama LLM" as LLM <<external>>
+rectangle "Pinecone Vector DB" as VectorDB <<external>>
 
 ' Data stores
 database "SQL Database" as SqlDb
-rectangle<<storage>> "Redis Cache" as Cache
-rectangle<<storage>> "File System" as FileSystem
+rectangle "Redis Cache" as Cache <<storage>>
+rectangle "File System" as FileSystem <<storage>>
 
 ' Processes
 rectangle "Document Processing" as DocProcess {

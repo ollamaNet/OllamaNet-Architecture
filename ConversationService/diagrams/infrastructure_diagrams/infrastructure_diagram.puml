@@ -1,100 +1,158 @@
 @startuml ConversationService_Infrastructure
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
 
-' Define LAYOUT_WITH_LEGEND to show a legend
-LAYOUT_WITH_LEGEND()
+' Custom styling
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor #2c3e50
+  FontColor #2c3e50
+}
+skinparam database {
+  BackgroundColor #c5e1a5
+  BorderColor #558b2f
+  FontColor #2c3e50
+}
+skinparam arrow {
+  Color #2c3e50
+  FontColor #2c3e50
+}
+skinparam note {
+  BackgroundColor #fff9c4
+  BorderColor #f9a825
+  FontColor #2c3e50
+}
+
+' Custom stereotypes with colors
+skinparam rectangle<<external>> {
+  BackgroundColor #95A5A6
+  BorderColor #7F8C8D
+}
+skinparam rectangle<<cache>> {
+  BackgroundColor #3498DB
+  BorderColor #2980B9
+}
+skinparam rectangle<<storage>> {
+  BackgroundColor #2ECC71
+  BorderColor #27AE60
+}
+skinparam rectangle<<vectordb>> {
+  BackgroundColor #9B59B6
+  BorderColor #8E44AD
+}
+skinparam rectangle<<llm>> {
+  BackgroundColor #F39C12
+  BorderColor #D35400
+}
+skinparam database<<vectordb>> {
+  BackgroundColor #9B59B6
+  BorderColor #8E44AD
+}
+skinparam database<<cache>> {
+  BackgroundColor #3498DB
+  BorderColor #2980B9
+}
+skinparam database<<sql>> {
+  BackgroundColor #95A5A6
+  BorderColor #7F8C8D
+}
+skinparam database<<storage>> {
+  BackgroundColor #2ECC71
+  BorderColor #27AE60
+}
+
+' Legend
+legend right
+  Legend
+  |= Type |= Description |
+  |<#08427B>| person |
+  |<#1168BD>| system |
+  |<#438DD5>| container |
+  |<#65688A>| external person |
+  |<#999999>| external system |
+  |<#B3B3B3>| external container |
+endlegend
 
 title "ConversationService - Infrastructure Diagram"
 
-' Color scheme - consistent with other diagrams
-!define INFRASTRUCTURE_COLOR #E74C3C
-!define CACHE_COLOR #3498DB
-!define STORAGE_COLOR #2ECC71
-!define VECTOR_DB_COLOR #9B59B6
-!define LLM_COLOR #F39C12
-!define CONFIG_COLOR #1ABC9C
-!define EXTERNAL_COLOR #95A5A6
+' Infrastructure components
+rectangle "API Gateway\n\nAuthentication & Routing\n\nHandles authentication before requests reach the service" as api_gateway
 
-' Define infrastructure components 
-Node(api_gateway, "API Gateway", "Authentication & Routing", "Handles authentication before requests reach the service")
-
-Node(app_server, "Application Server", "ASP.NET Core") {
-    Container(conversation_service, "ConversationService", ".NET 8", "Main service application")
-    
-    Container(cache_infrastructure, "Caching Infrastructure", "Caching Layer", $tags="CACHE_COLOR") {
-        Component(cache_manager, "CacheManager", "Service", "Cache-aside pattern implementation")
-        Component(redis_client, "RedisCacheService", "StackExchange.Redis", "Redis client implementation")
-        Component(cache_settings, "RedisCacheSettings", "Options", "Cache configuration")
-    }
-    
-    Container(storage_infrastructure, "Document Storage", "Storage Layer", $tags="STORAGE_COLOR") {
-        Component(doc_storage, "FileSystemDocumentStorage", "Service", "Local file system storage")
-        Component(doc_settings, "DocumentManagementOptions", "Options", "Storage configuration & security")
-        Component(path_generator, "Path Generator", "Security", "Secure path generation & validation")
-    }
-    
-    Container(vector_infrastructure, "Vector Database", "RAG Layer", $tags="VECTOR_DB_COLOR") {
-        Component(pinecone_service, "PineconeService", "Client", "Pinecone API client")
-        Component(pinecone_settings, "PineconeOptions", "Options", "Pinecone configuration")
-        Component(vector_operations, "Vector Operations", "Service", "Vector storage & retrieval")
-    }
-    
-    Container(llm_infrastructure, "LLM Integration", "AI Layer", $tags="LLM_COLOR") {
-        Component(ollama_connector, "OllamaConnector", "Client", "Flexible LLM connector")
-        Component(llm_settings, "OllamaApi Settings", "Options", "LLM API configuration")
-        Component(streaming_handler, "Streaming Handler", "Service", "Manages streaming responses")
-    }
-    
-    Container(resilience_infrastructure, "Resilience", "Infrastructure", $tags="INFRASTRUCTURE_COLOR") {
-        Component(retry_logic, "Retry Logic", "Service", "Retry mechanisms for external services")
-        Component(circuit_breaker, "Circuit Breakers", "Pattern", "Prevents cascading failures")
-        Component(fallback_strategies, "Fallback Strategies", "Pattern", "Graceful degradation")
-    }
-    
-    Container(logging_monitoring, "Monitoring", "Infrastructure", $tags="INFRASTRUCTURE_COLOR") {
-        Component(logging, "Logging", "Infrastructure", "Contextual logging")
-        Component(performance, "Performance Monitoring", "Infrastructure", "Timing & metrics")
-        Component(error_tracking, "Error Tracking", "Infrastructure", "Exception handling")
-    }
+rectangle "Application Server" as app_server {
+  rectangle "ConversationService\n\n.NET 8\n\nMain service application" as conversation_service
+  
+  rectangle "Caching Infrastructure" as cache_infrastructure <<cache>> {
+    rectangle "CacheManager\n\nCache-aside pattern implementation" as cache_manager
+    rectangle "RedisCacheService\n\nRedis client implementation" as redis_client
+    rectangle "RedisCacheSettings\n\nCache configuration" as cache_settings
+  }
+  
+  rectangle "Document Storage" as storage_infrastructure <<storage>> {
+    rectangle "FileSystemDocumentStorage\n\nLocal file system storage" as doc_storage
+    rectangle "DocumentManagementOptions\n\nStorage configuration & security" as doc_settings
+    rectangle "Path Generator\n\nSecure path generation & validation" as path_generator
+  }
+  
+  rectangle "Vector Database" as vector_infrastructure <<vectordb>> {
+    rectangle "PineconeService\n\nPinecone API client" as pinecone_service
+    rectangle "PineconeOptions\n\nPinecone configuration" as pinecone_settings
+    rectangle "Vector Operations\n\nVector storage & retrieval" as vector_operations
+  }
+  
+  rectangle "LLM Integration" as llm_infrastructure <<llm>> {
+    rectangle "OllamaConnector\n\nFlexible LLM connector" as ollama_connector
+    rectangle "OllamaApi Settings\n\nLLM API configuration" as llm_settings
+    rectangle "Streaming Handler\n\nManages streaming responses" as streaming_handler
+  }
+  
+  rectangle "Resilience" as resilience_infrastructure {
+    rectangle "Retry Logic\n\nRetry mechanisms for external services" as retry_logic
+    rectangle "Circuit Breakers\n\nPrevents cascading failures" as circuit_breaker
+    rectangle "Fallback Strategies\n\nGraceful degradation" as fallback_strategies
+  }
+  
+  rectangle "Monitoring" as logging_monitoring {
+    rectangle "Logging\n\nContextual logging" as logging
+    rectangle "Performance Monitoring\n\nTiming & metrics" as performance
+    rectangle "Error Tracking\n\nException handling" as error_tracking
+  }
 }
 
-Node(external_services, "External Services") {
-    ContainerDb(redis, "Redis Cache", "Upstash", "Distributed caching system", $tags="CACHE_COLOR")
-    ContainerDb(sql_db, "SQL Database", "MS SQL Server", "Stores application data", $tags="EXTERNAL_COLOR")
-    ContainerDb(vector_db, "Pinecone", "Vector Database", "Stores vector embeddings", $tags="VECTOR_DB_COLOR")
-    Container(llm_service, "LLM Inference Engine", "API", "Provides AI text generation", $tags="LLM_COLOR")
-    Container(doc_storage_ext, "Document Storage", "File System", "Currently local, planned migration to cloud", $tags="STORAGE_COLOR")
+rectangle "External Services" as external_services {
+  database "Redis Cache\n\nDistributed caching system" as redis <<cache>>
+  database "SQL Database\n\nStores application data" as sql_db <<sql>>
+  database "Pinecone\n\nVector Database\n\nStores vector embeddings" as vector_db <<vectordb>>
+  rectangle "LLM Inference Engine\n\nProvides AI text generation" as llm_service <<llm>>
+  database "Document Storage\n\nCurrently local, planned migration to cloud" as doc_storage_ext <<storage>>
 }
 
 ' Define relationships
-Rel(api_gateway, conversation_service, "Routes authenticated requests to", "HTTPS/REST")
+api_gateway --> conversation_service : Routes authenticated requests to\n[HTTPS/REST]
 
-Rel(conversation_service, cache_infrastructure, "Uses", "Internal")
-Rel(conversation_service, storage_infrastructure, "Uses", "Internal")
-Rel(conversation_service, vector_infrastructure, "Uses", "Internal")
-Rel(conversation_service, llm_infrastructure, "Uses", "Internal")
+conversation_service --> cache_infrastructure : Uses
+conversation_service --> storage_infrastructure : Uses
+conversation_service --> vector_infrastructure : Uses
+conversation_service --> llm_infrastructure : Uses
 
-Rel_R(cache_infrastructure, redis, "Connects to", "Redis Protocol")
-Rel_D(storage_infrastructure, doc_storage_ext, "Stores files in", "File I/O")
-Rel_L(vector_infrastructure, vector_db, "Queries & indexes", "HTTPS/REST")
-Rel_U(llm_infrastructure, llm_service, "Sends prompts to", "HTTPS/REST")
+cache_infrastructure -right-> redis : Connects to\n[Redis Protocol]
+storage_infrastructure -down-> doc_storage_ext : Stores files in\n[File I/O]
+vector_infrastructure -left-> vector_db : Queries & indexes\n[HTTPS/REST]
+llm_infrastructure -up-> llm_service : Sends prompts to\n[HTTPS/REST]
 
-Rel(conversation_service, sql_db, "Persists data in", "Entity Framework Core")
+conversation_service --> sql_db : Persists data in\n[Entity Framework Core]
 
-Rel(cache_manager, redis_client, "Uses")
-Rel(redis_client, cache_settings, "Configured by")
+cache_manager --> redis_client : Uses
+redis_client --> cache_settings : Configured by
 
-Rel(doc_storage, doc_settings, "Configured by")
-Rel(doc_storage, path_generator, "Uses for security")
+doc_storage --> doc_settings : Configured by
+doc_storage --> path_generator : Uses for security
 
-Rel(pinecone_service, pinecone_settings, "Configured by")
-Rel(pinecone_service, vector_operations, "Performs")
+pinecone_service --> pinecone_settings : Configured by
+pinecone_service --> vector_operations : Performs
 
-Rel(ollama_connector, llm_settings, "Configured by")
-Rel(ollama_connector, streaming_handler, "Uses for streaming")
+ollama_connector --> llm_settings : Configured by
+ollama_connector --> streaming_handler : Uses for streaming
 
-Rel(conversation_service, resilience_infrastructure, "Uses")
-Rel(conversation_service, logging_monitoring, "Uses")
+conversation_service --> resilience_infrastructure : Uses
+conversation_service --> logging_monitoring : Uses
 
 ' Add notes about key infrastructure details
 note right of cache_infrastructure
