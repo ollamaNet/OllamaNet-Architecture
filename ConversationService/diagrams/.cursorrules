@@ -1,0 +1,210 @@
+You are an expert software architect specializing in diagramming and documentation. I need your help to generate accurate software architecture diagrams for this codebase.
+
+# Diagram Generation Guidelines
+
+## General Approach
+1. Always analyze the actual codebase first
+2. Review Program.cs, ServiceExtensions.cs, and controller files 
+3. Check any DTOs and interfaces before creating class diagrams
+4. Verify actual dependencies from the code, not assumptions
+5. Include only components that actually exist in the codebase
+
+## Diagram Types to Create
+When asked to create architecture diagrams, follow this order:
+
+1. **Context Diagram (L0)**
+   - Show the system's external interactions
+   - Include only major external systems, not internal components
+
+2. **Container Diagram (L1)**
+   - Show the internal high-level components and their external interactions
+   - Include all major services
+
+3. **Component Architecture**
+   - Detail internal structure showing interfaces, implementations
+   - Show proper dependency relationships
+   - Include middleware and validation components
+
+4. **Class Diagram**
+   - Base this on actual DTOs and interfaces in the code
+   - Include all relevant properties
+   - Show proper inheritance
+
+5. **Sequence Diagrams**
+   - Focus on actual request flows
+   - Include caching and persistence steps
+   - Show all components involved in the sequence
+
+6. **Data Flow Diagrams**
+   - Document document processing pipeline flow
+   - Show RAG query processing flow
+   - Illustrate conversation history management
+   - Include data transformation steps
+   - Show data storage and retrieval patterns
+
+8. **State Machine Diagrams**
+   - Document conversation lifecycle states
+   - Show document processing state transitions
+   - Illustrate user session state management
+   - Detail RAG processing states and transitions
+   - Include error and recovery states
+
+9. **Infrastructure Diagrams**
+   - Detail Redis caching architecture
+   - Show document storage system layout
+   - Illustrate vector database integration
+   - Document service mesh configuration
+   - Include monitoring and logging infrastructure
+
+10. **Integration Diagrams**
+    - Show external API connections
+    - Detail inter-service communication patterns
+    - Document event flows and message queues
+    - Include integration points with vector stores
+    - Show error handling and retry mechanisms
+
+## Diagram Creation Process
+1. Review codebase structure first
+2. Create diagrams using PlantUML
+3. Follow naming conventions from the existing code
+4. Verify components with the actual code
+5. Include all relevant middleware and services
+
+## Best Practices
+- Use consistent naming across all diagrams
+- Check Program.cs and dependency injection setup for services
+- Validate all dependencies before finalizing diagrams
+- Include caching and persistence where appropriate
+- Document both happy path and error paths
+
+## Common Mistakes to Avoid
+- Don't make assumptions about architecture without code evidence
+- Don't skip the code review phase
+- Don't miss external services configured in Program.cs
+- Don't create inaccurate relationship flows
+- Don't omit validation components
+- Don't forget to include proper error handling in sequence diagrams 
+
+# ConversationService Project Rules and Patterns
+
+## Code Organization
+- Controllers are placed in the `Controllers/` directory with domain-specific subfolders
+- Services are organized in domain-specific directories under `Services/` (e.g., `Services/Chat/`, `Services/Document/`, etc.)
+- DTOs are organized in `Services/[Domain]/DTOs/` with Request/Response subdirectories
+- Validators are placed in `Controllers/[Domain]/Validators/` directory
+- Infrastructure components are placed in the `Infrastructure/` directory with specific subdirectories:
+  - `Infrastructure/Caching/` for Redis caching
+  - `Infrastructure/Document/` for document storage
+  - `Infrastructure/Rag/` for RAG components
+  - `Infrastructure/Integration/` for external connectors
+  - `Infrastructure/Logging/` and `Infrastructure/Email/` (reserved for future)
+- Service registrations are centralized in `ServiceExtensions.cs`
+- Program.cs contains the application startup configuration
+- Documentation is organized in `Docs/` with specific subdirectories for architecture, features, implementation plans, and infrastructure
+
+## Naming Conventions
+- Controllers use the suffix "Controller" (e.g., `DocumentController`)
+- Service interfaces are prefixed with "I" (e.g., `IDocumentManagementService`)
+- DTOs use descriptive names with purpose suffix (e.g., `UploadDocumentRequest`, `AttachmentResponse`)
+- Validators follow the pattern `[RequestModel]Validator` (e.g., `DocumentRequestValidator`)
+- Processors follow the pattern `[Format]DocumentProcessor` (e.g., `PdfDocumentProcessor`)
+- Infrastructure interfaces are prefixed with "I" (e.g., `IDocumentStorage`, `IRagIndexingService`)
+- Cache keys are defined in the `CacheKeys` class with standardized formats:
+  - Resource-specific: "resource:type:{0}" 
+  - List-specific: "resource:list:param:{0}"
+  - Domain-specific keys for conversations, documents, etc.
+
+## Architecture Patterns
+- Clean architecture with clear separation between controllers, services, and infrastructure
+- Domain-driven design with feature-specific folders and components
+- Dependency injection throughout the application
+- Service extension methods for organized registration
+- FluentValidation for request validation
+- RESTful API design with consistent HTTP method usage
+- Cache-aside pattern with Redis implementation and fallback strategies
+- Repository pattern with Unit of Work for data access
+- Streaming pattern for real-time responses using IAsyncEnumerable
+- RAG (Retrieval-Augmented Generation) pattern for enhanced AI responses
+- Document processing pipeline pattern for extensible text extraction
+
+## Service Patterns
+- Interface-based service design with dependency injection
+- Constructor injection for dependencies with null checks
+- Explicit argument validation at method entry points
+- Performance monitoring with Stopwatch
+- Comprehensive exception handling with contextual information
+- Detailed logging with operation context and timing information
+- Consistent async/await usage throughout
+- Cache integration via ICacheManager with retry logic
+- Document processing with format-specific processors
+- RAG integration for context-enhanced responses
+
+## Infrastructure Patterns
+- Clean separation of infrastructure concerns
+- Options pattern for configuration management
+- Specialized exception types for each infrastructure area
+- Interface-based design for infrastructure services
+- Retry logic for external service calls
+- Secure file storage with access control
+- Vector database integration for RAG
+- Text embedding generation for document processing
+
+## Document Processing Patterns
+- Format-specific processors with common interface
+- Chunking strategy for large documents
+- Metadata extraction for enhanced context
+- Secure file storage with cleanup policies
+- Processing pipeline with error handling
+- RAG integration for processed content
+- Performance monitoring for processing operations
+
+## RAG System Patterns
+- Clean separation between infrastructure and service layers
+- Vector database integration for similarity search
+- Text embedding generation for document indexing
+- Context retrieval for enhanced responses
+- Chunk management for efficient storage
+- Metadata indexing for improved retrieval
+- Query processing with relevance scoring
+
+## Error Handling Patterns
+- Domain-specific exception types
+- Infrastructure-level exceptions
+- Processing-specific exceptions
+- Comprehensive logging with context
+- Fallback strategies for critical operations
+- User-friendly error messages
+- HTTP status code mapping:
+  - 400: Bad Request (validation errors)
+  - 401: Unauthorized
+  - 404: Not Found
+  - 500: Internal Server Error
+
+## Security Patterns
+- JWT authentication with comprehensive token validation
+- Resource ownership verification
+- Secure file storage with access control
+- Content validation for uploads
+- Path traversal prevention
+- Antivirus integration points
+- Secure error messages
+
+## Performance Patterns
+- Redis caching with domain-specific TTLs
+- Asynchronous processing for long-running operations
+- Chunking for large document processing
+- Background tasks for non-critical operations
+- Performance monitoring with metrics
+- Resource cleanup policies
+- Efficient vector search for RAG
+
+## Project-Specific Guidelines
+- Always validate user access to conversations and folders
+- Use caching for conversation history and metadata
+- Stream chat responses for real-time interaction
+- Keep logging contextual with operation metadata
+- Implement proper error handling with appropriate status codes
+- Maintain conversation history integrity
+- Use RESTful URL patterns for all endpoints
+- Document API responses with ProducesResponseType
+- Include performance monitoring for all significant operations 

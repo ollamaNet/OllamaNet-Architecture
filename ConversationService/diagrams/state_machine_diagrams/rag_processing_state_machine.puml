@@ -1,0 +1,101 @@
+@startuml RAG Processing State Machine
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+!define GRAY #9E9E9E
+
+!define ARROW_COLOR #5C5C5C
+!define BORDER_COLOR #DDDDDD
+!define BACKGROUND_COLOR #FFFFFF
+
+skinparam state {
+    BackgroundColor BACKGROUND_COLOR
+    BorderColor BORDER_COLOR
+    ArrowColor ARROW_COLOR
+    StartColor ACCENT_COLOR
+    EndColor ERROR_COLOR
+    AttributeFontColor black
+    AttributeFontSize 12
+    FontSize 14
+}
+
+skinparam StateBorderThickness 1
+skinparam ArrowThickness 1.5
+
+title RAG Processing State Machine
+
+state "Document Indexing" as Indexing #ACCENT_COLOR {
+    state "Document Content" as Content #ADD8E6
+    state "Generate Embedding" as Embedding #ADD8E6
+    state "Store Vector" as Storage #ADD8E6
+    
+    Content -down-> Embedding : Process document text
+    Embedding -down-> Storage : Store in vector database
+}
+
+state "Query Processing" as Query #SECONDARY_COLOR {
+    state "User Query" as UserQuery #ADD8E6
+    state "Query Embedding" as QueryEmbedding #ADD8E6
+    state "Vector Similarity Search" as VectorSearch #ADD8E6
+    state "Context Selection" as ContextSelection #ADD8E6
+    
+    UserQuery -down-> QueryEmbedding : Embed query text
+    QueryEmbedding -down-> VectorSearch : Search vector database
+    VectorSearch -down-> ContextSelection : Select top matches
+}
+
+state "Context Integration" as Integration #SECONDARY_COLOR {
+    state "Format Context" as FormatContext #ADD8E6
+    state "Generate Prompt" as GeneratePrompt #ADD8E6
+    state "Complete Prompt" as CompletePrompt #ADD8E6
+    
+    FormatContext -down-> GeneratePrompt : Create RAG prompt
+    GeneratePrompt -down-> CompletePrompt : Send to LLM
+}
+
+state "Error States" as Errors #ERROR_COLOR {
+    state "Embedding Generation Failed" as EmbeddingError #FFCCCC
+    state "Vector Storage Failed" as StorageError #FFCCCC  
+    state "Vector Search Failed" as SearchError #FFCCCC
+    state "Context Integration Failed" as IntegrationError #FFCCCC
+}
+
+[*] -right-> Indexing : Document Upload
+[*] -down-> Query : User Query
+
+Indexing -right-> Errors : Indexing Error
+Query -right-> Errors : Query Error
+Integration -right-> Errors : Integration Error
+
+Embedding -right-> EmbeddingError : Generation Failed
+Storage -right-> StorageError : Storage Failed
+VectorSearch -right-> SearchError : Search Failed
+GeneratePrompt -right-> IntegrationError : Context Failed
+
+Indexing --> [*] : Document Indexed
+Query -down-> Integration : Context Retrieved
+Integration --> [*] : Response Generated
+
+note right of Indexing
+  Document content is embedded
+  and stored in vector database
+end note
+
+note right of Query
+  User query is embedded and 
+  similar vectors are retrieved
+end note
+
+note right of Integration
+  Retrieved context is integrated
+  with user query for LLM
+end note
+
+note right of Errors
+  Error states require retry
+  or fallback strategies
+end note
+
+@enduml 

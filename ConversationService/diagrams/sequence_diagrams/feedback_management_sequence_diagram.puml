@@ -1,0 +1,193 @@
+@startuml Feedback Management Flow
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+
+!define SUCCESS #34A853
+!define WARNING #FBBC05
+!define FAILURE #EA4335
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceArrowThickness 1
+skinparam SequenceGroupHeaderFontStyle bold
+
+skinparam sequence {
+    ArrowColor #5C5C5C
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #EEEEEE
+    
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontColor #000000
+    
+    ActorBorderColor #CCCCCC
+    ActorBackgroundColor #FFFFFF
+    ActorFontColor #000000
+}
+
+title Feedback Management Flow Sequence Diagram
+
+actor "Client" as client
+participant "FeedbackController" as controller
+participant "FeedbackService" as service
+database "Database" as db
+
+== Add Feedback ==
+
+client -> controller : Add Feedback (POST /api/feedback)
+activate controller
+
+controller -> service : AddFeedbackAsync(request)
+activate service
+
+service -> db : CheckForExistingFeedback(responseId)
+activate db
+db --> service : Existing Feedback?
+deactivate db
+
+alt Feedback Already Exists
+    service --> controller : InvalidOperationException
+    controller --> client : 409 Conflict
+else
+    service -> db : SaveFeedbackAsync(feedback)
+    activate db
+    db --> service : Saved Feedback
+    deactivate db
+    
+    service --> controller : Feedback
+    controller --> client : 200 OK with FeedbackResponse
+end
+deactivate service
+deactivate controller
+
+== Update Feedback ==
+
+client -> controller : Update Feedback (PUT /api/feedback/{responseId}/{feedbackId})
+activate controller
+
+controller -> service : UpdateFeedbackAsync(responseId, feedbackId, request)
+activate service
+
+service -> db : GetFeedbackAsync(responseId, feedbackId)
+activate db
+db --> service : Feedback
+deactivate db
+
+alt Feedback Not Found
+    service --> controller : KeyNotFoundException
+    controller --> client : 404 Not Found
+else
+    service -> service : Update Feedback Fields
+    
+    service -> db : SaveUpdatedFeedbackAsync(feedback)
+    activate db
+    db --> service : Updated Feedback
+    deactivate db
+    
+    service --> controller : Updated Feedback
+    controller --> client : 200 OK with FeedbackResponse
+end
+deactivate service
+deactivate controller
+
+== Delete Feedback ==
+
+client -> controller : Delete Feedback (DELETE /api/feedback/{responseId}/{feedbackId})
+activate controller
+
+controller -> service : DeleteFeedbackAsync(responseId, feedbackId)
+activate service
+
+service -> db : GetFeedbackAsync(responseId, feedbackId)
+activate db
+db --> service : Feedback
+deactivate db
+
+alt Feedback Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : DeleteFeedbackAsync(responseId, feedbackId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Soft Delete Feedback ==
+
+client -> controller : Soft Delete (DELETE /api/feedback/soft-delete/{responseId}/{feedbackId})
+activate controller
+
+controller -> service : SoftDeleteFeedbackAsync(responseId, feedbackId)
+activate service
+
+service -> db : GetFeedbackAsync(responseId, feedbackId) 
+activate db
+db --> service : Feedback
+deactivate db
+
+alt Feedback Not Found
+    service --> controller : false
+    controller --> client : 404 Not Found
+else
+    service -> db : SoftDeleteFeedbackAsync(responseId, feedbackId)
+    activate db
+    db --> service : Success
+    deactivate db
+    
+    service --> controller : true
+    controller --> client : 200 OK
+end
+deactivate service
+deactivate controller
+
+== Get Feedback ==
+
+client -> controller : Get Feedback (GET /api/feedback/{responseId}/{feedbackId})
+activate controller
+
+controller -> service : GetFeedbackAsync(responseId, feedbackId)
+activate service
+
+service -> db : GetFeedbackAsync(responseId, feedbackId)
+activate db
+db --> service : Feedback
+deactivate db
+
+alt Feedback Not Found
+    service --> controller : null
+    controller --> client : 404 Not Found
+else
+    service --> controller : Feedback
+    controller --> client : 200 OK with FeedbackResponse
+end
+deactivate service
+deactivate controller
+
+== Get Feedback by Response ID ==
+
+client -> controller : Get Feedback by Response ID (GET /api/feedback/response/{responseId})
+activate controller
+
+controller -> service : GetFeedbackByResponseIdAsync(responseId)
+activate service
+
+service -> db : GetFeedbackByResponseIdAsync(responseId)
+activate db
+db --> service : Feedback
+deactivate db
+
+service --> controller : Feedback
+controller --> client : 200 OK with FeedbackResponse
+deactivate service
+deactivate controller
+
+@enduml 

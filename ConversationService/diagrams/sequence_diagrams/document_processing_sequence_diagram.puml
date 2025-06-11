@@ -1,0 +1,143 @@
+@startuml Document Processing Flow
+
+' Styling
+skinparam sequence {
+  ArrowColor #2c3e50
+  ActorBorderColor #2c3e50
+  LifeLineBorderColor #2c3e50
+  LifeLineBackgroundColor #f0f0f0
+  ParticipantBorderColor #2c3e50
+  ParticipantBackgroundColor #f0f0f0
+  ParticipantFontColor #2c3e50
+  ActorBackgroundColor #f0f0f0
+  ActorFontColor #2c3e50
+}
+skinparam DatabaseBackgroundColor #c5e1a5
+skinparam DatabaseBorderColor #558b2f
+skinparam ParticipantBackgroundColor<<External>> #ffecb3
+skinparam ParticipantBorderColor<<External>> #ff8f00
+
+title "Document Processing Flow - Sequence Diagram"
+
+actor User
+participant "API Gateway" as Gateway
+participant "DocumentController" as DocCtrl
+participant "DocumentManagementService" as DocMgmtSvc
+participant "FileSystemStorage" as Storage
+participant "DocumentProcessingService" as DocProcSvc
+participant "Document\nProcessor" as Processor
+participant "RagIndexingService" as RagIdxSvc
+participant "TextEmbeddingGenerator" as EmbedGen
+participant "PineconeService" as PineconeSvc
+participant "Ollama API" as OllamaAPI <<External>>
+participant "Pinecone API" as PineconeAPI <<External>>
+database "SQL Database" as DB
+database "File System" as FS
+
+== Document Upload and Processing ==
+
+User -> Gateway : Upload document
+activate Gateway
+
+Gateway -> DocCtrl : POST /api/documents
+activate DocCtrl
+
+DocCtrl -> DocMgmtSvc : UploadDocumentAsync(request)
+activate DocMgmtSvc
+
+' Storing the file
+DocMgmtSvc -> Storage : SaveAsync(fileStream, fileName, contentType)
+activate Storage
+Storage -> FS : Write file
+Storage --> DocMgmtSvc : File path
+deactivate Storage
+
+' Saving document metadata
+DocMgmtSvc -> DB : Save document metadata
+DocMgmtSvc -> DocCtrl : Document metadata response
+deactivate DocMgmtSvc
+
+DocCtrl --> Gateway : HTTP 202 Accepted with document ID
+deactivate DocCtrl
+
+Gateway --> User : Document uploaded successfully
+deactivate Gateway
+
+' Asynchronous document processing starts
+DocCtrl -> DocProcSvc : ProcessDocumentAsync(document)
+activate DocProcSvc
+
+' Get appropriate processor for document type
+DocProcSvc -> DocProcSvc : Select processor by file type
+DocProcSvc -> Processor : ProcessAsync(file, metadata)
+activate Processor
+
+' Read document from storage
+Processor -> Storage : GetAsync(filePath)
+activate Storage
+Storage -> FS : Read file
+Storage --> Processor : File stream
+deactivate Storage
+
+' Process document content
+Processor -> Processor : Extract text
+Processor -> Processor : Create chunks
+Processor --> DocProcSvc : Processing result with chunks
+deactivate Processor
+
+' Update processing status
+DocProcSvc -> DB : Update processing status
+
+' Index document in vector database
+DocProcSvc -> RagIdxSvc : IndexDocumentAsync(indexingRequest)
+activate RagIdxSvc
+
+' Generate embeddings for chunks
+RagIdxSvc -> EmbedGen : GenerateEmbeddingsAsync(chunks)
+activate EmbedGen
+EmbedGen -> OllamaAPI : POST /api/embeddings (batch)
+activate OllamaAPI
+OllamaAPI --> EmbedGen : Embeddings for chunks
+deactivate OllamaAPI
+EmbedGen --> RagIdxSvc : Chunk embeddings
+deactivate EmbedGen
+
+' Store vectors in Pinecone
+RagIdxSvc -> PineconeSvc : UpsertVectorsAsync(indexName, vectors)
+activate PineconeSvc
+PineconeSvc -> PineconeAPI : POST /vectors/upsert
+activate PineconeAPI
+PineconeAPI --> PineconeSvc : Vectors stored
+deactivate PineconeAPI
+PineconeSvc --> RagIdxSvc : Storage result
+deactivate PineconeSvc
+
+RagIdxSvc --> DocProcSvc : Indexing result
+deactivate RagIdxSvc
+
+' Final update to document status
+DocProcSvc -> DB : Update document status to "Processed"
+deactivate DocProcSvc
+
+== Document Processing Status Check ==
+
+User -> Gateway : Check document status
+activate Gateway
+
+Gateway -> DocCtrl : GET /api/documents/{id}/status
+activate DocCtrl
+
+DocCtrl -> DocMgmtSvc : GetDocumentAsync(id)
+activate DocMgmtSvc
+DocMgmtSvc -> DB : Get document status
+DB --> DocMgmtSvc : Document with status
+DocMgmtSvc --> DocCtrl : Document status
+deactivate DocMgmtSvc
+
+DocCtrl --> Gateway : HTTP 200 OK with status
+deactivate DocCtrl
+
+Gateway --> User : Document processing status
+deactivate Gateway
+
+@enduml 

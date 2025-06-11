@@ -1,0 +1,178 @@
+@startuml ConversationService Container Diagram
+
+' Define colors for consistent styling
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+!define GRAY #9E9E9E
+
+' Styling
+skinparam roundCorner 20
+skinparam monochrome false
+
+' Component styling
+skinparam component {
+    backgroundColor white
+    fontColor black
+    borderColor black
+    ArrowColor #5C5C5C
+}
+
+' Rectangle styling
+skinparam rectangle {
+    BorderColor #CECECE
+    BackgroundColor transparent
+    FontColor #4285F4
+    FontStyle bold
+}
+
+' Database styling
+skinparam database {
+    BackgroundColor #F8F9FA
+    BorderColor #4285F4
+}
+
+skinparam ArrowThickness 1.5
+skinparam linetype ortho
+
+title Container Diagram - ConversationService
+
+' External Actors
+actor "Client Application" as client
+note right of client
+  Frontend or 
+  external client
+end note
+
+rectangle "ConversationService" as ConversationSystem {
+    ' API Layer 
+    rectangle "API Layer" as APILayer {
+        component [Chat Controller] as ChatController #4285F4
+        component [Conversation Controller] as ConversationController #4285F4
+        component [Document Controller] as DocumentController #4285F4
+        component [Feedback Controller] as FeedbackController #4285F4
+        component [Folder Controller] as FolderController #4285F4
+        component [Note Controller] as NoteController #4285F4
+        
+        component [Request Validators] as Validators #9E9E9E
+    }
+
+    ' Service Layer
+    rectangle "Service Layer" as ServiceLayer {
+        component [Chat Service] as ChatService #34A853
+        component [Conversation Service] as ConversationService #34A853
+        component [Document Management Service] as DocumentManagementService #34A853
+        component [Document Processing Service] as DocumentProcessingService #34A853
+        component [Feedback Service] as FeedbackService #34A853
+        component [Folder Service] as FolderService #34A853
+        component [Note Service] as NoteService #34A853
+        
+        component [Chat History Manager] as ChatHistoryManager #34A853
+        
+        component [RAG Indexing Service] as RAGIndexingService #FBBC05
+        component [RAG Retrieval Service] as RAGRetrievalService #FBBC05
+    }
+
+    ' Infrastructure Layer
+    rectangle "Infrastructure Layer" as InfraLayer {
+        component [Cache Manager] as CacheManager #9E9E9E
+        component [Document Storage] as DocumentStorage #9E9E9E
+        component [Ollama Connector] as OllamaConnector #9E9E9E
+        component [Text Embedding Generation] as TextEmbeddingGeneration #9E9E9E
+        component [Pinecone Service] as PineconeService #9E9E9E
+        
+        component [Document Processors] as DocumentProcessors #9E9E9E
+        note right of DocumentProcessors
+          - PDF Processor
+          - Text Processor
+          - Word Processor
+        end note
+    }
+    
+    ' Database Repositories Layer
+    rectangle "Data Access Layer" as DataLayer {
+        component [Unit of Work] as UnitOfWork #9E9E9E
+        component [Repositories] as Repositories #9E9E9E
+        note right of Repositories
+          - Conversation Repository
+          - Response Repository
+          - Attachment Repository
+          - Folder Repository
+          - Note Repository
+          - Feedback Repository
+        end note
+    }
+}
+
+' External Systems
+database "SQL Database" as SQLDatabase
+database "Redis Cache" as RedisCache
+component [Ollama API] as OllamaAPI
+database "Pinecone Vector DB" as PineconeDB
+component [File System] as FileSystem
+
+' Relationships
+
+' Client to API Layer
+client --> ChatController: "HTTP/REST"
+client --> ConversationController: "HTTP/REST"
+client --> DocumentController: "HTTP/REST"
+client --> FeedbackController: "HTTP/REST"
+client --> FolderController: "HTTP/REST" 
+client --> NoteController: "HTTP/REST"
+
+' API Layer to Validators
+ChatController --> Validators: "Validates"
+ConversationController --> Validators: "Validates"
+DocumentController --> Validators: "Validates"
+FeedbackController --> Validators: "Validates"
+FolderController --> Validators: "Validates"
+NoteController --> Validators: "Validates"
+
+' API Layer to Service Layer
+ChatController --> ChatService: "Uses"
+ConversationController --> ConversationService: "Uses"
+DocumentController --> DocumentManagementService: "Uses"
+DocumentController --> DocumentProcessingService: "Uses"
+FeedbackController --> FeedbackService: "Uses"
+FolderController --> FolderService: "Uses"
+NoteController --> NoteService: "Uses"
+
+' Service Layer internal relationships
+ChatService --> ChatHistoryManager: "Uses"
+ChatService --> RAGRetrievalService: "Uses for context"
+DocumentProcessingService --> RAGIndexingService: "Uses for indexing"
+
+' Service Layer to Infrastructure Layer
+ChatService --> OllamaConnector: "Uses"
+ChatHistoryManager --> CacheManager: "Uses"
+DocumentManagementService --> DocumentStorage: "Uses" 
+DocumentProcessingService --> DocumentProcessors: "Uses"
+RAGIndexingService --> TextEmbeddingGeneration: "Uses"
+RAGIndexingService --> PineconeService: "Uses"
+RAGRetrievalService --> TextEmbeddingGeneration: "Uses"
+RAGRetrievalService --> PineconeService: "Uses"
+
+' Service Layer to Data Layer
+ChatHistoryManager --> UnitOfWork: "Uses"
+ChatService --> UnitOfWork: "Uses"
+ConversationService --> UnitOfWork: "Uses"
+DocumentManagementService --> UnitOfWork: "Uses"
+DocumentProcessingService --> UnitOfWork: "Uses"
+FeedbackService --> UnitOfWork: "Uses"
+FolderService --> UnitOfWork: "Uses"
+NoteService --> UnitOfWork: "Uses"
+
+' Data Layer to Database
+UnitOfWork --> Repositories: "Uses"
+Repositories --> SQLDatabase: "Uses"
+
+' Infrastructure Layer to External Systems
+CacheManager --> RedisCache: "Uses"
+DocumentStorage --> FileSystem: "Stores files"
+OllamaConnector --> OllamaAPI: "HTTP API calls"
+TextEmbeddingGeneration --> OllamaAPI: "HTTP API calls"
+PineconeService --> PineconeDB: "HTTP API calls"
+
+@enduml 

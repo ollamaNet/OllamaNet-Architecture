@@ -1,0 +1,310 @@
+@startuml ConversationService Class Diagram
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #f0f0f0
+  BorderColor #2c3e50
+  ArrowColor #2c3e50
+  FontColor #2c3e50
+}
+skinparam packageBackgroundColor #e6e6e6
+skinparam packageBorderColor #2c3e50
+skinparam titleBorderColor #2c3e50
+skinparam titleBackgroundColor #f0f0f0
+skinparam titleFontColor #2c3e50
+
+title "ConversationService - Class Diagram"
+
+' Service Layer
+package "Services" {
+  ' Chat Services
+  interface IChatService {
+    +SendMessageAsync(ChatMessageRequest): Task<ChatResponseDto>
+    +GenerateResponseAsync(string, string): Task<string>
+    +GetChatHistoryAsync(string): Task<IEnumerable<ChatMessageDto>>
+  }
+
+  class ChatService {
+    -_ragRetrievalService: IRagRetrievalService
+    -_ollamaConnector: IOllamaConnector
+    -_chatHistoryManager: ChatHistoryManager
+    +SendMessageAsync(ChatMessageRequest): Task<ChatResponseDto>
+    +GenerateResponseAsync(string, string): Task<string>
+    +GetChatHistoryAsync(string): Task<IEnumerable<ChatMessageDto>>
+  }
+  
+  class ChatHistoryManager {
+    -_cacheManager: ICacheManager
+    +AddMessageToHistoryAsync(string, ChatMessageDto): Task
+    +GetChatHistoryAsync(string): Task<IEnumerable<ChatMessageDto>>
+    +ClearChatHistoryAsync(string): Task
+  }
+  
+  ' Conversation Services
+  interface IConversationService {
+    +CreateConversationAsync(CreateConversationRequest): Task<ConversationResponseDto>
+    +UpdateConversationAsync(UpdateConversationRequest): Task<ConversationResponseDto>
+    +GetConversationsAsync(string): Task<IEnumerable<ConversationResponseDto>>
+    +GetConversationAsync(string): Task<ConversationResponseDto>
+    +DeleteConversationAsync(string): Task
+  }
+  
+  class ConversationService {
+    -_cacheManager: ICacheManager
+    +CreateConversationAsync(CreateConversationRequest): Task<ConversationResponseDto>
+    +UpdateConversationAsync(UpdateConversationRequest): Task<ConversationResponseDto>
+    +GetConversationsAsync(string): Task<IEnumerable<ConversationResponseDto>>
+    +GetConversationAsync(string): Task<ConversationResponseDto>
+    +DeleteConversationAsync(string): Task
+  }
+  
+  ' Document Services
+  interface IDocumentManagementService {
+    +UploadDocumentAsync(UploadDocumentRequest): Task<DocumentResponseDto>
+    +GetDocumentAsync(string): Task<DocumentResponseDto>
+    +GetDocumentsAsync(): Task<IEnumerable<DocumentResponseDto>>
+    +DeleteDocumentAsync(string): Task
+  }
+  
+  interface IDocumentProcessingService {
+    +ProcessDocumentAsync(DocumentProcessingRequest): Task<ProcessingStatusDto>
+    +GetProcessingStatusAsync(string): Task<ProcessingStatusDto>
+  }
+  
+  class DocumentManagementService {
+    -_documentStorage: IDocumentStorage
+    -_documentProcessingService: IDocumentProcessingService
+    +UploadDocumentAsync(UploadDocumentRequest): Task<DocumentResponseDto>
+    +GetDocumentAsync(string): Task<DocumentResponseDto>
+    +GetDocumentsAsync(): Task<IEnumerable<DocumentResponseDto>>
+    +DeleteDocumentAsync(string): Task
+  }
+  
+  class DocumentProcessingService {
+    -_processors: Dictionary<string, IDocumentProcessor>
+    -_ragIndexingService: IRagIndexingService
+    +ProcessDocumentAsync(DocumentProcessingRequest): Task<ProcessingStatusDto>
+    +GetProcessingStatusAsync(string): Task<ProcessingStatusDto>
+  }
+  
+  ' RAG Services
+  interface IRagIndexingService {
+    +IndexDocumentAsync(IndexingRequest): Task<IndexingResponseDto>
+    +DeleteDocumentIndexAsync(string): Task
+  }
+  
+  interface IRagRetrievalService {
+    +RetrieveContextAsync(string, int): Task<IEnumerable<RetrievalResultDto>>
+    +EnhancePromptWithContextAsync(string, string): Task<string>
+  }
+  
+  class RagIndexingService {
+    -_textEmbeddingGeneration: ITextEmbeddingGeneration
+    -_pineconeService: IPineconeService
+    +IndexDocumentAsync(IndexingRequest): Task<IndexingResponseDto>
+    +DeleteDocumentIndexAsync(string): Task
+  }
+  
+  class RagRetrievalService {
+    -_textEmbeddingGeneration: ITextEmbeddingGeneration
+    -_pineconeService: IPineconeService
+    -_queryCleaner: QueryCleaner
+    +RetrieveContextAsync(string, int): Task<IEnumerable<RetrievalResultDto>>
+    +EnhancePromptWithContextAsync(string, string): Task<string>
+  }
+}
+
+' Document Processors
+package "Document Processors" {
+  interface IDocumentProcessor {
+    +CanProcess(string): bool
+    +ProcessAsync(Stream, DocumentMetadata): Task<ProcessingResult>
+  }
+  
+  class PdfDocumentProcessor {
+    +CanProcess(string): bool
+    +ProcessAsync(Stream, DocumentMetadata): Task<ProcessingResult>
+  }
+  
+  class TextDocumentProcessor {
+    +CanProcess(string): bool
+    +ProcessAsync(Stream, DocumentMetadata): Task<ProcessingResult>
+  }
+  
+  class WordDocumentProcessor {
+    +CanProcess(string): bool
+    +ProcessAsync(Stream, DocumentMetadata): Task<ProcessingResult>
+  }
+}
+
+' Infrastructure Interfaces
+package "Infrastructure" {
+  interface ICacheManager {
+    +GetAsync<T>(string): Task<T>
+    +SetAsync<T>(string, T, TimeSpan): Task
+    +RemoveAsync(string): Task
+    +ExistsAsync(string): Task<bool>
+  }
+  
+  interface IDocumentStorage {
+    +SaveAsync(Stream, string, string): Task<string>
+    +GetAsync(string): Task<Stream>
+    +DeleteAsync(string): Task
+    +ExistsAsync(string): Task<bool>
+  }
+  
+  interface IOllamaConnector {
+    +GenerateCompletionAsync(string, string): Task<string>
+    +GenerateEmbeddingAsync(string): Task<float[]>
+  }
+  
+  interface ITextEmbeddingGeneration {
+    +GenerateEmbeddingAsync(string): Task<float[]>
+    +GenerateEmbeddingsAsync(IEnumerable<string>): Task<IEnumerable<float[]>>
+  }
+  
+  interface IPineconeService {
+    +UpsertVectorsAsync(string, Dictionary<string, Vector>): Task
+    +QueryAsync(string, float[], int): Task<QueryResponse>
+    +DeleteVectorsAsync(string, IEnumerable<string>): Task
+  }
+  
+  ' Implementation classes 
+  class RedisCacheManager {
+    -_connectionMultiplexer: IConnectionMultiplexer
+    -_options: RedisCacheSettings
+    +GetAsync<T>(string): Task<T>
+    +SetAsync<T>(string, T, TimeSpan): Task
+    +RemoveAsync(string): Task
+    +ExistsAsync(string): Task<bool>
+  }
+  
+  class FileSystemDocumentStorage {
+    -_options: DocumentManagementOptions
+    +SaveAsync(Stream, string, string): Task<string>
+    +GetAsync(string): Task<Stream>
+    +DeleteAsync(string): Task
+    +ExistsAsync(string): Task<bool>
+  }
+  
+  class OllamaConnector {
+    -_httpClient: HttpClient
+    -_options: OllamaOptions
+    +GenerateCompletionAsync(string, string): Task<string>
+    +GenerateEmbeddingAsync(string): Task<float[]>
+  }
+  
+  class OllamaTextEmbeddingGeneration {
+    -_ollamaConnector: IOllamaConnector
+    +GenerateEmbeddingAsync(string): Task<float[]>
+    +GenerateEmbeddingsAsync(IEnumerable<string>): Task<IEnumerable<float[]>>
+  }
+  
+  class PineconeService {
+    -_httpClient: HttpClient
+    -_options: PineconeOptions
+    +UpsertVectorsAsync(string, Dictionary<string, Vector>): Task
+    +QueryAsync(string, float[], int): Task<QueryResponse>
+    +DeleteVectorsAsync(string, IEnumerable<string>): Task
+  }
+}
+
+' Key DTO Classes (simplified)
+package "DTOs" {
+  class ChatMessageDto {
+    +Id: string
+    +ConversationId: string
+    +Role: string
+    +Content: string
+    +Timestamp: DateTime
+  }
+  
+  class ConversationResponseDto {
+    +Id: string
+    +Title: string
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    +Messages: List<ChatMessageDto>
+  }
+  
+  class DocumentResponseDto {
+    +Id: string
+    +FileName: string
+    +ContentType: string
+    +Size: long
+    +UploadDate: DateTime
+    +ProcessingStatus: string
+  }
+  
+  class RetrievalResultDto {
+    +Content: string
+    +SourceDocumentId: string
+    +SourceDocumentName: string
+    +SimilarityScore: float
+    +ChunkId: string
+  }
+}
+
+' Configuration Options
+package "Options" {
+  class RedisCacheSettings {
+    +ConnectionString: string
+    +DefaultExpirationSeconds: int
+  }
+  
+  class DocumentManagementOptions {
+    +StoragePath: string
+    +AllowedExtensions: string[]
+    +MaxFileSizeBytes: long
+  }
+  
+  class RagOptions {
+    +ChunkSize: int
+    +ChunkOverlap: int
+    +MaxResults: int
+    +SimilarityThreshold: float
+  }
+  
+  class PineconeOptions {
+    +ApiKey: string
+    +Environment: string
+    +IndexName: string
+  }
+}
+
+' Relationships
+IChatService <|.. ChatService
+IConversationService <|.. ConversationService
+IDocumentManagementService <|.. DocumentManagementService
+IDocumentProcessingService <|.. DocumentProcessingService
+IRagIndexingService <|.. RagIndexingService
+IRagRetrievalService <|.. RagRetrievalService
+
+IDocumentProcessor <|.. PdfDocumentProcessor
+IDocumentProcessor <|.. TextDocumentProcessor
+IDocumentProcessor <|.. WordDocumentProcessor
+
+ICacheManager <|.. RedisCacheManager
+IDocumentStorage <|.. FileSystemDocumentStorage
+IOllamaConnector <|.. OllamaConnector
+ITextEmbeddingGeneration <|.. OllamaTextEmbeddingGeneration
+IPineconeService <|.. PineconeService
+
+ChatService --> IRagRetrievalService: uses
+ChatService --> IOllamaConnector: uses
+ChatService --> ChatHistoryManager: uses
+
+DocumentManagementService --> IDocumentStorage: uses
+DocumentManagementService --> IDocumentProcessingService: uses
+
+DocumentProcessingService --> IDocumentProcessor: uses
+DocumentProcessingService --> IRagIndexingService: uses
+
+RagIndexingService --> ITextEmbeddingGeneration: uses
+RagIndexingService --> IPineconeService: uses
+
+RagRetrievalService --> ITextEmbeddingGeneration: uses
+RagRetrievalService --> IPineconeService: uses
+
+@enduml 

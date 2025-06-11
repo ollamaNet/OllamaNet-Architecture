@@ -1,0 +1,65 @@
+@startuml ConversationService_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Define LAYOUT_WITH_LEGEND to show a legend
+LAYOUT_WITH_LEGEND()
+
+title "ConversationService - Context Diagram (L0)"
+
+' External actors and systems
+Person(client, "Client User", "User of the conversation system")
+System_Ext(frontend, "Web Frontend", "Client application that provides user interface")
+System_Ext(api_gateway, "API Gateway", "Handles authentication and routes requests")
+System_Ext(sql_db, "SQL Database", "Stores conversations, users, and application data")
+System_Ext(redis, "Redis Cache", "Caches conversation history and other data")
+System_Ext(llm_engine, "LLM Inference Engine", "Provides AI text generation capabilities")
+System_Ext(vector_db, "Pinecone Vector DB", "Stores and retrieves vector embeddings for RAG")
+System_Ext(doc_storage, "Document Storage", "Stores uploaded document files")
+
+' Core system
+System(conversation_service, "ConversationService", "Manages conversations, RAG, and document processing")
+
+' Define relationships between systems
+Rel(client, frontend, "Uses", "HTTPS")
+Rel(frontend, api_gateway, "Sends requests to", "HTTPS/REST")
+Rel(api_gateway, conversation_service, "Routes authenticated requests to", "HTTPS/REST")
+
+Rel_Down(conversation_service, sql_db, "Reads/writes conversation data", "Entity Framework")
+Rel_Down(conversation_service, redis, "Caches conversation history", "StackExchange.Redis")
+Rel_Right(conversation_service, llm_engine, "Sends prompts, receives completions", "HTTP/REST")
+Rel_Left(conversation_service, vector_db, "Stores and retrieves embeddings", "HTTP/REST")
+Rel_Left(conversation_service, doc_storage, "Stores and retrieves documents", "File I/O")
+
+' Add notes
+note right of conversation_service
+  Handles:
+  - Conversation management
+  - Document processing
+  - RAG integration
+  - Streaming responses
+end note
+
+note right of api_gateway
+  All authentication happens
+  at the gateway level before
+  requests reach ConversationService
+end note
+
+note right of llm_engine
+  Flexible connector allows
+  integration with different
+  LLM frameworks
+end note
+
+note right of doc_storage
+  Currently local file system,
+  planned migration to cloud storage
+end note
+
+note right of vector_db
+  Pinecone implementation,
+  architecture allows for
+  easy replacement
+end note
+
+@enduml

@@ -1,0 +1,135 @@
+@startuml ConversationService_Component_Architecture
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Define LAYOUT_WITH_LEGEND to show a legend
+LAYOUT_WITH_LEGEND()
+
+title "ConversationService - Component Architecture"
+
+' Color scheme - consistent with context diagram
+!define API_LAYER_COLOR #3498DB
+!define SERVICE_LAYER_COLOR #2ECC71
+!define INFRASTRUCTURE_LAYER_COLOR #E74C3C
+!define VALIDATION_COLOR #F39C12
+!define EXTERNAL_SYSTEM_COLOR #95A5A6
+
+' API Layer
+Container_Boundary(api, "API Layer") {
+    Component(chat_controller, "ChatController", "ASP.NET Controller", "Handles chat interactions and streaming", $sprite="dot", $tags="API_LAYER_COLOR")
+    Component(conversation_controller, "ConversationController", "ASP.NET Controller", "Manages conversations", $sprite="dot", $tags="API_LAYER_COLOR")
+    Component(document_controller, "DocumentController", "ASP.NET Controller", "Handles document operations", $sprite="dot", $tags="API_LAYER_COLOR")
+    Component(feedback_controller, "FeedbackController", "ASP.NET Controller", "Manages feedback", $sprite="dot", $tags="API_LAYER_COLOR")
+    Component(folder_controller, "FolderController", "ASP.NET Controller", "Manages folders", $sprite="dot", $tags="API_LAYER_COLOR")
+    Component(note_controller, "NoteController", "ASP.NET Controller", "Manages notes", $sprite="dot", $tags="API_LAYER_COLOR")
+    
+    Component(validators, "Request Validators", "FluentValidation", "Validates API requests", $sprite="dot", $tags="VALIDATION_COLOR")
+}
+
+' Service Layer
+Container_Boundary(services, "Service Layer") {
+    Component(chat_service, "ChatService", "Service", "Handles chat operations and LLM interactions", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(chat_history, "ChatHistoryManager", "Service", "Manages chat history and caching", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(conversation_service, "ConversationService", "Service", "Manages conversation lifecycle", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    
+    Component(doc_management, "DocumentManagementService", "Service", "Handles document storage and metadata", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(doc_processing, "DocumentProcessingService", "Service", "Processes and extracts text from documents", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(doc_processors, "Document Processors", "Strategy Pattern", "Format-specific text extraction (PDF, Text, Word)", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    
+    Component(feedback_service, "FeedbackService", "Service", "Manages user feedback", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(folder_service, "FolderService", "Service", "Manages conversation folders", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(note_service, "NoteService", "Service", "Manages user notes", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    
+    Component(rag_indexing, "RagIndexingService", "Service", "Indexes documents for RAG", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+    Component(rag_retrieval, "RagRetrievalService", "Service", "Retrieves relevant context for queries", $sprite="dot", $tags="SERVICE_LAYER_COLOR")
+}
+
+' Infrastructure Layer
+Container_Boundary(infrastructure, "Infrastructure Layer") {
+    Component(cache_manager, "CacheManager", "Infrastructure", "Manages caching operations", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+    Component(redis_cache, "RedisCacheService", "Infrastructure", "Redis cache implementation", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+    Component(doc_storage, "FileSystemDocumentStorage", "Infrastructure", "Document storage implementation", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+    Component(llm_connector, "OllamaConnector", "Infrastructure", "LLM integration service", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+    Component(text_embedding, "OllamaTextEmbeddingGeneration", "Infrastructure", "Text embedding service", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+    Component(vector_db, "PineconeService", "Infrastructure", "Vector database service", $sprite="dot", $tags="INFRASTRUCTURE_LAYER_COLOR")
+}
+
+' External Systems
+System_Ext(db, "SQL Database", "Stores conversations, users, and application data")
+System_Ext(redis, "Redis Cache", "Caches conversation history and other data")
+System_Ext(llm_engine, "LLM Inference Engine", "Provides AI text generation capabilities")
+System_Ext(vector_database, "Pinecone Vector DB", "Stores and retrieves vector embeddings for RAG")
+System_Ext(doc_storage_ext, "Document Storage", "Stores uploaded document files")
+
+' API to Service Relationships
+Rel(chat_controller, validators, "Uses", "Validates requests")
+Rel(conversation_controller, validators, "Uses", "Validates requests")
+Rel(document_controller, validators, "Uses", "Validates requests")
+Rel(feedback_controller, validators, "Uses", "Validates requests")
+Rel(folder_controller, validators, "Uses", "Validates requests")
+Rel(note_controller, validators, "Uses", "Validates requests")
+
+Rel(chat_controller, chat_service, "Uses", "Processes chat requests")
+Rel(conversation_controller, conversation_service, "Uses", "Manages conversations")
+Rel(document_controller, doc_management, "Uses", "Handles document uploads")
+Rel(document_controller, doc_processing, "Uses", "Processes documents")
+Rel(feedback_controller, feedback_service, "Uses", "Manages feedback")
+Rel(folder_controller, folder_service, "Uses", "Manages folders")
+Rel(note_controller, note_service, "Uses", "Manages notes")
+
+' Service to Service Relationships
+Rel(chat_service, chat_history, "Uses", "Manages history")
+Rel(chat_service, rag_retrieval, "Uses", "Gets context")
+Rel(doc_processing, doc_processors, "Uses", "Format-specific processing")
+Rel(doc_processing, rag_indexing, "Uses", "Indexes documents")
+
+' Service to Infrastructure Relationships
+Rel(chat_history, cache_manager, "Uses", "Caches history")
+Rel(chat_service, llm_connector, "Uses", "Gets completions")
+Rel(conversation_service, cache_manager, "Uses", "Caches data")
+Rel(doc_management, doc_storage, "Uses", "Stores files")
+Rel(rag_indexing, text_embedding, "Uses", "Generates embeddings")
+Rel(rag_indexing, vector_db, "Uses", "Stores vectors")
+Rel(rag_retrieval, text_embedding, "Uses", "Embeds queries")
+Rel(rag_retrieval, vector_db, "Uses", "Searches vectors")
+
+' Infrastructure to External Relationships
+Rel_Down(cache_manager, redis_cache, "Delegates to", "Cache operations")
+Rel_Down(redis_cache, redis, "Uses", "Distributed cache")
+Rel_Down(doc_storage, doc_storage_ext, "Uses", "File storage")
+Rel_Down(llm_connector, llm_engine, "Calls", "LLM API")
+Rel_Down(text_embedding, llm_engine, "Calls", "Embedding API")
+Rel_Down(vector_db, vector_database, "Calls", "Vector DB API")
+
+' Services to Database Relationships
+Rel_Down(conversation_service, db, "Reads/Writes", "Conversation data")
+Rel_Down(feedback_service, db, "Reads/Writes", "Feedback data")
+Rel_Down(folder_service, db, "Reads/Writes", "Folder data")
+Rel_Down(note_service, db, "Reads/Writes", "Note data")
+Rel_Down(doc_management, db, "Reads/Writes", "Document metadata")
+
+' Add notes about architectural patterns
+note right of validators
+  FluentValidation for
+  request validation
+end note
+
+note right of doc_processors
+  Strategy pattern for
+  document processing
+  - PDF Processor
+  - Text Processor
+  - Word Processor
+end note
+
+note right of chat_service
+  Integrates RAG for
+  enhanced responses
+end note
+
+note right of llm_connector
+  Abstracts LLM provider,
+  supporting different
+  inference engines
+end note
+
+@enduml 

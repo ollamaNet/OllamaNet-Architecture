@@ -1,0 +1,130 @@
+@startuml ConversationService_Infrastructure
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+' Define LAYOUT_WITH_LEGEND to show a legend
+LAYOUT_WITH_LEGEND()
+
+title "ConversationService - Infrastructure Diagram"
+
+' Color scheme - consistent with other diagrams
+!define INFRASTRUCTURE_COLOR #E74C3C
+!define CACHE_COLOR #3498DB
+!define STORAGE_COLOR #2ECC71
+!define VECTOR_DB_COLOR #9B59B6
+!define LLM_COLOR #F39C12
+!define CONFIG_COLOR #1ABC9C
+!define EXTERNAL_COLOR #95A5A6
+
+' Define infrastructure components 
+Node(api_gateway, "API Gateway", "Authentication & Routing", "Handles authentication before requests reach the service")
+
+Node(app_server, "Application Server", "ASP.NET Core") {
+    Container(conversation_service, "ConversationService", ".NET 8", "Main service application")
+    
+    Container(cache_infrastructure, "Caching Infrastructure", "Caching Layer", $tags="CACHE_COLOR") {
+        Component(cache_manager, "CacheManager", "Service", "Cache-aside pattern implementation")
+        Component(redis_client, "RedisCacheService", "StackExchange.Redis", "Redis client implementation")
+        Component(cache_settings, "RedisCacheSettings", "Options", "Cache configuration")
+    }
+    
+    Container(storage_infrastructure, "Document Storage", "Storage Layer", $tags="STORAGE_COLOR") {
+        Component(doc_storage, "FileSystemDocumentStorage", "Service", "Local file system storage")
+        Component(doc_settings, "DocumentManagementOptions", "Options", "Storage configuration & security")
+        Component(path_generator, "Path Generator", "Security", "Secure path generation & validation")
+    }
+    
+    Container(vector_infrastructure, "Vector Database", "RAG Layer", $tags="VECTOR_DB_COLOR") {
+        Component(pinecone_service, "PineconeService", "Client", "Pinecone API client")
+        Component(pinecone_settings, "PineconeOptions", "Options", "Pinecone configuration")
+        Component(vector_operations, "Vector Operations", "Service", "Vector storage & retrieval")
+    }
+    
+    Container(llm_infrastructure, "LLM Integration", "AI Layer", $tags="LLM_COLOR") {
+        Component(ollama_connector, "OllamaConnector", "Client", "Flexible LLM connector")
+        Component(llm_settings, "OllamaApi Settings", "Options", "LLM API configuration")
+        Component(streaming_handler, "Streaming Handler", "Service", "Manages streaming responses")
+    }
+    
+    Container(resilience_infrastructure, "Resilience", "Infrastructure", $tags="INFRASTRUCTURE_COLOR") {
+        Component(retry_logic, "Retry Logic", "Service", "Retry mechanisms for external services")
+        Component(circuit_breaker, "Circuit Breakers", "Pattern", "Prevents cascading failures")
+        Component(fallback_strategies, "Fallback Strategies", "Pattern", "Graceful degradation")
+    }
+    
+    Container(logging_monitoring, "Monitoring", "Infrastructure", $tags="INFRASTRUCTURE_COLOR") {
+        Component(logging, "Logging", "Infrastructure", "Contextual logging")
+        Component(performance, "Performance Monitoring", "Infrastructure", "Timing & metrics")
+        Component(error_tracking, "Error Tracking", "Infrastructure", "Exception handling")
+    }
+}
+
+Node(external_services, "External Services") {
+    ContainerDb(redis, "Redis Cache", "Upstash", "Distributed caching system", $tags="CACHE_COLOR")
+    ContainerDb(sql_db, "SQL Database", "MS SQL Server", "Stores application data", $tags="EXTERNAL_COLOR")
+    ContainerDb(vector_db, "Pinecone", "Vector Database", "Stores vector embeddings", $tags="VECTOR_DB_COLOR")
+    Container(llm_service, "LLM Inference Engine", "API", "Provides AI text generation", $tags="LLM_COLOR")
+    Container(doc_storage_ext, "Document Storage", "File System", "Currently local, planned migration to cloud", $tags="STORAGE_COLOR")
+}
+
+' Define relationships
+Rel(api_gateway, conversation_service, "Routes authenticated requests to", "HTTPS/REST")
+
+Rel(conversation_service, cache_infrastructure, "Uses", "Internal")
+Rel(conversation_service, storage_infrastructure, "Uses", "Internal")
+Rel(conversation_service, vector_infrastructure, "Uses", "Internal")
+Rel(conversation_service, llm_infrastructure, "Uses", "Internal")
+
+Rel_R(cache_infrastructure, redis, "Connects to", "Redis Protocol")
+Rel_D(storage_infrastructure, doc_storage_ext, "Stores files in", "File I/O")
+Rel_L(vector_infrastructure, vector_db, "Queries & indexes", "HTTPS/REST")
+Rel_U(llm_infrastructure, llm_service, "Sends prompts to", "HTTPS/REST")
+
+Rel(conversation_service, sql_db, "Persists data in", "Entity Framework Core")
+
+Rel(cache_manager, redis_client, "Uses")
+Rel(redis_client, cache_settings, "Configured by")
+
+Rel(doc_storage, doc_settings, "Configured by")
+Rel(doc_storage, path_generator, "Uses for security")
+
+Rel(pinecone_service, pinecone_settings, "Configured by")
+Rel(pinecone_service, vector_operations, "Performs")
+
+Rel(ollama_connector, llm_settings, "Configured by")
+Rel(ollama_connector, streaming_handler, "Uses for streaming")
+
+Rel(conversation_service, resilience_infrastructure, "Uses")
+Rel(conversation_service, logging_monitoring, "Uses")
+
+' Add notes about key infrastructure details
+note right of cache_infrastructure
+  Cache-aside pattern with
+  fallback to database on failures
+  Configurable timeouts and retries
+end note
+
+note right of storage_infrastructure
+  Currently file system based
+  Planned migration to cloud storage
+  Secure path generation for files
+end note
+
+note right of vector_infrastructure
+  Pinecone API integration
+  Vector embedding storage
+  Similarity search for RAG
+end note
+
+note right of llm_infrastructure
+  Flexible connector design
+  Supports different LLM frameworks
+  Exception-based error handling
+end note
+
+note right of api_gateway
+  Handles authentication
+  before requests reach
+  the service
+end note
+
+@enduml 

@@ -1,0 +1,103 @@
+@startuml Chat Session State Machine
+
+!define ACCENT_COLOR #4285F4
+!define SECONDARY_COLOR #34A853
+!define WARNING_COLOR #FBBC05
+!define ERROR_COLOR #EA4335
+!define GRAY #9E9E9E
+
+!define ARROW_COLOR #5C5C5C
+!define BORDER_COLOR #DDDDDD
+!define BACKGROUND_COLOR #FFFFFF
+
+skinparam state {
+    BackgroundColor BACKGROUND_COLOR
+    BorderColor BORDER_COLOR
+    ArrowColor ARROW_COLOR
+    StartColor ACCENT_COLOR
+    EndColor ERROR_COLOR
+    AttributeFontColor black
+    AttributeFontSize 12
+    FontSize 14
+}
+
+skinparam StateBorderThickness 1
+skinparam ArrowThickness 1.5
+
+title Chat Session State Machine
+
+state "Initializing" as Init #ACCENT_COLOR {
+    state "Request Validation" as RequestValidation #ADD8E6
+    state "History Loading" as HistoryLoading #ADD8E6
+    state "RAG Context" as RagContext #ADD8E6
+    
+    RequestValidation -down-> HistoryLoading : Valid Request
+    HistoryLoading -down-> RagContext : History Loaded
+}
+
+state "Active" as Active #SECONDARY_COLOR {
+    state "Non-Streaming" as NonStreaming #ADD8E6
+    state "Streaming" as Streaming #ADD8E6
+    
+    Streaming : Entry / Prepare Connection
+    Streaming : Do / Stream Tokens
+    Streaming : Exit / Close Connection
+    
+    NonStreaming : Entry / Prepare Request
+    NonStreaming : Do / Generate Response
+    NonStreaming : Exit / Return Full Response
+}
+
+state "Error" as Error #ERROR_COLOR {
+    state "Request Error" as RequestError #FFCCCC
+    state "History Error" as HistoryError #FFCCCC
+    state "Model Error" as ModelError #FFCCCC
+    state "Connection Error" as ConnectionError #FFCCCC
+}
+
+state "Completed" as Completed #SECONDARY_COLOR {
+    state "Saving History" as SavingHistory #ADD8E6
+    state "Success" as Success #ADD8E6
+    
+    SavingHistory -down-> Success : History Saved
+}
+
+[*] -right-> Init : Chat Request
+Init -right-> Active : Initialization Complete
+Init -down-> Error : Initialization Failed
+
+Active -right-> Completed : Response Generated
+Active -down-> Error : Processing Error
+
+RequestValidation -right-> RequestError : Invalid Request
+HistoryLoading -right-> HistoryError : History Load Failed
+NonStreaming -right-> ModelError : Model Error
+Streaming -right-> ConnectionError : Connection Interrupted
+
+Error --> [*] : Return Error
+Completed --> [*] : Return Response
+
+note right of Init
+  Session initializes by validating
+  request, loading chat history,
+  and retrieving RAG context
+end note
+
+note right of Active
+  Session processes request in
+  streaming or non-streaming mode
+  based on client capabilities
+end note
+
+note right of Error
+  Error states capture various
+  failure modes and allow for
+  appropriate error handling
+end note
+
+note right of Completed
+  Session completes by saving
+  history and returning success
+end note
+
+@enduml 
