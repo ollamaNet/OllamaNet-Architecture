@@ -1,0 +1,177 @@
+@startuml Gateway Authentication and Authorization Flow
+
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+
+skinparam sequence {
+    ArrowColor DeepSkyBlue
+    ActorBorderColor DeepSkyBlue
+    LifeLineBorderColor blue
+    LifeLineBackgroundColor #A9DCDF
+    
+    ParticipantBorderColor DeepSkyBlue
+    ParticipantBackgroundColor DodgerBlue
+    ParticipantFontName Impact
+    ParticipantFontSize 17
+    ParticipantFontColor #A9DCDF
+    
+    ActorBackgroundColor aqua
+    ActorFontColor DeepSkyBlue
+    ActorFontSize 17
+    ActorFontName Aapex
+}
+
+title Gateway Authentication and Authorization Flow
+
+actor "End User" as User
+participant "Gateway API" as Gateway
+participant "JWT Authentication" as JWTAuth
+participant "Role Authorization\nMiddleware" as RoleAuth
+participant "Claims Forwarding\nMiddleware" as ClaimsForward
+participant "Authentication Service" as AuthService
+participant "Target Service" as TargetService
+
+== Authentication Flow ==
+
+group Login/Registration (Reference Only)
+    User -> Gateway: POST /auth/login or /auth/register
+    activate Gateway
+    
+    Gateway -> AuthService: Forward request
+    activate AuthService
+    
+    AuthService -> AuthService: Validate credentials
+    
+    alt Successful Authentication
+        AuthService -> AuthService: Generate JWT token
+        AuthService --> Gateway: Return JWT token
+        Gateway --> User: Return JWT token
+    else Authentication Failed
+        AuthService --> Gateway: Return error
+        Gateway --> User: Return error
+    end
+    
+    deactivate AuthService
+    deactivate Gateway
+end
+
+== Authenticated Request Flow ==
+
+User -> Gateway: Request with JWT token in Authorization header
+activate Gateway
+
+Gateway -> JWTAuth: Validate JWT token
+activate JWTAuth
+
+alt Valid Token
+    JWTAuth --> Gateway: Token validated, claims extracted
+    
+    Gateway -> RoleAuth: Check authorization
+    activate RoleAuth
+    
+    RoleAuth -> RoleAuth: Load endpoint role requirements
+    note right: From RoleAuthorization.json
+    
+    RoleAuth -> RoleAuth: Compare user roles with required roles
+    
+    alt User has required role
+        RoleAuth --> Gateway: Authorization successful
+        
+        Gateway -> ClaimsForward: Forward request with user claims
+        activate ClaimsForward
+        
+        ClaimsForward -> ClaimsForward: Extract claims from context
+        ClaimsForward -> ClaimsForward: Add claims as headers
+        note right: UserId, Email, Roles
+        
+        ClaimsForward --> Gateway: Request with added headers
+        deactivate ClaimsForward
+        
+        Gateway -> TargetService: Forward request to appropriate service
+        activate TargetService
+        
+        TargetService -> TargetService: Process request
+        TargetService --> Gateway: Return response
+        deactivate TargetService
+        
+        Gateway --> User: Return response
+    else User lacks required role
+        RoleAuth --> Gateway: Return 403 Forbidden
+        Gateway --> User: 403 Forbidden
+    end
+    
+    deactivate RoleAuth
+else Invalid Token
+    JWTAuth --> Gateway: Return 401 Unauthorized
+    Gateway --> User: 401 Unauthorized
+else Token Expired
+    JWTAuth --> Gateway: Return 401 Unauthorized with expired message
+    Gateway --> User: 401 Unauthorized (Token expired)
+end
+
+deactivate JWTAuth
+deactivate Gateway
+
+== Service Unavailability Scenario ==
+
+User -> Gateway: Request with valid JWT token
+activate Gateway
+
+Gateway -> JWTAuth: Validate JWT token
+activate JWTAuth
+JWTAuth --> Gateway: Token validated
+deactivate JWTAuth
+
+Gateway -> RoleAuth: Check authorization
+activate RoleAuth
+RoleAuth --> Gateway: Authorization successful
+deactivate RoleAuth
+
+Gateway -> ClaimsForward: Forward request with user claims
+activate ClaimsForward
+ClaimsForward --> Gateway: Request with added headers
+deactivate ClaimsForward
+
+Gateway -> TargetService: Forward request
+note right: Service is unavailable
+activate TargetService
+
+TargetService --> Gateway: 503 Service Unavailable
+deactivate TargetService
+
+Gateway --> User: 503 Service Unavailable
+deactivate Gateway
+
+== Service Error Response Scenario ==
+
+User -> Gateway: Request with valid JWT token
+activate Gateway
+
+Gateway -> JWTAuth: Validate JWT token
+activate JWTAuth
+JWTAuth --> Gateway: Token validated
+deactivate JWTAuth
+
+Gateway -> RoleAuth: Check authorization
+activate RoleAuth
+RoleAuth --> Gateway: Authorization successful
+deactivate RoleAuth
+
+Gateway -> ClaimsForward: Forward request with user claims
+activate ClaimsForward
+ClaimsForward --> Gateway: Request with added headers
+deactivate ClaimsForward
+
+Gateway -> TargetService: Forward request
+activate TargetService
+
+TargetService -> TargetService: Process request
+TargetService --> Gateway: 400/500 Error Response
+deactivate TargetService
+
+Gateway --> User: Forward error response
+deactivate Gateway
+
+@enduml

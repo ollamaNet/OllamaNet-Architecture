@@ -63,11 +63,20 @@ The codebase is organized with clear separation:
 
 ### Custom Middleware
 The system supports custom middleware for request/response processing:
-- ClaimsToHeaderMiddleware for forwarding claims
-- Future middleware for logging, caching, etc.
+- ClaimsToHeaderMiddleware for forwarding user claims to downstream services
+- RoleAuthorizationMiddleware for enforcing role-based access control
+- Future middleware for logging, caching, rate limiting, etc.
 
 ### Configuration Processors
 The configuration system can be extended with custom processors:
-- Variable replacement
-- Environment-specific configurations
-- Configuration validation 
+- Variable replacement (implemented in ConfigurationLoader)
+- Environment-specific configurations (planned)
+- Configuration validation (planned)
+- Configuration versioning and rollback (planned)
+
+### Dashboard Integration
+The planned configuration dashboard will provide extension points for:
+- Custom validation rules
+- Configuration templates
+- Import/export functionality
+- Environment promotion workflows

@@ -43,6 +43,8 @@
 - 🔄 Test configuration reloading
 - 🔄 Verify variable replacement accuracy
 - 🔄 Test new Folder and Note controller routes
+- 🔄 Verify role-based authorization with RoleAuthorization.json
+- 🔄 Test claims forwarding to downstream services
 
 ### Documentation
 - 🔄 Documenting the new configuration approach
@@ -75,10 +77,13 @@
 2. **Error Handling**: Need more robust error handling for malformed configurations
 3. **Logging**: Configuration changes should be logged more extensively
 4. **Security**: The configuration files need additional security measures
+5. **Role Authorization Testing**: Comprehensive testing needed for role-based access control
+6. **Claims Forwarding**: Need to verify all necessary claims are forwarded correctly
+7. **Configuration Validation**: No validation for configuration files before loading
 
 ## Metrics
 - **Routes Migrated**: 46/46 (100%)
 - **Services Configured**: 4/4 (100%)
 - **Variables Implemented**: All service URLs
 - **Test Coverage**: ~60% (estimated)
-- **New Routes Added**: 13 (6 Folder + 7 Note controller routes) 
+- **New Routes Added**: 13 (6 Folder + 7 Note controller routes)

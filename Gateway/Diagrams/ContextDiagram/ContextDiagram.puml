@@ -1,0 +1,98 @@
+@startuml Gateway Context Diagram
+
+' Define styles
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultTextAlignment center
+skinparam componentStyle rectangle
+
+' Color definitions
+skinparam ActorBackgroundColor #E2F0D9
+skinparam ActorBorderColor #82B366
+skinparam ComponentBackgroundColor #DAE8FC
+skinparam ComponentBorderColor #6C8EBF
+skinparam CloudBackgroundColor #F8CECC
+skinparam CloudBorderColor #B85450
+skinparam ArrowColor #404040
+
+' Title
+title Gateway Context Diagram - OllamaNet Components
+
+' External Actors
+actor "End User" as EndUser
+actor "Administrator" as Admin
+actor "DevOps Engineer" as DevOps
+
+' Gateway System
+rectangle "Gateway System" as Gateway {
+  component "API Gateway\n(Ocelot)" as OcelotGateway
+  component "JWT Authentication" as JWTAuth
+  component "Role Authorization\nMiddleware" as RoleAuth
+  component "Claims Forwarding\nMiddleware" as ClaimsForward
+  component "Configuration\nLoader" as ConfigLoader
+  component "Configuration\nChange Monitor" as ConfigMonitor
+  
+  OcelotGateway --> JWTAuth : uses
+  OcelotGateway --> RoleAuth : uses
+  OcelotGateway --> ClaimsForward : uses
+  OcelotGateway --> ConfigLoader : uses
+  ConfigMonitor --> ConfigLoader : notifies
+}
+
+' External Systems/Microservices
+cloud "Authentication\nService" as AuthService
+cloud "Administration\nService" as AdminService
+cloud "Exploration\nService" as ExploreService
+cloud "Conversation\nService" as ConversationService
+
+' Configuration Files
+database "Configuration Files" as ConfigFiles {
+  component "Service URLs" as ServiceUrls
+  component "Role Authorization" as RoleConfig
+  component "Service Routes" as ServiceRoutes
+}
+
+' Connections between actors and Gateway
+EndUser --> Gateway : Accesses services
+Admin --> Gateway : Manages system
+DevOps --> Gateway : Monitors & configures
+DevOps --> ConfigFiles : Updates
+
+' Connections between Gateway and external systems
+Gateway --> AuthService : Routes authentication requests
+Gateway --> AdminService : Routes administration requests
+Gateway --> ExploreService : Routes exploration requests
+Gateway --> ConversationService : Routes conversation requests
+
+' Configuration connections
+ConfigFiles --> Gateway : Provides configuration
+ConfigMonitor --> ConfigFiles : Monitors for changes
+
+' Data flows
+note right of EndUser
+  - Authentication requests
+  - Service API calls
+  - User data
+end note
+
+note right of Admin
+  - User management
+  - Model management
+  - System configuration
+end note
+
+note right of DevOps
+  - Configuration updates
+  - Monitoring data
+  - System metrics
+end note
+
+note bottom of Gateway
+  - Authenticates users
+  - Authorizes requests based on roles
+  - Routes requests to appropriate services
+  - Forwards user claims to services
+  - Monitors configuration changes
+end note
+
+@enduml
