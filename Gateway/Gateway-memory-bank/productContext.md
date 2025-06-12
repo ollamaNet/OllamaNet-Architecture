@@ -12,16 +12,17 @@ The Gateway serves as the entry point to the OllamaNet ecosystem, allowing clien
 ## Problem Space
 The Gateway solves several key problems:
 - **Service Discovery**: Clients don't need to know the location of each service
-- **Authentication**: Centralized authentication and authorization
-- **Cross-Cutting Concerns**: Rate limiting, logging, and monitoring
-- **Configuration Management**: Simplifies service configuration
+- **Authentication**: Centralized authentication and authorization with role-based access control
+- **Cross-Cutting Concerns**: Rate limiting, logging, monitoring, and claims forwarding
+- **Configuration Management**: Simplifies service configuration through modular configuration files
 
 ## Product Goals
 - Provide reliable routing to all microservices
 - Ensure high performance with minimal latency overhead
 - Support seamless updates to service configurations
 - Offer robust monitoring and diagnostics
-- Enable secure access to services
+- Enable secure access to services with role-based authorization
+- Forward user identity claims to downstream services
 
 ## Target Audience
 - Frontend developers consuming the API
@@ -39,15 +40,17 @@ The Gateway solves several key problems:
 
 2. **Service Access**
    - User makes request to specific service endpoint
-   - Gateway validates authentication
+   - Gateway validates authentication and checks role-based authorization
+   - User claims are forwarded to the downstream service
    - Request is routed to appropriate service
    - Response is returned to user
 
 ### Administrator Workflows
 1. **Configuration Management**
-   - Update service configuration files
+   - Update modular service configuration files
    - Gateway detects changes automatically
    - New configuration is loaded and validated
+   - Variables are replaced with actual values
    - Changes are applied without service restart
 
 2. **Monitoring**
@@ -67,4 +70,6 @@ The Gateway integrates with:
 - Expanded monitoring and alerting capabilities
 - Enhanced caching for improved performance
 - Traffic shaping and rate limiting enhancements
-- Support for WebSockets and other communication protocols 
+- Support for WebSockets and other communication protocols
+- Advanced security features and audit logging
+- Enhanced configuration validation and versioning
