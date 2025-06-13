@@ -1,12 +1,14 @@
 # Gateway Active Context
 
 ## Current Focus
-The current focus is on implementing a modular configuration system for the Ocelot API Gateway. This involves:
-1. Splitting the monolithic configuration into service-specific files
-2. Implementing variable-based configuration for service URLs
-3. Creating a configuration loader that combines the separate files
-4. Setting up file watching for automatic reloading
-5. Planning for a configuration dashboard
+The current focus is on testing and validating the modular configuration system for the Ocelot API Gateway, and documenting the implementation. This involves:
+1. Testing the split configuration files (Auth, Admin, Explore, Conversation)
+2. Validating variable replacement functionality
+3. Testing configuration file watching and reloading
+4. Verifying role-based authorization with RoleAuthorization.json
+5. Testing claims forwarding to downstream services
+6. Documenting the configuration approach
+7. Planning for a configuration dashboard
 
 ## Recent Changes
 
@@ -55,11 +57,13 @@ The current focus is on implementing a modular configuration system for the Ocel
 ## Next Steps
 
 ### Short-term Tasks
-1. Test and validate the current configuration splitting implementation
-2. Implement proper error handling for configuration loading
-3. Enhance logging for configuration changes
-4. Document the new configuration approach
-5. Verify all new Conversation service routes are working correctly
+1. Complete testing of all routes and configuration reloading
+2. Verify role-based authorization with different user roles
+3. Test claims forwarding to downstream services
+4. Enhance error handling for configuration loading
+5. Improve logging for configuration changes
+6. Complete documentation of the configuration approach
+7. Create diagrams for configuration flow and authorization
 
 ### Medium-term Tasks
 1. Begin implementation of the configuration dashboard
@@ -71,4 +75,4 @@ The current focus is on implementing a modular configuration system for the Ocel
 1. Complete the configuration dashboard
 2. Implement versioning and rollback for configurations
 3. Add monitoring and alerting for configuration issues
-4. Enhance performance of the API gateway 
+4. Enhance performance of the API gateway
