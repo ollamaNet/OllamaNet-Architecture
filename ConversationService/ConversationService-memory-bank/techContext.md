@@ -15,6 +15,8 @@
 - **Pinecone**: Vector database for RAG system document storage and retrieval
 - **PdfPig**: PDF text extraction for document processing
 - **DocumentFormat.OpenXml**: Processing Word documents for text extraction
+- **RabbitMQ.Client**: RabbitMQ messaging client
+- **Polly**: Resilience and transient fault handling
 
 ## Key Dependencies
 - **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication implementation
@@ -30,6 +32,7 @@
 - **Pinecone**: Vector database client for RAG operations
 - **UglyToad.PdfPig**: PDF text extraction and processing
 - **DocumentFormat.OpenXml**: Word document processing and text extraction
+- **RabbitMQ**: Message broker for service discovery
 
 ## Key Components
 
@@ -240,6 +243,7 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
 - **SQL Server Database**: Data persistence at db19911.public.databaseasp.net
 - **Redis Cache**: Distributed caching via Upstash at content-ghoul-42217.upstash.io
 - **Pinecone**: Vector database for RAG at pinecone.io
+- **RabbitMQ**: Message broker for service discovery
 
 ## Configuration Management
 - **appsettings.json**: Main configuration for:
@@ -250,4 +254,63 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
   - DocumentManagement settings (allowed types, size limits, paths)
   - RagOptions settings (chunk size, retrieval settings)
 - **ServiceExtensions.cs**: Centralized service registration
-- **Environment-Specific Settings**: Development vs Production configs 
+- **Environment-Specific Settings**: Development vs Production configs
+
+## Service Discovery with RabbitMQ
+1. **Components**:
+   - **InferenceEngineConfiguration**: Service for URL management
+   - **InferenceUrlConsumer**: RabbitMQ message consumer
+   - **RabbitMQResiliencePolicies**: Resilience patterns for connections
+   - **UrlValidator**: Validation for incoming URLs
+
+2. **Messaging Flow**:
+   - Admin service publishes URL updates to RabbitMQ exchange
+   - ConversationService subscribes to updates via dedicated queue
+   - Updates are validated, applied, and persisted to Redis
+   - Services using the URL are notified via observer pattern
+
+3. **Resilience**:
+   - Retry patterns for connection failures
+   - Circuit breaker for RabbitMQ outages
+   - Fallback to configuration values when Redis unavailable
+   - Graceful reconnection logic
+
+4. **Configuration**:
+   ```json
+   "RabbitMQ": {
+     "HostName": "toucan.lmq.cloudamqp.com",
+     "Port": 5672,
+     "UserName": "ftyqicrl",
+     "Password": "****",
+     "VirtualHost": "ftyqicrl",
+     "Exchange": "service-discovery",
+     "InferenceUrlQueue": "inference-url-updates",
+     "InferenceUrlRoutingKey": "inference.url.changed"
+   }
+   ```
+
+## Service Dependencies
+
+The ConversationService depends on:
+1. **Database Service**: SQL Server for data persistence
+2. **InferenceEngine Service**: For language model inference
+3. **Redis**: For caching and configuration persistence
+4. **RabbitMQ**: For service discovery and messaging
+5. **File Storage**: For document storage
+6. **Identity Service**: For authentication (optional, can use local)
+
+## Configuration Management
+
+1. **appsettings.json**: Static configuration
+2. **Environment Variables**: Overrides for deployment
+3. **User Secrets**: Local development secrets
+4. **Dynamic Configuration**: Runtime updates via service discovery
+5. **Feature Flags**: Toggles for features in development
+
+## Development Workflow
+
+1. **Local Development**: Local services or containerized dependencies
+2. **CI/CD Pipeline**: Automated builds and deployments
+3. **Testing Strategy**: Unit, integration, and end-to-end tests
+4. **Documentation**: OpenAPI, readme files, and diagrams
+5. **Code Quality**: Linting, code reviews, and static analysis 

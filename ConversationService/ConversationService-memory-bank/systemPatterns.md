@@ -262,4 +262,127 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - Redis for distributed caching
 - SQL Server for data persistence
 - Ollama Service for model inference
-- API Gateway for request routing and authentication 
+- API Gateway for request routing and authentication
+
+## Architectural Patterns
+
+- **Microservices Architecture**: ConversationService is one component in a larger microservices ecosystem
+- **Repository Pattern**: Data access abstracted through repositories
+- **Unit of Work Pattern**: Transaction management for database operations
+- **Dependency Injection**: Used throughout the application for loose coupling
+- **Options Pattern**: Configuration handled via IOptions
+- **Service Discovery Pattern**: Using RabbitMQ for dynamic InferenceEngine URL updates
+- **Circuit Breaker Pattern**: Using Polly for resilient RabbitMQ connections
+- **Publisher-Subscriber Pattern**: For service discovery message distribution
+- **Caching Pattern**: Redis used for caching and persistent storage
+
+## Design Patterns
+
+- **Adapter Pattern**: InferenceEngineConnector adapting to the OllamaSharp client
+- **Factory Pattern**: Creation of services and repositories
+- **Strategy Pattern**: For different document processors
+- **Observer Pattern**: For InferenceEngine URL change notifications
+- **Command Pattern**: For handling requests
+- **Builder Pattern**: For constructing complex objects
+- **Singleton Pattern**: For services that should have a single instance
+
+## Messaging Patterns
+
+- **Request-Response**: For synchronous API calls
+- **Event-Based Communication**: For asynchronous operations
+- **Message Queue**: RabbitMQ for service discovery and configuration updates
+- **Publish-Subscribe**: Using RabbitMQ topic exchange for URL updates
+
+## Integration Patterns
+
+- **API Gateway**: All requests route through an API gateway
+- **Service Registry**: Using RabbitMQ and Redis for service endpoint discovery
+- **Message Broker**: RabbitMQ for communication between services
+- **Circuit Breaker**: Using Polly for resilient external service calls
+
+## Concurrency Patterns
+
+- **Async/Await**: For non-blocking I/O operations
+- **Thread Pool**: For background processing
+- **Task-based Asynchronous Pattern (TAP)**: For asynchronous operations
+- **IAsyncEnumerable**: In InferenceEngineConnector.GetStreamedChatMessageContentsAsync
+
+## Key Components
+
+- **Controllers**: REST API endpoints
+- **Services**: Business logic
+- **Repositories**: Data access
+- **DTOs**: Data transfer objects
+- **Validators**: Request validation
+- **Mappers**: Object mapping
+- **InferenceEngineConnector**: Integrates with the Inference Engine service
+- **InferenceEngineConfiguration**: Manages dynamic URL configuration
+- **RabbitMQ Consumer**: Listens for configuration updates
+
+## Key Layers
+
+1. **Presentation Layer**: Controllers
+2. **Service Layer**: Services, DTOs, Mappers
+3. **Data Access Layer**: Repositories, Entity Framework Core
+4. **Integration Layer**: External service connectors
+5. **Configuration Layer**: Dynamic configuration management
+6. **Messaging Layer**: RabbitMQ consumers and producers
+
+## Resilience Patterns
+
+- **Retry Pattern**: Using Polly for retrying failed operations
+- **Circuit Breaker Pattern**: Using Polly for handling faults
+- **Fallback Pattern**: Fallback to configuration when Redis is unavailable
+- **Timeout Pattern**: Configurable timeouts for external service calls
+- **Bulkhead Pattern**: Isolating failures to prevent cascading
+
+## Service Registration
+
+The application uses organized service registration in `ServiceExtensions.cs`:
+
+- **AddDatabaseAndIdentity**: Database and identity services
+- **AddJwtAuthentication**: Authentication and authorization
+- **AddRepositories**: Data access repositories
+- **AddApplicationServices**: Service and connector registration
+- **AddInferenceEngineConfiguration**: Service discovery and configuration
+- **ConfigureCors**: CORS policies
+- **ConfigureCache**: Redis cache
+- **ConfigureSwagger**: API documentation
+
+## Configuration Management
+
+The application uses a multi-layered configuration approach:
+
+1. **Static Configuration**: appsettings.json for initial settings
+2. **Dynamic Configuration**: InferenceEngineConfiguration for runtime updates
+3. **Persistent Configuration**: Redis for configuration persistence
+4. **Event-Based Updates**: RabbitMQ for real-time configuration changes
+5. **Resilient Fallbacks**: Graceful degradation when services are unavailable
+
+## Service Discovery Implementation
+
+The service discovery mechanism consists of:
+
+1. **InferenceEngineConfiguration**: Central service for URL management
+   - Provides current URL via GetBaseUrl()
+   - Updates URL via UpdateBaseUrl(string)
+   - Notifies subscribers via BaseUrlChanged event
+   - Persists URL in Redis cache
+
+2. **RabbitMQ Messaging**:
+   - Topic exchange: "service-discovery"
+   - Queue: "inference-url-updates"
+   - Routing key: "inference.url.changed"
+   - Message format: InferenceUrlUpdateMessage
+
+3. **Resilience with Polly**:
+   - Retry policy for connection attempts
+   - Circuit breaker for handling outages
+   - Graceful degradation when services unavailable
+
+4. **Consumer Architecture**:
+   - BackgroundService for long-running processing
+   - Async message handling
+   - Reconnection logic for RabbitMQ
+
+This service discovery mechanism allows the Inference Engine URL to be updated dynamically at runtime without requiring application restart, which is particularly useful with services using dynamic URLs like ngrok. 
