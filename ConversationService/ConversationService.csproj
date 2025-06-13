@@ -24,6 +24,9 @@
     <PackageReference Include="OllamaSharp" Version="5.2.2" />
     <PackageReference Include="PdfPig" Version="0.1.10" />
     <PackageReference Include="Pinecone.Client" Version="2.0.1" />
+    <PackageReference Include="Polly" Version="7.2.4" />
+    <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.5.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
   </ItemGroup>

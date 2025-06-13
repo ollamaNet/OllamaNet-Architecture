@@ -17,7 +17,7 @@ namespace ConversationServices.Services.ChatService
 {
    public class ChatService : IChatService
    {
-       private readonly IOllamaConnector _connector;
+       private readonly IInferenceEngineConnector _connector;
        private readonly ILogger<ChatService> _logger;
        private readonly ChatHistoryManager _chatHistoryManager;
         private readonly IRagRetrievalService _ragRetrievalService;
@@ -25,7 +25,7 @@ namespace ConversationServices.Services.ChatService
 
 
         public ChatService(
-           IOllamaConnector connector,
+           IInferenceEngineConnector connector,
            ILogger<ChatService> logger,
            ChatHistoryManager chatHistoryManager, IRagRetrievalService ragRetrievalService,
             IOptions<RagOptions> ragOptions)
