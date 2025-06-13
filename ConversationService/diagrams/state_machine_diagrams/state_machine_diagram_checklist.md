@@ -18,6 +18,16 @@
   - Document indexing states
   - Query processing states
 
+- [ ] **InferenceEngine Configuration States**
+  - Configuration initialization
+  - URL update states
+  - Connection states
+
+- [ ] **RabbitMQ Consumer States**
+  - Consumer lifecycle states
+  - Message processing states
+  - Connection states
+
 ## Required Files to Review ✅
 
 ### Conversation States
@@ -38,6 +48,14 @@
 ### RAG Processing States
 - [ ] `Services/Rag/Implementation/RagIndexingService.cs` - Indexing state management
 - [ ] `Services/Rag/Implementation/RagRetrievalService.cs` - Retrieval state management
+
+### InferenceEngine Configuration States
+- [ ] `Infrastructure/Configuration/InferenceEngineConfiguration.cs` - Configuration state management
+- [ ] `Infrastructure/Integration/InferenceEngineConnector.cs` - Connector state transitions
+
+### RabbitMQ Consumer States
+- [ ] `Infrastructure/Messaging/Consumers/InferenceUrlConsumer.cs` - Consumer state management
+- [ ] `Infrastructure/Messaging/Resilience/RabbitMQResiliencePolicies.cs` - Connection state management
 
 ## State Definitions to Identify ✅
 
@@ -95,6 +113,39 @@
   - Document → Chunked → Embedded → Indexed
   - Query → Embedded → Retrieved → Integrated
 
+### InferenceEngine Configuration States
+- [ ] **State Properties**
+  - Uninitialized state
+  - Initialized state
+  - Updating state
+  - Failed state
+  - Redis connection state
+
+- [ ] **State Transitions**
+  - Uninitialized → Initialized (from default or Redis)
+  - Initialized → Updating (on message received)
+  - Updating → Initialized (on successful update)
+  - Any → Failed (on error)
+  - Failed → Recovery attempts
+
+### RabbitMQ Consumer States
+- [ ] **State Properties**
+  - Starting state
+  - Connected state
+  - Consuming state
+  - Disconnected state
+  - Reconnecting state
+  - Failed state
+
+- [ ] **State Transitions**
+  - Starting → Connected
+  - Connected → Consuming
+  - Consuming → Processing message
+  - Any → Disconnected (on connection loss)
+  - Disconnected → Reconnecting
+  - Reconnecting → Connected/Failed
+  - Failed → Recovery attempts
+
 ## Transition Triggers to Document ✅
 
 - [ ] **User Actions**
@@ -105,32 +156,44 @@
   - Automated state transitions
   - Timed transitions
   - Background processes
+  - Message arrivals
 
 - [ ] **Error Conditions**
   - Error triggers and transitions
   - Recovery paths
+  - Connection failures
 
 - [ ] **Completion Events**
   - Successful operation completions
   - Transition to final states
+  - Message processing completion
+
+- [ ] **External Events**
+  - RabbitMQ messages
+  - Configuration updates
+  - Service discovery events
 
 ## State Guards and Conditions ✅
 
 - [ ] **Preconditions**
   - Required conditions for state transitions
   - Validation rules
+  - Connection availability
 
 - [ ] **State Validation**
   - Rules for valid state transitions
   - Invalid state handling
+  - Message validation
 
 - [ ] **Authorization Guards**
   - Permission requirements for transitions
   - Role-based state access
+  - URL validation
 
 - [ ] **Business Rules**
   - Domain-specific rules affecting states
   - Constraint enforcement
+  - Circuit breaker conditions
 
 ## Error States and Recovery ✅
 
@@ -138,16 +201,21 @@
   - Transient errors
   - Permanent errors
   - Validation errors
+  - Connection errors
+  - Configuration errors
 
 - [ ] **Recovery Paths**
   - Retry mechanisms
   - Fallback strategies
   - Manual intervention points
+  - Circuit breaker patterns
+  - Default configuration values
 
 - [ ] **Error Notifications**
   - User notifications
   - System alerts
   - Logging requirements
+  - Health monitoring
 
 ## Clarifying Questions ❓
 
@@ -176,26 +244,41 @@
    - Are there automatic retries for any processes?
    - When is manual intervention required?
 
+6. **InferenceEngine Configuration**
+   - How is the configuration initialized and updated?
+   - What happens when Redis is unavailable?
+   - How are configuration changes propagated to dependents?
+
+7. **RabbitMQ Consumer**
+   - What is the lifecycle of a message consumer?
+   - How are connection failures handled?
+   - What retry policies are implemented?
+   - How are circuit breaker patterns applied?
+
 ## State Machine Diagram Elements ✏️
 
 1. **States**
    - Clear state nodes with descriptive names
    - Initial and final states
    - Error states
+   - Connection states
 
 2. **Transitions**
    - Labeled arrows showing triggers
    - Guard conditions where applicable
    - Actions performed during transitions
+   - Message-triggered transitions
 
 3. **Sub-states**
    - Hierarchical states where appropriate
    - Composite states for complex processes
+   - Connection state hierarchies
 
 4. **Notes and Annotations**
    - Important business rules
    - Implementation details
    - Error handling approaches
+   - Resilience patterns
 
 ## Additional Notes 📝
 
@@ -207,3 +290,8 @@
 - Document state initialization conditions
 - Note any state synchronization requirements
 - Include concurrent state handling if applicable 
+- Document message consumer lifecycle states
+- Include RabbitMQ connection state transitions
+- Document Redis persistence for configuration states
+- Include circuit breaker state transitions
+- Note the relationship between configuration states and connector behavior 

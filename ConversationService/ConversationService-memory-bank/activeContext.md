@@ -6,6 +6,7 @@
 - Ongoing optimization of Redis caching for conversation history and streaming responses
 - Planning and implementing conversation archiving strategy for data management
 - Monitoring and improving background processing for post-streaming operations
+- Implementing a service discovery mechanism using RabbitMQ to dynamically update the InferenceEngine URL
 
 ## Recent Changes
 - Completed RAG Document Processing feature implementation:
@@ -25,6 +26,23 @@
 - Documentation and diagrams updated to reflect the new structure
 - Memory bank documentation reviewed and aligned with current architecture
 - Redis caching and streaming response implementation reviewed and optimized
+- Completed Service Discovery Implementation:
+  - Created a RabbitMQ-based service discovery mechanism for dynamically updating the InferenceEngine URL
+  - Implemented InferenceEngineConfiguration for centralized URL management
+  - Added RabbitMQ message consumer to listen for URL updates
+  - Integrated Redis for persistent URL storage
+  - Renamed OllamaConnector to InferenceEngineConnector for better abstraction
+  - Added resilience patterns with Polly for RabbitMQ connections
+- Configuration Updates:
+  - Updated appsettings.json with new RabbitMQ connection details:
+    - Host: toucan.lmq.cloudamqp.com
+    - Username: ftyqicrl
+    - VirtualHost: ftyqicrl
+    - Custom exchange and queue for service discovery messages
+- Technical Issues Resolved:
+  - Fixed CircuitState ambiguity issues with different Polly versions
+  - Made Redis cache access fault-tolerant
+  - Ensured proper virtual host configuration for RabbitMQ
 
 ## Current Status
 - ConversationService is fully implemented and organized according to modern .NET microservice best practices:
@@ -47,6 +65,10 @@
 - Monitor and optimize performance and error handling
 - Temporarily disabled query cleaning functionality in RAG system for evaluation
 - Document processing metrics monitoring for performance optimization
+- Chose RabbitMQ over alternatives for service discovery due to its reliability and existing infrastructure
+- Implemented both Redis persistence and RabbitMQ messaging for complete solution
+- Renamed components from Ollama-specific to more generic InferenceEngine for flexibility
+- Made Redis cache access optional to improve system resilience
 
 ## Implementation Insights
 - RAG Document Processing feature enables document-enhanced conversations
@@ -68,6 +90,17 @@
 - Enhance error handling for Redis and external service failures
 - Expand integration testing for critical paths
 - Monitor and improve background processing for streaming operations
+- Testing and Verification:
+  - Verify dynamic URL updates through RabbitMQ
+  - Test system resilience when RabbitMQ or Redis are unavailable
+  - Ensure proper fallback to configuration values
+- Documentation:
+  - Update sequence diagrams to include the new service discovery flow
+  - Document the RabbitMQ message format and routing strategy
+- Future Enhancements:
+  - Add monitoring and metrics for service discovery health
+  - Implement additional validation for URL updates
+  - Consider extending the system to other dynamic configuration parameters
 
 ## Open Questions
 - How effective is the document chunking strategy for different document types?
@@ -81,3 +114,10 @@
 
 ## Current Context
 The ConversationService is now a fully modular, best-practices .NET microservice providing conversation management, real-time chat, content organization, and feedback collection for the OllamaNet platform. The recent implementation of the RAG Document Processing feature has enhanced the service with document upload, processing, and retrieval capabilities for improved context in AI conversations. The service is clean, maintainable, and ready for future enhancements, with all documentation and diagrams up to date. The current focus is on feature enhancements and performance optimization.
+
+## Important Files
+- `Infrastructure/Configuration/InferenceEngineConfiguration.cs`: Manages InferenceEngine URL
+- `Infrastructure/Messaging/Consumers/InferenceUrlConsumer.cs`: RabbitMQ message consumer
+- `Infrastructure/Messaging/Extensions/MessagingExtensions.cs`: Service registration
+- `Infrastructure/Integration/InferenceEngineConnector.cs`: Updated connector (formerly OllamaConnector)
+- `appsettings.json`: Updated with RabbitMQ configuration

@@ -59,15 +59,32 @@ ConversationService/
 │   │   ├── RedisCacheSettings.cs
 │   │   ├── CacheKeys.cs
 │   │   └── Exceptions/
+│   ├── Configuration/          # Dynamic configuration management
+│   │   └── InferenceEngineConfiguration.cs
 │   ├── Document/               # Document storage infrastructure
 │   │   ├── Storage/
 │   │   ├── Options/
 │   │   └── Exceptions/
+│   ├── Integration/            # External connectors
+│   │   ├── InferenceEngineConnector.cs
+│   │   └── IInferenceEngineConnector.cs
+│   ├── Messaging/              # Message broker integration
+│   │   ├── Consumers/
+│   │   │   └── InferenceUrlConsumer.cs
+│   │   ├── Extensions/
+│   │   │   └── MessagingExtensions.cs
+│   │   ├── Interfaces/
+│   │   │   └── IMessageConsumer.cs
+│   │   ├── Models/
+│   │   │   └── InferenceUrlUpdateMessage.cs
+│   │   ├── Options/
+│   │   │   └── RabbitMQOptions.cs
+│   │   ├── Resilience/
+│   │   │   └── RabbitMQResiliencePolicies.cs
+│   │   └── Validators/
+│   │       └── UrlValidator.cs
 │   ├── Logging/                # Logging abstractions/services (future)
 │   ├── Email/                  # Email sending infrastructure (future)
-│   ├── Integration/            # External connectors
-│   │   ├── OllamaConnector.cs
-│   │   └── IOllamaConnector.cs
 │   └── Rag/                    # RAG infrastructure components
 │       ├── Embedding/
 │       │   ├── ITextEmbeddingGeneration.cs
@@ -108,10 +125,19 @@ ConversationService/
   - **Shared/**: (Optional) Shared logic, interfaces, or base classes used by multiple domains.
 - **Infrastructure/**: Cross-cutting concerns.
   - **Caching/**: `CacheManager.cs`, `RedisCacheService.cs`, `RedisCacheSettings.cs`, `CacheKeys.cs`, cache exceptions.
+  - **Configuration/**: `InferenceEngineConfiguration.cs` for dynamic configuration management.
   - **Document/**: Document storage, options, and exceptions.
+  - **Integration/**: `InferenceEngineConnector.cs`, `IInferenceEngineConnector.cs`, any other external system connectors.
+  - **Messaging/**: RabbitMQ integration for service discovery.
+    - **Consumers/**: Message consumers for different topics.
+    - **Extensions/**: Service registration and extension methods.
+    - **Interfaces/**: Messaging service interfaces.
+    - **Models/**: Message data models.
+    - **Options/**: RabbitMQ configuration options.
+    - **Resilience/**: Resilience patterns for messaging.
+    - **Validators/**: Message validation and security.
   - **Logging/**: (future) Logging abstractions, adapters, or providers.
   - **Email/**: (future) SMTP, SendGrid, or notification services.
-  - **Integration/**: `OllamaConnector.cs`, `IOllamaConnector.cs`, any other external system connectors.
 - **diagrams/**: PlantUML or other diagrams for architecture, flows, and classes.
 - **Docs/**: All documentation, including this system design plan.
 - **ConversationService-memory-bank/**: Project context, memory, and documentation.
@@ -128,13 +154,17 @@ ConversationService/
 - **Options Pattern**: For all configuration (e.g., caching, integration, document management).
 - **Documentation**: Keep Docs/ and memory-bank/ up to date with every major change.
 - **Reserve Folders**: For future cross-cutting concerns (Caching, Logging, Email, etc.), even if not yet implemented.
+- **Resilience Patterns**: Use circuit breaker, retry, and fallback patterns for external dependencies.
+- **Message-Based Communication**: Use RabbitMQ for loosely coupled service communication.
+- **Dynamic Configuration**: Support runtime configuration updates via messaging.
 
 ---
 
 ## 4. Migration Note
 - The migration to the new modular structure is complete. All legacy folders (Cache, Connectors, ChatService, ConversationService, NoteService, FolderService, FeedbackService, Mappers, Helpers) have been removed. All files are now in their correct locations, and namespaces are consistent.
 - All mappers are now feature-specific and reside in their respective domain folders.
-- This structure is current as of Phase 9 (Cleanup).
+- OllamaConnector has been renamed to InferenceEngineConnector for better abstraction.
+- Service discovery using RabbitMQ has been implemented for dynamic configuration.
 
 ---
 
@@ -156,8 +186,10 @@ ConversationService/
 
 **Shared, Infrastructure, and Helper Files:**
 - Infrastructure/Caching/: CacheManager.cs, RedisCacheService.cs, RedisCacheSettings.cs, CacheKeys.cs, Exceptions/
+- Infrastructure/Configuration/: InferenceEngineConfiguration.cs
 - Infrastructure/Document/: IDocumentStorage.cs, FileSystemDocumentStorage.cs, Options/, Exceptions/
-- Infrastructure/Integration/: OllamaConnector.cs, IOllamaConnector.cs
+- Infrastructure/Integration/: InferenceEngineConnector.cs, IInferenceEngineConnector.cs
+- Infrastructure/Messaging/: RabbitMQ integration for service discovery
 - Infrastructure/Logging/: (placeholder for future use)
 - Infrastructure/Email/: (placeholder for future use)
 - ServiceExtensions.cs, Program.cs, RedisCache_Implementation_Guide.md, .cursorrules
@@ -273,3 +305,74 @@ The Document Processing system follows a modular, extensible architecture with s
 - Security implementation with content validation
 - Performance monitoring with processing metrics
 - Error handling and logging integrated
+
+## 9. Service Discovery Architecture
+
+The Service Discovery system follows a message-based architecture with RabbitMQ as the communication backbone:
+
+### Infrastructure Layer
+
+#### Configuration (`Infrastructure/Configuration/`)
+- **InferenceEngineConfiguration**
+  - Centralized configuration service for managing the InferenceEngine URL
+  - Provides methods for retrieving and updating the URL
+  - Uses Redis for persistent storage of URL
+  - Emits events when URL is updated
+  - Implements fault tolerance for Redis unavailability
+
+#### Messaging (`Infrastructure/Messaging/`)
+- **Consumers**
+  - `InferenceUrlConsumer`: Background service that connects to RabbitMQ and processes URL update messages
+- **Models**
+  - `InferenceUrlUpdateMessage`: Message model for URL updates with timestamp and metadata
+- **Options**
+  - `RabbitMQOptions`: Configuration options for RabbitMQ connection
+- **Resilience**
+  - `RabbitMQResiliencePolicies`: Retry and circuit breaker patterns for RabbitMQ connections
+- **Validators**
+  - `UrlValidator`: Validates URLs for security and format correctness
+- **Interfaces**
+  - `IMessageConsumer`: Contract for message consumers
+- **Extensions**
+  - `MessagingExtensions`: Service registration and configuration
+
+#### Integration (`Infrastructure/Integration/`)
+- **InferenceEngineConnector**
+  - Updated connector that uses the dynamic configuration service
+  - Subscribes to URL changes and updates at runtime
+  - Implements resilience patterns for external calls
+
+### Key Features
+- Dynamic configuration updates without service restart
+- Message-based communication for loose coupling
+- Redis persistence for configuration durability across restarts
+- Resilience patterns for messaging and external services
+- URL validation for security
+- Event-based notification for configuration changes
+- Graceful fallback mechanisms when services are unavailable
+
+### Flow Diagram
+```
+┌──────────────┐     ┌───────────┐     ┌───────────────────┐
+│ Admin Service│────>│  RabbitMQ  │────>│ InferenceUrlConsumer │
+└──────────────┘     └───────────┘     └────────┬──────────┘
+                                                │
+                                                ▼
+                                     ┌─────────────────────┐
+                                     │InferenceEngineConfig│
+                                     └────────┬────────────┘
+                                              │
+                          ┌───────────────────┼───────────────────┐
+                          ▼                   ▼                   ▼
+                ┌─────────────────┐  ┌─────────────┐    ┌───────────────┐
+                │InferenceConnector│  │ Redis Cache │    │Other Dependents│
+                └─────────────────┘  └─────────────┘    └───────────────┘
+```
+
+### Current Status
+- Service discovery mechanism fully implemented
+- RabbitMQ integration working with CloudAMQP
+- Redis persistence for configuration
+- Resilience patterns implemented for RabbitMQ and Redis
+- Dynamic URL updates validated and working
+- InferenceEngine connector updated to use dynamic configuration

@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;
@@ -10,9 +10,11 @@ using ConversationServices.Services.ChatService.DTOs;
 
 namespace ConversationService.Infrastructure.Integration
 {
-    public interface IOllamaConnector
+    public interface IInferenceEngineConnector
     {
         IReadOnlyDictionary<string, object?> Attributes { get; }
+        
+        string BaseUrl { get; }
         
         Task<IReadOnlyList<OllamaModelResponse>> GetChatMessageContentsAsync(
             ChatHistory chatHistory, 
@@ -35,4 +37,4 @@ namespace ConversationService.Infrastructure.Integration
         Task<ShowModelResponse> GetModelInfo(string modelName);
                 
     }
-}
+} 

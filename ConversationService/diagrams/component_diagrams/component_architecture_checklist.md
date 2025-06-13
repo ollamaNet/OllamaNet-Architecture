@@ -33,12 +33,19 @@
 - [ ] `Controllers/Validators/UpdateFeedbackRequestValidator.cs`
 - [ ] `Controllers/Validators/CreateFolderRequestValidator.cs`
 - [ ] `Controllers/Validators/UpdateFolderRequestValidator.cs`
+- [ ] `Infrastructure/Messaging/Validators/UrlValidator.cs`
 
 ### Infrastructure Components
 - [ ] `Infrastructure/Caching/CacheManager.cs`
 - [ ] `Infrastructure/Caching/RedisCacheService.cs`
+- [ ] `Infrastructure/Configuration/InferenceEngineConfiguration.cs`
 - [ ] `Infrastructure/Document/Storage/FileSystemDocumentStorage.cs`
-- [ ] `Infrastructure/Integration/OllamaConnector.cs`
+- [ ] `Infrastructure/Integration/InferenceEngineConnector.cs`
+- [ ] `Infrastructure/Messaging/Consumers/InferenceUrlConsumer.cs`
+- [ ] `Infrastructure/Messaging/Models/InferenceUrlUpdateMessage.cs`
+- [ ] `Infrastructure/Messaging/Options/RabbitMQOptions.cs`
+- [ ] `Infrastructure/Messaging/Resilience/RabbitMQResiliencePolicies.cs`
+- [ ] `Infrastructure/Messaging/Extensions/MessagingExtensions.cs`
 - [ ] `Infrastructure/Rag/Embedding/OllamaTextEmbeddingGeneration.cs`
 - [ ] `Infrastructure/Rag/VectorDb/PineconeService.cs`
 
@@ -54,7 +61,8 @@
 - [ ] `Services/Rag/Interfaces/IRagRetrievalService.cs`
 - [ ] `Infrastructure/Caching/ICacheManager.cs`
 - [ ] `Infrastructure/Document/Storage/IDocumentStorage.cs`
-- [ ] `Infrastructure/Integration/IOllamaConnector.cs`
+- [ ] `Infrastructure/Integration/IInferenceEngineConnector.cs`
+- [ ] `Infrastructure/Messaging/Interfaces/IMessageConsumer.cs`
 - [ ] `Infrastructure/Rag/Embedding/ITextEmbeddingGeneration.cs`
 - [ ] `Infrastructure/Rag/VectorDb/IPineconeService.cs`
 
@@ -82,13 +90,20 @@
 
 ### Infrastructure Components
 - [ ] Caching Components
+- [ ] Configuration Components
 - [ ] Document Storage Components
 - [ ] LLM Integration Components
+- [ ] Messaging Components
 - [ ] RAG Embedding Components
 - [ ] Vector Database Components
 
 ### Validation Components
 - [ ] Request Validators
+- [ ] URL Validators
+
+### Resilience Components
+- [ ] RabbitMQ Resilience Policies
+- [ ] Redis Fallback Mechanisms
 
 ## Component Dependencies to Document ✅
 
@@ -99,12 +114,15 @@
 - [ ] Infrastructure dependencies on External Systems
 - [ ] Document Processor dependencies
 - [ ] RAG component dependencies
+- [ ] Message Consumer dependencies
+- [ ] Configuration Component dependencies
 
 ## Interface Implementations to Map ✅
 
 - [ ] Service Interface → Implementation mappings
 - [ ] Infrastructure Interface → Implementation mappings
 - [ ] Processor Interface → Implementation mappings
+- [ ] Message Consumer Interface → Implementation mappings
 
 ## Clarifying Questions ❓
 
@@ -119,14 +137,22 @@
 3. **Component Lifecycle**
    - Are there any initialization dependencies between components?
    - Are there any components with special lifecycle requirements?
+   - How are background services like message consumers managed?
 
 4. **Error Handling**
    - How do components handle and propagate errors?
    - Are there specific error handling components?
+   - How are resilience patterns implemented across components?
 
 5. **Shared Services**
    - Are there any shared services used across multiple domains?
    - How are cross-cutting concerns addressed?
+   - How is dynamic configuration managed across components?
+
+6. **Message-Based Communication**
+   - How do message consumers interact with other components?
+   - What is the flow of configuration updates through the system?
+   - How are message validation and processing handled?
 
 ## Component Architecture Elements ✏️
 
@@ -138,13 +164,20 @@
 
 3. **Infrastructure Services**
    - Show infrastructure components with their interface contracts
+   - Include messaging and configuration components
 
 4. **Cross-Cutting Components**
    - Show validators, middleware, and other shared components
+   - Include resilience policies and fallback mechanisms
 
 5. **Component Relationships**
    - Show dependencies between components with direction
    - Highlight key data flows between components
+   - Show message flows for configuration updates
+
+6. **Background Services**
+   - Show message consumers and their relationships
+   - Indicate hosted service lifecycle
 
 ## Additional Notes 📝
 
@@ -153,5 +186,8 @@
 - Group related components (e.g., all document processors)
 - Highlight extension points in the architecture
 - Show validation flow from controllers through validators to services
-- Document key patterns used (Repository, Factory, Strategy, etc.)
+- Document key patterns used (Repository, Factory, Strategy, Observer, etc.)
 - Note where dependency injection is used to connect components 
+- Show how the InferenceEngineConfiguration component provides dynamic configuration
+- Illustrate the message flow from RabbitMQ to configuration components
+- Highlight resilience patterns implemented in messaging and caching components 

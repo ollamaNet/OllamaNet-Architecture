@@ -59,6 +59,8 @@ using ConversationService.Services.Document.Processors.PDF;
 using ConversationService.Services.Document.Processors.Text;
 using ConversationService.Services.Document.Processors.Word;
 using ConversationService.Services.Document.DTOs.Requests;
+using ConversationService.Infrastructure.Configuration;
+using ConversationService.Infrastructure.Messaging.Extensions;
 
 namespace ConversationServices
 {
@@ -137,9 +139,9 @@ namespace ConversationServices
         // Register Services
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient(configuration["OllamaApi:BaseUrl"]));
-            services.AddScoped<ConversationService.Infrastructure.Integration.IOllamaConnector, ConversationService.Infrastructure.Integration.OllamaConnector>();
-
+            // Add InferenceEngine configuration and messaging
+            AddInferenceEngineConfiguration(services, configuration);
+            
             // Chat-related services
             services.AddScoped<ChatHistoryManager>();
             services.AddScoped<IChatService, ChatService>();
@@ -167,7 +169,8 @@ namespace ConversationServices
             services.AddSingleton<ITextEmbeddingGeneration, OllamaTextEmbeddingGeneration>(sp =>
             {
                 var ragOptions = sp.GetRequiredService<IOptions<RagOptions>>().Value;
-                return new OllamaTextEmbeddingGeneration(ragOptions.OllamaEmbeddingModelId, configuration["OllamaApi:BaseUrl"]);
+                var inferenceConfig = sp.GetRequiredService<IInferenceEngineConfiguration>();
+                return new OllamaTextEmbeddingGeneration(ragOptions.OllamaEmbeddingModelId, inferenceConfig);
             });
             services.AddSingleton<IPineconeService, PineconeService>();
 
@@ -197,8 +200,28 @@ namespace ConversationServices
             services.AddHttpContextAccessor();
         }
 
-
-
+        // Configure InferenceEngine Configuration and RabbitMQ Service Discovery
+        private static void AddInferenceEngineConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Register the URL validator first
+            services.AddSingleton<ConversationService.Infrastructure.Messaging.Validators.IUrlValidator, ConversationService.Infrastructure.Messaging.Validators.UrlValidator>();
+            
+            // Register the InferenceEngine configuration service
+            services.AddSingleton<IInferenceEngineConfiguration, InferenceEngineConfiguration>();
+            
+            // Register the OllamaApiClient using the InferenceEngine configuration
+            services.AddScoped<IOllamaApiClient>(sp => 
+            {
+                var inferenceConfig = sp.GetRequiredService<IInferenceEngineConfiguration>();
+                return new OllamaApiClient(inferenceConfig.GetBaseUrl());
+            });
+            
+            // Register the InferenceEngineConnector which will use the new configuration service
+            services.AddScoped<IInferenceEngineConnector, InferenceEngineConnector>();
+            
+            // Register RabbitMQ messaging services for service discovery
+            services.AddMessagingServices(configuration);
+        }
 
         // Configure Document Management Services
         private static void ConfigureDocumentServices(IServiceCollection services, IConfiguration configuration)

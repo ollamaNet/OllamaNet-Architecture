@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OllamaSharp;
 using OllamaSharp.Models;
@@ -15,16 +15,35 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using ConversationServices.Services.ChatService.DTOs;
 using ConversationServices.Services.ChatService.Mappers;
+using ConversationService.Infrastructure.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ConversationService.Infrastructure.Integration
 {
-    public class OllamaConnector : IOllamaConnector
+    public class InferenceEngineConnector : IInferenceEngineConnector
     {
-        private readonly IOllamaApiClient ollamaApiClient;
+        private readonly IOllamaApiClient _ollamaApiClient;
+        private readonly IInferenceEngineConfiguration _configuration;
+        private readonly ILogger<InferenceEngineConnector> _logger;
 
-        public OllamaConnector(IOllamaApiClient ollamaApiClient)
+        public string BaseUrl => _configuration.GetBaseUrl();
+
+        public InferenceEngineConnector(
+            IOllamaApiClient ollamaApiClient,
+            IInferenceEngineConfiguration configuration,
+            ILogger<InferenceEngineConnector> logger)
         {
-            this.ollamaApiClient = ollamaApiClient ?? throw new ArgumentNullException(nameof(ollamaApiClient));
+            _ollamaApiClient = ollamaApiClient ?? throw new ArgumentNullException(nameof(ollamaApiClient));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            
+            // Subscribe to URL changes to log them
+            _configuration.BaseUrlChanged += OnBaseUrlChanged;
+        }
+
+        private void OnBaseUrlChanged(string newUrl)
+        {
+            _logger.LogInformation("InferenceEngine URL updated to: {NewUrl}", newUrl);
         }
 
         public IReadOnlyDictionary<string, object?> Attributes => new Dictionary<string, object?>();
@@ -49,7 +68,7 @@ namespace ConversationService.Infrastructure.Integration
             int evalCount = 0;
             long evalDuration = 0;
 
-            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
+            await foreach (var response in _ollamaApiClient.ChatAsync(req, cancellationToken))
             {
                 if (response == null || response.Message == null)
                 {
@@ -102,7 +121,7 @@ namespace ConversationService.Infrastructure.Integration
         {
             var req = CreateStreamedChatRequest(chatHistory, request);
 
-            await foreach (var response in ollamaApiClient.ChatAsync(req, cancellationToken))
+            await foreach (var response in _ollamaApiClient.ChatAsync(req, cancellationToken))
             {
                 if (response == null || response.Message == null)
                 {
@@ -143,13 +162,13 @@ namespace ConversationService.Infrastructure.Integration
 
         public async Task<IEnumerable<Model>> GetInstalledModels()
         {
-            var response = await ollamaApiClient.ListLocalModelsAsync();
+            var response = await _ollamaApiClient.ListLocalModelsAsync();
             return response;
         }
 
         public async Task<IEnumerable<Model>> GetInstalledModelsPaged(int pageNumber, int pageSize)
         {
-            var response = await ollamaApiClient.ListLocalModelsAsync();
+            var response = await _ollamaApiClient.ListLocalModelsAsync();
 
             // Ensure pageNumber and pageSize are valid
             if (pageNumber < 1) pageNumber = 1;
@@ -164,19 +183,18 @@ namespace ConversationService.Infrastructure.Integration
 
         public async Task<ShowModelResponse> GetModelInfo(string modelName)
         {
-            var modelInfo = await ollamaApiClient.ShowModelAsync(modelName);
+            var modelInfo = await _ollamaApiClient.ShowModelAsync(modelName);
             return modelInfo;
         }
 
         public async Task<string> RemoveModel(string modelName)
         {
-            await ollamaApiClient.DeleteModelAsync(modelName);
+            await _ollamaApiClient.DeleteModelAsync(modelName);
 
-            var models = await ollamaApiClient.ListLocalModelsAsync();
+            var models = await _ollamaApiClient.ListLocalModelsAsync();
             var modelExists = models.Any(m => m.Name == modelName);
 
             return modelExists ? "Model not removed successfully" : "Model removed successfully";
         }
-
     }
-}
+} 
