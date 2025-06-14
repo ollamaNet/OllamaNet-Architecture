@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Ollama_DB_layer.UOW;
+using AuthService.Infrastructure.EmailService.Interfaces;
 
 namespace AuthenticationService
 {
@@ -15,17 +16,20 @@ namespace AuthenticationService
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWTManager _jwtManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
         public AuthService(
             UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole> roleManager, 
             JWTManager jwtManager,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwtManager = jwtManager;
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         // Get user by token
@@ -91,6 +95,18 @@ namespace AuthenticationService
             var refreshTokenre = _jwtManager.GenerateRefreshToken();
             user.RefreshTokens.Add(refreshTokenre);
             await _userManager.UpdateAsync(user);
+
+            // Send registration success email
+            try
+            {
+                await _emailService.SendRegistrationSuccessEmailAsync(user.Email, user.UserName);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception but continue with registration process
+                Console.WriteLine($"Failed to send registration email: {ex.Message}");
+            }
+
 
             return new AuthModel
             {
@@ -207,16 +223,36 @@ namespace AuthenticationService
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
-                return null; // Or throw an exception, depending on your error handling strategy
+                return new ForgotPasswordResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "If your email is registered, you will receive a password reset link."
+                };
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = HttpUtility.UrlEncode(token);
+            var resetLink = $"https://localhost:7006/resetpassword?token={encodedToken}&email={HttpUtility.UrlEncode(user.Email)}";
 
-            return new ForgotPasswordResponseModel
+            try
             {
-                Token = encodedToken,
-                ResetPasswordLink = $"https://localhost:7006/resetpassword?token={encodedToken}"
-            };
+                await _emailService.SendPasswordResetEmailAsync(user.Email, user.UserName, resetLink);
+                
+                return new ForgotPasswordResponseModel
+                {
+                    IsSuccess = true,
+                    Message = "Password reset link has been sent to your email.",
+                    Token = encodedToken // Kept for internal use or debugging
+                };
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return new ForgotPasswordResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "Failed to send password reset email. Please try again later."
+                };
+            }
         }
 
         // Reset Password service
