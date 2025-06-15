@@ -8,7 +8,7 @@
 - **Entity Framework Core**: ORM for database operations through the shared Ollama_DB_layer
 - **SQL Server**: Primary relational database for data persistence (at db19911.public.databaseasp.net)
 - **Redis**: Distributed caching for performance optimization using Upstash
-- **OllamaSharp**: Client library for interacting with Ollama AI models
+- **InferenceEngine Client**: Client library for interacting with Inference Engine AI models
 - **Semantic Kernel**: Microsoft's framework for chat completion capabilities
 - **FluentValidation**: Request validation framework for input validation
 - **Swagger/OpenAPI**: API documentation and interactive testing
@@ -25,7 +25,7 @@
 - **Microsoft.Extensions.Caching**: Caching abstractions and implementations
 - **Microsoft.SemanticKernel**: AI chat completion frameworks
 - **StackExchange.Redis**: Redis client for distributed caching
-- **OllamaSharp**: Ollama API client for AI model interactions
+- **InferenceEngine Client**: Inference Engine API client for AI model interactions
 - **FluentValidation.AspNetCore**: Request validation framework
 - **Swashbuckle.AspNetCore**: Swagger integration for API documentation
 - **Ollama_DB_layer**: Shared database access layer with repositories and entities
@@ -58,7 +58,7 @@
 
 ### RAG Components
 - **Infrastructure Layer**
-  - **OllamaTextEmbeddingGeneration**: Generates text embeddings using Ollama
+  - **InferenceEngineTextEmbeddingGeneration**: Generates text embeddings using Inference Engine
   - **PineconeService**: Manages vector database operations
   - **RagOptions**: Configuration for RAG system behavior
   - **PineconeOptions**: Configuration for Pinecone integration
@@ -94,8 +94,8 @@
 - **CacheExceptions**: Specialized exception types for different cache failure scenarios
 
 ### Connectors
-- **OllamaConnector**: Abstraction for Ollama AI service integration
-- **IOllamaApiClient**: Interface for the Ollama API client, currently connecting to Ollama instance via ngrok
+- **InferenceEngineConnector**: Abstraction for Inference Engine service integration
+- **IInferenceEngineApiClient**: Interface for the Inference Engine API client, currently connecting to Inference Engine instance via ngrok
 
 ### Validators
 - **OpenConversationRequestValidator**: Validates conversation creation requests
@@ -197,7 +197,7 @@ Document processing and RAG integration are implemented with:
 Real-time chat responses are implemented using Server-Sent Events (SSE):
 
 - **Content-Type**: text/event-stream for SSE format
-- **IAsyncEnumerable**: Asynchronous streaming via OllamaConnector.GetStreamedChatMessageContentsAsync
+- **IAsyncEnumerable**: Asynchronous streaming via InferenceEngineConnector.GetStreamedChatMessageContentsAsync
 - **Response.BodyWriter**: Direct writing to the response stream in ChatController.StreamMessage
 - **JSON Serialization**: Response objects serialized to JSON for streaming
 - **Error Handling**: Status code responses within the streaming context
@@ -238,7 +238,7 @@ Real-time chat responses are implemented using Server-Sent Events (SSE):
 - **Document Storage**: Local file system with configurable paths
 
 ## External Services
-- **Ollama AI Service**: AI model inference engine via ngrok endpoint
+- **Inference Engine Service**: AI model inference engine via ngrok endpoint
   - Current endpoint: https://704e-35-196-162-195.ngrok-free.app
 - **SQL Server Database**: Data persistence at db19911.public.databaseasp.net
 - **Redis Cache**: Distributed caching via Upstash at content-ghoul-42217.upstash.io

@@ -9,6 +9,7 @@
 - **JWT**: Authentication and authorization mechanism
 - **Redis**: Configured for potential caching (minimal current usage)
 - **Swagger/OpenAPI**: API documentation and testing
+- **Service Defaults**: Common microservice functionality pattern
 
 ## Key Dependencies
 - **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication middleware
@@ -18,6 +19,12 @@
 - **Swashbuckle.AspNetCore**: Swagger integration
 - **Scalar.AspNetCore**: API schema generation
 - **Ollama_DB_layer**: Database access layer with repositories and entities
+
+## Service Organization
+- **Extension Methods**: Used throughout the codebase to organize service registrations
+- **Service Defaults**: Integration with common microservice functionality
+- **Modular Registration**: Services organized into logical groups based on functionality
+- **Startup Pattern**: Clean Program.cs with organized service registration calls
 
 ## JWT Implementation
 - **Token Structure**: Standard JWT with claims for identity, roles, and user ID
@@ -85,6 +92,7 @@
   - Issuer: "SecureApi"
   - Audience: "SecureApiUser"
   - DurationInDays: 30
+- **Service Organization**: Extension methods for clean registration
 
 ## API Endpoints
 - **POST /api/auth/register**: User registration with automatic role assignment

@@ -19,7 +19,7 @@ ConversationService is a critical microservice component of the OllamaNet platfo
 - **Entity Framework Core**: ORM for data access through shared Ollama_DB_layer
 - **SQL Server**: Primary database for persistence
 - **Redis**: Distributed caching for performance optimization
-- **OllamaSharp**: Client library for Ollama AI model integration
+- **InferenceEngine Client**: Client library for Inference Engine model integration
 - **FluentValidation**: Request validation framework
 - **Semantic Kernel**: Microsoft's framework for AI chat completion
 - **JWT Authentication**: Security implementation for user authentication
@@ -29,8 +29,8 @@ ConversationService is a critical microservice component of the OllamaNet platfo
 ConversationService is a central component in the OllamaNet microservices architecture, handling all conversational interactions between users and AI models. It provides a robust API for frontend applications to manage conversations, interact with AI models, and organize content. The service implements advanced features like conversation organization, streaming responses, and sophisticated caching strategies to deliver a performant and reliable user experience.
 
 ## Integration Points
-- **Ollama_DB_layer**: Shared database access layer for data persistence
-- **OllamaSharp**: Integration with Ollama inference engine API
+- **Shared DB layer**: Database access layer for data persistence
+- **InferenceEngine Client**: Integration with Inference Engine API
 - **Authentication Service**: JWT validation and user identification
 - **Redis Cache**: Distributed caching for performance optimization
 - **Frontend Application**: Web UI consuming the ConversationService API
@@ -51,4 +51,4 @@ ConversationService is a central component in the OllamaNet microservices archit
 2. 99.9% uptime
 3. Support for 10,000+ concurrent users
 4. Message history retrieval within 200ms
-5. Successful integration with all dependent services 
+5. Successful integration with all dependent services
