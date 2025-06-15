@@ -7,6 +7,7 @@ using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Ollama_DB_layer.UOW;
 using AuthService.Infrastructure.EmailService.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace AuthenticationService
 {
@@ -17,19 +18,22 @@ namespace AuthenticationService
         private readonly JWTManager _jwtManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole> roleManager, 
             JWTManager jwtManager,
             IUnitOfWork unitOfWork,
-            IEmailService emailService)
+            IEmailService emailService,
+            ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwtManager = jwtManager;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _logger = logger;
         }
 
         // Get user by token
@@ -38,18 +42,18 @@ namespace AuthenticationService
             var claimsPrincipal = _jwtManager.ValidateToken(token);
             if (claimsPrincipal == null)
             {
-                Console.WriteLine("Token validation failed.");
+                _logger.LogWarning("Token validation failed.");
                 return null;
             }
 
             var userIdClaim = claimsPrincipal.FindFirst("UserId");
             if (userIdClaim == null)
             {
-                Console.WriteLine("User ID claim not found in token.");
+                _logger.LogWarning("User ID claim not found in token.");
                 return null;
             }
 
-            Console.WriteLine($"Extracted User ID: {userIdClaim.Value}");
+            _logger.LogDebug("Extracted User ID: {UserId}", userIdClaim.Value);
             return await _userManager.FindByIdAsync(userIdClaim.Value);
         }
 
@@ -104,7 +108,7 @@ namespace AuthenticationService
             catch (Exception ex)
             {
                 // Log the exception but continue with registration process
-                Console.WriteLine($"Failed to send registration email: {ex.Message}");
+                _logger.LogError(ex, "Failed to send registration email");
             }
 
 

@@ -1,4 +1,4 @@
-namespace AuthService.Infrastructure.EmailService
+namespace AuthService.Infrastructure.EmailService.Models
 {
     public class EmailSettings
     {

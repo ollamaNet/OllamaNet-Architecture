@@ -30,9 +30,9 @@ using Ollama_DB_layer.Repositories.NoteRepo;
 using AuthService.DataSeeding.Interfaces;
 using AuthService.DataSeeding.Services;
 using AuthService.DataSeeding.Options;
-using AuthService.Infrastructure.EmailService;
 using AuthService.Infrastructure.EmailService.Interfaces;
 using AuthService.Infrastructure.EmailService.Implementation;
+using AuthService.Infrastructure.EmailService.Models;
 
 namespace AuthenticationService
 {
