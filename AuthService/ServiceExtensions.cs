@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -30,6 +30,9 @@ using Ollama_DB_layer.Repositories.NoteRepo;
 using AuthService.DataSeeding.Interfaces;
 using AuthService.DataSeeding.Services;
 using AuthService.DataSeeding.Options;
+using AuthService.Infrastructure.EmailService.Interfaces;
+using AuthService.Infrastructure.EmailService.Implementation;
+using AuthService.Infrastructure.EmailService.Models;
 
 namespace AuthenticationService
 {
@@ -115,8 +118,12 @@ namespace AuthenticationService
 
         }
 
-
-
+        // Register Email Service
+        public static void AddEmailService(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.AddScoped<IEmailService, EmailService>();
+        }
 
         // Register Data Seeding Services
         public static void AddDataSeeding(this IServiceCollection services, IConfiguration configuration)

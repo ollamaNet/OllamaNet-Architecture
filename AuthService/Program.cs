@@ -16,6 +16,7 @@ public class Program
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddRepositories();
         builder.Services.AddApplicationServices();
+        builder.Services.AddEmailService(builder.Configuration);
         builder.Services.ConfigureCors();
         builder.Services.ConfigureCache(builder.Configuration);
         builder.Services.ConfigureSwagger();
