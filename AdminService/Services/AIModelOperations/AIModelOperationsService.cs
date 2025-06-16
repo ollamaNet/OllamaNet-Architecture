@@ -1,4 +1,3 @@
-using AdminService.Connectors;
 using AdminService.Services.AIModelOperations.DTOs;
 using Microsoft.Extensions.Logging;
 using Ollama_DB_layer.Entities;
@@ -10,22 +9,23 @@ using AdminService.Services.AIModelOperations.Exceptions;
 using Ollama_DB_layer.UOW;
 using System.Linq;
 using AdminService.Services.AIModelOperations.Mappers;
+using AdminService.Infrastructure.Integration.InferenceEngine;
 
 namespace AdminService.Services.AIModelOperations
 {
     public class AIModelOperationsService : IAIModelOperationsService
     {
         private readonly ILogger<AIModelOperationsService> _logger;
-        private readonly IOllamaConnector _ollamaConnector;
+        private readonly IInferenceEngineConnector _InferenceEngineConnector;
         private readonly IUnitOfWork _unitOfWork;
 
         public AIModelOperationsService(
             ILogger<AIModelOperationsService> logger,
-            IOllamaConnector ollamaConnector,
+            IInferenceEngineConnector ollamaConnector,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _ollamaConnector = ollamaConnector;
+            _InferenceEngineConnector = ollamaConnector;
             _unitOfWork = unitOfWork;
         }
 
@@ -69,7 +69,7 @@ namespace AdminService.Services.AIModelOperations
                 _logger.LogInformation("Using Ollama API to get model details");
                 try
                 {
-                    var ollamaModelInfo = await _ollamaConnector.GetModelInfo(request.Name);
+                    var ollamaModelInfo = await _InferenceEngineConnector.GetModelInfo(request.Name);
                     modelToSave = AIModelMapper.FromOllamaToAIModel(request, ollamaModelInfo, userId);
                 }
                 catch (Exception ex)
