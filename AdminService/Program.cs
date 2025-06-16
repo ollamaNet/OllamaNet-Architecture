@@ -19,7 +19,7 @@ public class Program
         builder.Services.AddDatabaseAndIdentity(builder.Configuration);
         //builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddRepositories();
-        builder.Services.AddApplicationServices();
+        builder.Services.AddApplicationServices(builder.Configuration);
         builder.Services.ConfigureCors();
         builder.Services.ConfigureCache(builder.Configuration);
         builder.Services.ConfigureSwagger();

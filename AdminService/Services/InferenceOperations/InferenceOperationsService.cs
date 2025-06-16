@@ -1,4 +1,4 @@
-using AdminService.Connectors;
+using AdminService.Infrastructure.Integration.InferenceEngine;
 using AdminService.Services.InferenceOperations.DTOs;
 using OllamaSharp.Models;
 using Model = OllamaSharp.Models.Model;
@@ -7,11 +7,11 @@ namespace AdminService.Services.InferenceOperations
 {
     public class InferenceOperationsService : IInferenceOperationsService
     {
-        private readonly IOllamaConnector _ollamaConnector;
+        private readonly IInferenceEngineConnector _InferenceEngineConnector;
 
-        public InferenceOperationsService(IOllamaConnector connector)
+        public InferenceOperationsService(IInferenceEngineConnector connector)
         {
-            _ollamaConnector = connector;
+            _InferenceEngineConnector = connector;
         }
 
 
@@ -24,7 +24,7 @@ namespace AdminService.Services.InferenceOperations
             if (string.IsNullOrWhiteSpace(modelName))
                 throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
 
-            return await _ollamaConnector.GetModelInfo(modelName)
+            return await _InferenceEngineConnector.GetModelInfo(modelName)
                    ?? throw new InvalidOperationException($"Model '{modelName}' not found.");
         }
 
@@ -35,7 +35,7 @@ namespace AdminService.Services.InferenceOperations
 
         public async Task<IEnumerable<Model>> InstalledModelsAsync(int pageNumber, int pageSize)
         {
-            var models = await _ollamaConnector.GetInstalledModelsPaged(pageNumber, pageSize)
+            var models = await _InferenceEngineConnector.GetInstalledModelsPaged(pageNumber, pageSize)
                          ?? throw new InvalidOperationException("Failed to retrieve installed models.");
 
             return models.Any() ? models : throw new InvalidOperationException("No models are installed.");
@@ -45,35 +45,38 @@ namespace AdminService.Services.InferenceOperations
 
 
 
-        public async Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(modelName))
-                throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
 
-            // Check if the model is already installed
-            var installedModels = await _ollamaConnector.GetInstalledModels();
-            if (installedModels.Any(model => model.Name == modelName))
-                return new InstallProgressInfo
-                {
-                    Completed = 100,
-                    Total = 100,
-                    Status = $"{modelName} already installed",
-                    Digest = installedModels.Where(m => m.Name == modelName).FirstOrDefault()?.Digest
-                };
-            else
-            {
-                InstallProgressInfo? lastProgress = null;
+        //public async Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null)
+        //{
+        //    if (string.IsNullOrWhiteSpace(modelName))
+        //        throw new ArgumentException("Model name cannot be empty.", nameof(modelName));
 
-                await foreach (var response in _ollamaConnector.PullModelAsync(modelName))
-                {
-                    lastProgress = response; // Store the latest progress
+        //    // Check if the model is already installed
+        //    var installedModels = await _InferenceEngineConnector.GetInstalledModels();
+        //    if (installedModels.Any(model => model.Name == modelName))
+        //        return new InstallProgressInfo
+        //        {
+        //            Completed = 100,
+        //            Total = 100,
+        //            Status = $"{modelName} already installed",
+        //            Digest = installedModels.Where(m => m.Name == modelName).FirstOrDefault()?.Digest
+        //        };
+        //    else
+        //    {
+        //        InstallProgressInfo? lastProgress = null;
 
-                    // Report progress to the caller (e.g., the controller)
-                    progress?.Report(response);
-                }
-                return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
-            }
-        }
+        //        await foreach (var response in _InferenceEngineConnector.PullModelAsync(modelName))
+        //        {
+        //            lastProgress = response; // Store the latest progress
+
+        //            // Report progress to the caller (e.g., the controller)
+        //            progress?.Report(response);
+        //        }
+        //        return lastProgress ?? throw new InvalidOperationException($"Failed to install model '{modelName}'.");
+        //    }
+        //}
+
+
 
 
 
@@ -83,7 +86,7 @@ namespace AdminService.Services.InferenceOperations
             if (model is null || string.IsNullOrWhiteSpace(model.ModelName))
                 throw new ArgumentException("Invalid model request.", nameof(model));
 
-            await _ollamaConnector.RemoveModel(model.ModelName);
+            await _InferenceEngineConnector.RemoveModel(model.ModelName);
             
             return $"Model '{model.ModelName}' removed from inference engine";
         }
