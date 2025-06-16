@@ -20,6 +20,7 @@ AuthService follows a clean, layered architecture pattern within a microservices
 - **Singleton Pattern**: For token validation and generation services
 - **Single Responsibility Principle**: Each class/folder has one clear purpose
 - **Cookie-Based Token Storage**: HTTP-only cookies for refresh tokens
+- **Extension Methods**: Used to organize service registrations into logical groups
 
 ## Folder Structure & Cross-Cutting Concerns
 - All cross-cutting concerns are placed under `Infrastructure/`:
@@ -41,6 +42,19 @@ Controllers → IAuthService → UserManager/JWTManager → Repositories → Dat
 - Repositories provide data access for user-related entities
 - RefreshToken entities are linked to ApplicationUser entities
 - Infrastructure services (e.g., DataSeeding) are injected where needed
+
+## Service Registration
+- Services are registered in Program.cs using organized extension methods:
+  - `AddDatabaseAndIdentity`: Database context and ASP.NET Identity configuration
+  - `AddJwtAuthentication`: JWT token validation and authentication setup
+  - `AddRepositories`: Registration of all repository interfaces
+  - `AddApplicationServices`: Business service registrations
+  - `ConfigureCors`: CORS policy configuration
+  - `ConfigureCache`: Cache service registration
+  - `ConfigureSwagger`: Swagger/OpenAPI configuration
+  - `AddDataSeeding`: Data seeding services registration
+- `AddServiceDefaults`: Common microservice functionality integration
+- This approach ensures clean, maintainable service registration with proper separation of concerns
 
 ## Authentication Flow
 1. **Registration**:

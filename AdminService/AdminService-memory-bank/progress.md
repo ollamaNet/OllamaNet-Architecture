@@ -38,17 +38,76 @@
 - API documentation via Swagger with JWT support
 
 ## In Progress
-- Authentication and authorization implementation (structure in place but commented out)
-- Memory bank documentation refinement
+- Architecture redesign according to NewSystemDesign.md
+- Migration planning according to MigrationPlan.md
+- Migration tracking using MigrationTracking.md
 
 ## Pending Work
-- Enable JWT authentication (commented out in Program.cs)
-- Comprehensive integration testing
-- Rate limiting for administrative endpoints
-- Enhanced error handling with more specific exception types
-- Implement caching strategy for frequently accessed administrative data
-- Add audit logging for administrative actions
-- Implement monitoring and telemetry
+### Phase 0: Preparation and Analysis
+- Create new directory structure
+- Analyze existing code for dependencies
+- Document API contracts to ensure they remain unchanged
+
+### Phase 1: Infrastructure Layer Setup
+- Implement configuration management with options pattern:
+  - Infrastructure/Configuration/ConfigurationKeys.cs
+  - Infrastructure/Configuration/Options/InferenceEngineOptions.cs
+  - Infrastructure/Configuration/Options/UserManagementOptions.cs
+  - Infrastructure/Configuration/Options/ModelManagementOptions.cs
+  - Infrastructure/Configuration/AppSettings.cs
+- Create logging implementation with Serilog:
+  - Infrastructure/Logging/ILoggerService.cs
+  - Infrastructure/Logging/LoggerService.cs
+  - Infrastructure/Logging/Models/LogEntry.cs
+  - Infrastructure/Logging/Models/AuditRecord.cs
+  - Infrastructure/Logging/Options/LoggingOptions.cs
+  - Infrastructure/Logging/LoggingBehavior.cs
+- Set up caching layer with Redis:
+  - Infrastructure/Caching/CacheManager.cs
+  - Infrastructure/Caching/RedisCacheService.cs
+  - Infrastructure/Caching/CacheKeys.cs
+  - Infrastructure/Caching/Options/RedisCacheOptions.cs
+- Prepare authentication framework (commented):
+  - Infrastructure/Authentication/JwtHandler.cs
+  - Infrastructure/Authentication/AuthOptions.cs
+  - Infrastructure/Authentication/Extensions/AuthenticationExtensions.cs
+- Create integration layer for external services:
+  - Infrastructure/Integration/InferenceEngine/InferenceEngineConnector.cs
+  - Infrastructure/Integration/InferenceEngine/IInferenceEngineConnector.cs
+
+### Phase 2: Domain Services Layer
+- Implement domain-specific services with proper DTOs and mappers
+- Reorganize services by domain (User, AIModel, Tag, Inference)
+- Create DTOs and mappers for each domain
+
+### Phase 3: Controllers and Validators
+- Reorganize controllers by domain
+- Move validators to domain-specific folders
+- Update controllers to use new service interfaces
+- Verify API contracts remain unchanged
+
+### Phase 4: Error Handling and Validation
+- Implement global exception handler
+- Create custom exception types
+- Ensure consistent validation responses
+
+### Phase 5: Integration and Testing
+- Update Program.cs with new service registrations
+- Create integration tests for each domain
+- Test error handling and validation
+- Verify API contracts remain unchanged
+
+### Phase 6: Documentation and Cleanup
+- Update Swagger documentation
+- Remove obsolete files and directories
+- Clean up commented code
+- Update README.md with new architecture information
+
+### Phase 7: Final Verification
+- Perform final verification of the restructured service
+- Verify all API contracts remain unchanged
+- Conduct code review
+- Verify documentation is accurate and up-to-date
 
 ## Known Issues
 - Authentication/authorization commented out in Program.cs
@@ -57,25 +116,31 @@
 - Limited error handling for external service failures
 - No rate limiting on administrative endpoints
 - Minimal Redis cache utilization despite configuration
+- Hard-coded values need to be moved to configuration
+- Current architecture lacks proper domain separation
 
 ## Recent Milestones
-- Memory bank documentation created
-- Full code review completed
-- Component structure documented
-- FluentValidation implementation completed
-- Streaming progress reporting implemented
+- Architecture design document created (NewSystemDesign.md)
+- Migration plan developed (MigrationPlan.md)
+- Migration tracking document created (MigrationTracking.md)
+- Memory bank documentation updated to reflect new architecture
 
 ## Next Milestones
-- Enable JWT authentication
-- Implement integration testing
-- Develop audit logging strategy
-- Evaluate caching requirements
-- Implement rate limiting
-- Enhance monitoring capabilities
+- Complete Phase 0: Preparation and Analysis
+- Implement Phase 1: Infrastructure Layer Setup
+- Execute Phase 2: Domain Services Layer
+- Complete Phase 3: Controllers and Validators
 
 ## Performance Considerations
 - Database query optimization for user and model operations
-- Caching strategy for frequently accessed administrative data
+- Caching strategy with domain-specific TTLs:
+  - User profiles: 5 minutes TTL
+  - User roles: 15 minutes TTL
+  - Model metadata: 10 minutes TTL
+  - Model tags: 15 minutes TTL
+  - All tags: 30 minutes TTL
+  - Tag relationships: 15 minutes TTL
+  - No caching for inference operations
 - Connection pooling for database access
 - Streaming implementation for large data transfers
 - Pagination implementation for collection endpoints
