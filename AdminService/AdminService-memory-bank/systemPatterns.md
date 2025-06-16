@@ -12,6 +12,7 @@ AdminService follows a clean, layered architecture pattern within a microservice
 - **Validation Layer**: FluentValidation for comprehensive request validation
 - **Data Access Layer**: Repository pattern via IUnitOfWork for data operations
 - **Integration Layer**: OllamaConnector with IOllamaApiClient for Ollama integration
+- **Caching Layer**: Redis-based caching with JSON serialization for distributed state
 
 ## Design Patterns
 - **Repository Pattern**: Abstracts data access through repository interfaces from Ollama_DB_layer
@@ -23,12 +24,15 @@ AdminService follows a clean, layered architecture pattern within a microservice
 - **Progress Report Pattern**: IAsyncEnumerable with IProgress for model installation progress
 - **Try/Catch Pattern**: Consistent error handling with contextual logging
 - **Builder Pattern**: WebApplication.CreateBuilder for application configuration
+- **Cache-Aside Pattern**: Caching implemented for frequently accessed data
+- **Circuit Breaker Pattern**: Resilience policies for external service calls
+- **Retry Pattern**: Automatic retry with exponential backoff for transient failures
 
 ## Component Relationships
 ```
 Controllers → Services → Repositories/Connectors → Database/External Services
-        ↓
-   Validators
+        ↓           ↓
+   Validators    Cache Manager
 ```
 
 - **Controllers**: Depend on service interfaces and validators
@@ -36,6 +40,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **Repositories**: Provided by Ollama_DB_layer for data access
 - **Connectors**: OllamaConnector integrates with OllamaSharp
 - **Validators**: Ensure request data integrity through FluentValidation
+- **Cache Manager**: Provides abstracted access to Redis cache
 - **All Components**: Registered via dependency injection in ServiceExtensions.cs
 
 ## Service Organization
@@ -51,12 +56,13 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
   - AddRepositories: Repository registration from Ollama_DB_layer
   - AddApplicationServices: Service and validator registration
   - ConfigureCors: CORS policy configuration
-  - ConfigureCache: Redis configuration
+  - AddCaching: Redis cache configuration with settings and retry policies
   - ConfigureSwagger: Swagger with JWT support
 - **appsettings.json**: Environment-specific configurations:
   - Database connection string (SQL Server)
   - Redis connection (Upstash)
   - JWT settings for authentication
+  - RedisCaching settings for timeouts and retries
 
 ## API Design
 - **RESTful Endpoints**: Organized by domain with consistent URL structure:
@@ -95,6 +101,8 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
   - General exceptions → 500 Internal Server Error
 - **Contextual Logging**: ILogger<T> for detailed error information
 - **Consistent Response Format**: Structured error messages
+- **Custom Exception Types**: Specialized exceptions for different error scenarios
+- **Resilience Policies**: Retry and Circuit Breaker patterns for external services
 
 ## Streaming Implementation
 - **Server-Sent Events**: For model installation progress
@@ -107,4 +115,17 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **OllamaConnector**: Abstracts integration with OllamaSharp
 - **IOllamaApiClient**: External client for Ollama API
 - **Progress Reporting**: Structured updates for long-running operations
-- **Model Conversion**: Mapping between API and domain models 
+- **Model Conversion**: Mapping between API and domain models
+- **Service Discovery**: Dynamic URL configuration via RabbitMQ messaging
+- **Distributed Configuration**: Shared configuration via Redis caching
+
+## Caching Strategy
+- **Cache-Aside Pattern**: First check cache, then source, update cache
+- **Distributed Cache**: Redis for cross-service shared data
+- **JSON Serialization**: Consistent serialization across services
+- **Timeout Management**: Configurable timeouts for remote Redis operations
+- **Exception Handling**: Custom exceptions for cache operations with fallbacks
+- **Retry Policies**: Automatic retries for transient failures
+- **Cache Keys**: Centralized definition of cache keys
+- **Cache Manager**: Higher-level abstraction for caching operations
+- **Cache Duration**: Configurable expiration with defaults 

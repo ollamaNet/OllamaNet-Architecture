@@ -7,7 +7,8 @@
 - **SQL Server**: Primary database (via Database ASP.NET)
 - **OllamaSharp**: Client library for Ollama API integration
 - **FluentValidation**: Comprehensive request validation framework
-- **StackExchange.Redis**: Redis client for caching (minimal usage)
+- **StackExchange.Redis**: Redis client for distributed caching and configuration
+- **RabbitMQ**: Message broker for service discovery and configuration updates
 - **Swagger/OpenAPI**: API documentation and interactive testing
 
 ## Key Dependencies
@@ -19,6 +20,7 @@
 - **StackExchange.Redis**: Redis client for caching capabilities
 - **OllamaSharp**: Ollama API client for model operations
 - **Ollama_DB_layer**: Database access layer with repositories and entities
+- **System.Text.Json**: JSON serialization for cache values
 
 ## Key Components
 
@@ -136,13 +138,16 @@ The model installation endpoint supports Server-Sent Events for progress reporti
 
 ## External Services
 - **Database ASP.NET**: Hosted SQL Server instance at db19911.public.databaseasp.net
-- **Upstash**: Redis cloud service at content-ghoul-42217.upstash.io
-- **Ollama**: AI model serving system (default: http://localhost:11434)
+- **Upstash**: Redis cloud service at gentle-reindeer-38808.upstash.io
+- **CloudAMQP**: RabbitMQ cloud service at toucan.lmq.cloudamqp.com
+- **Ollama**: AI model serving system (default: http://localhost:11434, configurable via service discovery)
 
 ## Configuration
 - **Connection Strings**: Database and Redis connections in appsettings.json
 - **JWT Settings**: Authentication configuration (defined but commented out in code)
 - **CORS Settings**: Frontend origin configuration for http://localhost:5173
+- **RedisCaching**: Timeout, retry, and expiration settings for Redis operations
+- **RabbitMQ**: Message broker configuration for service discovery
 - **Logging**: Standard ASP.NET Core logging configuration
 
 ## Security Considerations
