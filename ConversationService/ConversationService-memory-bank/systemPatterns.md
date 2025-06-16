@@ -25,10 +25,10 @@ ConversationService follows a clean, layered architecture pattern within a micro
 - **Infrastructure Layer**: Technical implementations and external service integrations
   - RedisCacheService for low-level Redis operations
   - CacheManager for high-level caching abstraction
-  - OllamaConnector for AI model integration
+  - InferenceEngineConnector for AI model integration
   - RagInfrastructure for embedding and vector operations
   - DocumentStorage for secure file system operations
-- **Data Access Layer**: Repository pattern via IUnitOfWork from shared Ollama_DB_layer
+- **Data Access Layer**: Repository pattern via IUnitOfWork from shared DB layer
 
 ## RAG System Architecture
 The RAG (Retrieval-Augmented Generation) system follows a clean architecture pattern:
@@ -36,7 +36,7 @@ The RAG (Retrieval-Augmented Generation) system follows a clean architecture pat
 ### Infrastructure Layer (`Infrastructure/Rag/`)
 - **Embedding**
   - `ITextEmbeddingGeneration`: Interface for text embedding generation
-  - `OllamaTextEmbeddingGeneration`: Ollama-based implementation
+  - `InferenceEngineTextEmbeddingGeneration`: Inference Engine-based implementation
 - **Vector Database**
   - `IPineconeService`: Interface for vector database operations
   - `PineconeService`: Pinecone implementation for vector storage and retrieval
@@ -89,14 +89,14 @@ The RAG (Retrieval-Augmented Generation) system follows a clean architecture pat
   - `Markdown/MarkdownDocumentProcessor`: Markdown processing
 
 ## Design Patterns
-- **Repository Pattern**: Abstracts data access through repositories from Ollama_DB_layer
+- **Repository Pattern**: Abstracts data access through repositories from shared DB layer
 - **Unit of Work**: Manages transactions and repository coordination via IUnitOfWork
 - **Dependency Injection**: Comprehensive service registration in ServiceExtensions.cs
 - **Observer Pattern**: Server-sent events for streaming AI responses
 - **Strategy Pattern**: Different strategies for cache retrieval and fallback
 - **Factory Pattern**: Creation of chat histories and response objects
 - **Decorator Pattern**: Enhanced services with caching behavior
-- **Adapter Pattern**: OllamaConnector adapting to the OllamaSharp client
+- **Adapter Pattern**: InferenceEngineConnector adapting to the InferenceEngine client
 - **Cache-Aside Pattern**: GetOrSetAsync with database fallback strategy
 - **Circuit Breaker Pattern**: Timeout and retry logic for cache operations
 - **Chain of Responsibility**: Document processor selection based on file type
@@ -115,8 +115,8 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **ChatHistoryManager**: Manages conversation history with caching integration
 - **CacheManager**: Provides caching abstraction with fallback mechanisms
 - **RedisCacheService**: Offers low-level Redis operations with error handling
-- **Repositories**: Access database via the shared Ollama_DB_layer
-- **OllamaConnector**: Integrates with the Ollama AI service via ngrok endpoint
+- **Repositories**: Access database via the shared DB layer
+- **InferenceEngineConnector**: Integrates with the Inference Engine service via ngrok endpoint
 - **DocumentStorage**: Manages secure file storage operations
 - **DocumentProcessors**: Handle format-specific text extraction
 
@@ -211,7 +211,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 ## Streaming Implementation
 - **Server-Sent Events**: Real-time streaming for chat responses
 - **Content-Type**: text/event-stream for proper SSE implementation
-- **IAsyncEnumerable**: In OllamaConnector.GetStreamedChatMessageContentsAsync
+- **IAsyncEnumerable**: In InferenceEngineConnector.GetStreamedChatMessageContentsAsync
 - **Response.BodyWriter**: Direct streaming to HTTP response
 - **Cancellation Support**: EnumeratorCancellation for proper cancellation
 - **JSON Serialization**: Response objects serialized with consistent format
@@ -243,7 +243,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - **HTTPS Enforcement**: In middleware pipeline
 - **CORS Configuration**: Specific origin allowance (localhost:5173)
 - **Token Security**: 30-day lifetime with full validation
-- **Document Security**: 
+- **Document Security**:
   - Content type validation
   - File size validation
   - Secure file paths
@@ -261,7 +261,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 - REST API for service-to-service communication
 - Redis for distributed caching
 - SQL Server for data persistence
-- Ollama Service for model inference
+- Inference Engine Service for model inference
 - API Gateway for request routing and authentication
 
 ## Architectural Patterns
@@ -278,7 +278,7 @@ Controllers → Services → Repositories/Connectors → Database/External Servi
 
 ## Design Patterns
 
-- **Adapter Pattern**: InferenceEngineConnector adapting to the OllamaSharp client
+- **Adapter Pattern**: InferenceEngineConnector adapting to the InferenceEngine client
 - **Factory Pattern**: Creation of services and repositories
 - **Strategy Pattern**: For different document processors
 - **Observer Pattern**: For InferenceEngine URL change notifications

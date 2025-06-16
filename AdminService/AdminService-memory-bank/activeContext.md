@@ -1,53 +1,95 @@
 # Active Context for AdminService
 
 ## Current Focus
-- Completing and refining the memory bank documentation for AdminService
-- Understanding the current implementation of administrative capabilities
-- Analyzing potential improvements for authentication and authorization
+- Implementing the new architecture design as defined in NewSystemDesign.md
+- Executing the migration plan outlined in MigrationPlan.md
+- Tracking migration progress using MigrationTracking.md
+- Reorganizing code by domain and implementing proper separation of concerns
 
 ## Recent Changes
-- Memory bank documentation created and refined
-- Full code review completed with detailed component analysis
-- Documentation of architecture patterns and system organization
+- Created comprehensive architecture design document (NewSystemDesign.md)
+- Developed detailed migration plan with phases (MigrationPlan.md)
+- Created migration tracking document to monitor progress (MigrationTracking.md)
+- Analyzed existing code for dependencies and hard-coded values
+- Designed new folder structure with domain-driven organization
 
 ## Current Status
-- AdminService is fully implemented with four main operation domains:
-  - UserOperations: comprehensive user management with role-based controls
-  - AIModelOperations: complete model administration with tag management
-  - TagOperations: tag creation and management for content organization
-  - InferenceOperations: Ollama integration for model management
-- Controllers implemented with FluentValidation for request validation
-- Services implemented with proper business logic encapsulation
-- OllamaConnector provides structured integration with the Ollama API
-- Streaming implementation for model installation progress
-- JWT authentication structure defined but currently commented out
-- Swagger documentation enabled with JWT support
-- Database integration via Unit of Work pattern
+- Migration is in the planning phase with documentation created
+- Current architecture has four main operation domains that will be reorganized:
+  - UserOperations: to be moved to User domain
+  - AIModelOperations: to be moved to AIModel domain
+  - TagOperations: to be moved to Tag domain
+  - InferenceOperations: to be moved to Inference domain
+- Controllers, services, and validators will be reorganized by domain
+- New Infrastructure layer will be created for cross-cutting concerns
+- Migration tracking document created to monitor file movements
 
 ## Active Decisions
-- Controller organization by domain (User, Model, Tag, Inference)
-- FluentValidation for comprehensive request validation
-- Try/catch with contextual logging for robust error handling
-- RESTful API design with appropriate HTTP methods
-- Stream-based progress reporting for long-running operations
-- JWT authentication structure defined but temporarily disabled
-- SQL Server for data persistence with Entity Framework Core
+- Domain-driven organization (User, AIModel, Tag, Inference)
+- Infrastructure layer for cross-cutting concerns
+- Options pattern for configuration management
+- Global exception handling for consistent error responses
+- Structured logging with Serilog
+- Caching strategy with domain-specific TTLs
+- No caching for inference operations
+- Renaming OllamaConnector to InferenceEngineConnector
+- Removal of AdminController
 
 ## Next Steps
-- Enable JWT authentication by uncommenting the relevant code in Program.cs
-- Implement audit logging for administrative actions
-- Review and optimize caching strategy for administrative data
-- Add rate limiting for sensitive administrative endpoints
-- Enhance error handling for external service failures
-- Implement comprehensive integration testing
+1. **Phase 0: Preparation and Analysis**
+   - Create new directory structure
+   - Analyze existing code for dependencies
+   - Document API contracts to ensure they remain unchanged
+
+2. **Phase 1: Infrastructure Layer Setup**
+   - Implement configuration management with options pattern
+   - Create logging implementation with Serilog
+   - Set up caching layer with Redis
+   - Prepare authentication framework (commented)
+   - Create integration layer for external services
+
+3. **Phase 2: Domain Services Layer**
+   - Implement domain-specific services with proper DTOs and mappers
+   - Ensure no changes to DTOs that would require database migrations
+   - Organize services by domain (User, AIModel, Tag, Inference)
+
+4. **Phase 3: Controllers and Validators**
+   - Reorganize controllers by domain
+   - Move validators to domain-specific folders
+   - Update controllers to use new service interfaces
+   - Verify API contracts remain unchanged
 
 ## Open Questions
-- Should authentication be implemented at the gateway level or within the service?
-- What level of granularity is needed for audit logging?
-- Is the current Redis caching configuration sufficient for production use?
-- How should rate limiting be implemented for administrative endpoints?
-- What monitoring approach should be used for administrative operations?
-- How should the AdminController.cs functionality be integrated with the specialized controllers?
+- How to handle the transition period during migration?
+- Should we implement the migration in a feature branch or directly in the main branch?
+- What is the priority order for implementing the phases?
+- How to verify API contracts remain unchanged during migration?
+- What testing strategy should be used to validate the migration?
+- Are there any performance considerations for the new architecture?
+
+## Migration Plan
+The migration is organized into seven phases:
+1. **Preparation and Analysis**: Set up foundation and analyze existing code
+2. **Infrastructure Layer Setup**: Establish cross-cutting concerns
+3. **Domain Services Layer**: Implement domain-specific services
+4. **Controllers and Validators**: Reorganize by domain
+5. **Error Handling and Validation**: Implement consistent approach
+6. **Integration and Testing**: Integrate all components and test
+7. **Documentation and Cleanup**: Finalize documentation and remove obsolete components
+
+## Performance Considerations
+- Database query optimization for user and model operations
+- Caching strategy with appropriate TTLs per domain:
+  - User profiles: 5 minutes TTL
+  - User roles: 15 minutes TTL
+  - Model metadata: 10 minutes TTL
+  - Model tags: 15 minutes TTL
+  - All tags: 30 minutes TTL
+  - Tag relationships: 15 minutes TTL
+  - No caching for inference operations
+- Connection pooling for database access
+- Streaming implementation for large data transfers
+- Pagination for collection endpoints
 
 ## Current Context
-The AdminService provides a comprehensive administrative API for the OllamaNet platform, structured into four main operation domains (User, Model, Tag, Inference) with corresponding controller and service implementations. It leverages FluentValidation for request validation, implements proper error handling with contextual logging, and integrates with Ollama for model operations including streaming progress for installations. The service has a solid foundation with well-structured components, but requires enablement of authentication and implementation of additional security measures before production deployment. 
+The AdminService is undergoing a significant architectural restructuring to improve organization, maintainability, and scalability. The new architecture follows domain-driven design principles with clear separation of concerns. The migration plan outlines a phased approach to minimize disruption while ensuring API contracts remain unchanged. The infrastructure layer will provide cross-cutting concerns like caching, logging, and configuration management. Each domain (User, AIModel, Tag, Inference) will have its own controllers, services, DTOs, and validators.

@@ -39,9 +39,9 @@
   - CacheKeys for centralized key management by domain
   - Specialized cache exceptions for failure scenarios
   - RedisCacheSettings with domain-specific TTL configuration
-- Ollama integration:
-  - OllamaConnector with streaming and non-streaming response handling
-  - Integration with Ollama via ngrok endpoint
+- Inference Engine integration:
+  - InferenceEngineConnector with streaming and non-streaming response handling
+  - Integration with Inference Engine via ngrok endpoint
   - Streaming pattern implementation with IAsyncEnumerable
 - Security components:
   - JWT authentication with 30-day token lifetime
@@ -50,7 +50,7 @@
   - Proper error handling with status code mapping
   - Document upload security with content validation
 - Data access integration:
-  - Repository pattern via Ollama_DB_layer
+  - Repository pattern via shared DB layer
   - Unit of Work pattern for transaction management
   - Entity Framework Core with SQL Server
 - API documentation:
