@@ -1,0 +1,65 @@
+# Gateway Project Rules
+
+## Project Patterns
+
+### Configuration Files
+- Configuration files are stored in the `Configurations` directory
+- Service-specific configurations follow the pattern `{ServiceName}.json`
+- Variable references use the syntax `${Services.ServiceName.PropertyName}`
+- Global settings are stored in `Global.json`
+- Service URLs are centralized in `ServiceUrls.json`
+
+### Code Structure
+- Configuration loading logic is in `ConfigurationLoader.cs`
+- File watching is handled by `ConfigurationChangeMonitor.cs`
+- Authentication extension methods are in `ServiceExtensions.cs`
+- Custom middleware is in the `Middlewares` directory
+
+### Naming Conventions
+- Use PascalCase for class names and public members
+- Use camelCase for JSON property names in configuration files
+- Use verb-noun pattern for method names (e.g., `LoadAndCombineConfigurations`)
+- Follow Ocelot configuration property naming conventions exactly
+
+## Workflow Rules
+
+### Configuration Changes
+- Always update `ServiceUrls.json` when changing service endpoints
+- Run the application to validate configuration changes
+- Check the generated `combined_ocelot_config.json` to verify variable replacement
+- Keep backups of working configurations before major changes
+
+### Development Workflow
+- Test route configurations with Postman or similar tools
+- Use swagger UI for interactive testing during development
+- Always verify authentication is properly configured for secured routes
+- Watch application logs for configuration loading issues
+
+## Critical Paths
+
+### Startup Sequence
+1. Program.cs loads configuration
+2. ConfigurationLoader combines configuration files
+3. Variables are replaced with actual values
+4. Ocelot middleware is configured with the combined configuration
+
+### Configuration Change Handling
+1. Files are changed in the Configurations directory
+2. ConfigurationChangeMonitor detects changes
+3. OnConfigurationChanged action is triggered
+4. Configuration is reloaded
+5. (Currently) Application needs to be restarted to apply changes
+
+## Common Issues
+
+### Troubleshooting
+- If routes aren't working, check the combined configuration file
+- Variable replacement issues show up as literal `${variable}` text in the config
+- JWT authentication issues often relate to token validation parameters
+- File watching may not work in certain deployment scenarios
+
+### Best Practices
+- Test configuration changes in development before production
+- Use descriptive route names and consistent patterns
+- Maintain clear separation between different service routes
+- Document all configuration changes 
