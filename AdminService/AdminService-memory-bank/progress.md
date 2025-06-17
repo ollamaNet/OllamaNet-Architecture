@@ -90,7 +90,14 @@
 - Redis timeout configuration for cloud-based Redis instances
 - Async caching operations for non-blocking updates
 - Database query optimization for user and model operations
-- Caching strategy for frequently accessed administrative data
+- Caching strategy with domain-specific TTLs:
+  - User profiles: 5 minutes TTL
+  - User roles: 15 minutes TTL
+  - Model metadata: 10 minutes TTL
+  - Model tags: 15 minutes TTL
+  - All tags: 30 minutes TTL
+  - Tag relationships: 15 minutes TTL
+  - No caching for inference operations
 - Connection pooling for database access
 - Streaming implementation for large data transfers
 - Pagination implementation for collection endpoints

@@ -29,6 +29,8 @@
 - **Folder audit and refactor completed (DataSeeding under Infrastructure, placeholders for Caching, Logging, Email)**
 - **Code audit and refactor completed (all files in correct locations)**
 - **Pattern enforcement completed (DI, options, SRP)**
+- **Service registration organized using extension methods**
+- **Service defaults integrated for common functionality across microservices**
 
 ## Working Functionality
 - User registration with automatic role assignment and root folder creation
@@ -51,6 +53,7 @@
 - Comprehensive input validation at controller level
 - Token claims including user ID for secure operations
 - **System design plan and folder structure now support future cross-cutting concerns**
+- **Clean organization of service registrations using extension methods**
 
 ## In Progress
 - Memory bank and documentation updates
@@ -78,6 +81,7 @@
 - Token handling and security patterns fully documented
 - Input validation and cookie management details documented
 - **System design plan and folder structure updated for maintainability**
+- **Organized service registrations using extension methods for better code organization**
 
 ## Next Milestones
 - Implement automated refresh token cleanup mechanism
@@ -87,6 +91,7 @@
 - Move sensitive configuration to secure storage
 - Enhance password policies beyond Identity defaults
 - **Begin implementation of future cross-cutting concerns as needed**
+- **Review CORS configuration for potential improvements**
 
 ## Performance Considerations
 - JWT validation performance at scale
