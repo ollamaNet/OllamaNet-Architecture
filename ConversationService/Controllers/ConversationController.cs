@@ -82,7 +82,7 @@ namespace ConversationServices.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 15)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue("UserId");
             if (userId == null)
                 return Unauthorized();
 
