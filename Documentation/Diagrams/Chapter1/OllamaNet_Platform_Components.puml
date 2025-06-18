@@ -1,0 +1,84 @@
+@startuml OllamaNet_Platform_Components
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Set styles and formatting
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+title OllamaNet Platform Components
+
+System_Boundary(ollamanet, "OllamaNet Platform") {
+    Container(gateway, "API Gateway", ".NET Core, Ocelot", "Routes requests and provides cross-cutting concerns") {
+        Component(routing, "Request Routing", "Ocelot", "Routes requests to appropriate services")
+        Component(auth_middleware, "Auth Middleware", "JWT Validation", "Validates authentication tokens")
+        Component(claims_middleware, "Claims Middleware", "Claims Forwarding", "Forwards user claims to services")
+        Component(cors, "CORS Handler", "Middleware", "Handles cross-origin requests")
+        Component(config_loader, "Configuration Loader", "Service", "Loads and manages service routes")
+    }
+    
+    Container(auth_service, "Auth Service", ".NET Core Web API", "Authentication and authorization") {
+        Component(login, "Login Handler", "Controller", "Handles user login requests")
+        Component(registration, "User Registration", "Controller", "Handles user registration")
+        Component(token_svc, "Token Service", "Service", "Generates and validates JWT tokens")
+        Component(user_mgr, "User Manager", "Service", "Manages user accounts")
+        Component(password_svc, "Password Service", "Service", "Handles password operations")
+    }
+    
+    Container(admin_service, "Admin Service", ".NET Core Web API", "Administration and model operations") {
+        Component(model_ops, "Model Operations", "Controller", "Handles AI model operations")
+        Component(user_ops, "User Operations", "Controller", "Manages user administration")
+        Component(inference_ops, "Inference Operations", "Controller", "Manages inference settings")
+        Component(model_svc, "Model Service", "Service", "Implements model management logic")
+        Component(admin_validator, "Request Validators", "FluentValidation", "Validates admin requests")
+    }
+    
+    Container(conversation_service, "Conversation Service", ".NET Core Web API", "Chat and conversation management") {
+        Component(chat_ctrl, "Chat Controller", "Controller", "Handles chat operations")
+        Component(convo_ctrl, "Conversation Controller", "Controller", "Manages conversations")
+        Component(doc_ctrl, "Document Controller", "Controller", "Handles document operations")
+        Component(rag_index, "RAG Indexing", "Service", "Indexes documents for retrieval")
+        Component(rag_retrieval, "RAG Retrieval", "Service", "Retrieves relevant context")
+        Component(chat_svc, "Chat Service", "Service", "Implements chat functionality")
+    }
+    
+    Container(explore_service, "Explore Service", ".NET Core Web API", "Model discovery and browsing") {
+        Component(explore_ctrl, "Explore Controller", "Controller", "Handles browse and search")
+        Component(tags_ctrl, "Tags Controller", "Controller", "Manages model tags")
+        Component(explore_svc, "Explore Service", "Service", "Implements explore functionality")
+        Component(search_engine, "Search Engine", "Service", "Handles model searching")
+        Component(model_mapper, "Model Mapper", "Mapper", "Maps between DTOs and entities")
+    }
+    
+    Container(inference_service, "Inference Service", "Python, Jupyter", "AI model inference") {
+        Component(model_runner, "Model Runner", "Service", "Runs inference on models")
+        Component(service_discovery, "Service Discovery", "Client", "Publishes service URL")
+        Component(ollama_client, "Ollama Client", "Service", "Interacts with Ollama")
+        Component(inference_api, "Inference API", "FastAPI", "Exposes inference endpoints")
+    }
+}
+
+Rel(gateway, auth_service, "Routes auth requests to", "REST")
+Rel(gateway, admin_service, "Routes admin requests to", "REST")
+Rel(gateway, conversation_service, "Routes conversation requests to", "REST")
+Rel(gateway, explore_service, "Routes explore requests to", "REST")
+Rel(gateway, inference_service, "Routes inference requests to", "REST")
+
+Rel(auth_middleware, auth_service, "Validates tokens with", "REST")
+Rel(routing, config_loader, "Uses configurations from", "Internal")
+
+Rel(conversation_service, inference_service, "Sends inference requests to", "REST")
+Rel(admin_service, inference_service, "Configures", "REST")
+Rel(rag_retrieval, chat_svc, "Enhances prompts for", "Internal")
+
+legend right
+  Component-level view of OllamaNet platform showing
+  the internal components of each microservice and
+  their primary responsibilities.
+end legend
+
+footer Chapter 1
+header OllamaNet Documentation
+
+@enduml

@@ -1,0 +1,82 @@
+# Spicy Avocado Project Intelligence
+
+## Critical Implementation Paths
+
+1. **Service Startup Sequence**
+   - Ollama must be installed before attempting to pull models
+   - Ollama server must be running before starting ngrok tunnel
+   - ngrok must be authenticated before creating a tunnel
+   - Allow sufficient time between service startups (using time.sleep)
+
+2. **Configuration Management**
+   - OLLAMA_HOST must be set to "0.0.0.0:11434" to allow external connections
+   - OLLAMA_ORIGIN must be set to "*" to allow cross-origin requests
+   - NGROK_AUTH_TOKEN must be valid and current
+
+3. **Error Detection**
+   - Check Ollama server status by making a request to http://127.0.0.1:11434
+   - Check ngrok tunnel by querying http://localhost:4040/api/tunnels
+   - Implement retries when checking service status to account for startup time
+
+## Project-Specific Patterns
+
+1. **Process Management**
+   - Use subprocess.Popen for long-running processes (Ollama, ngrok)
+   - Redirect output to log files for debugging
+   - Use subprocess.run for short commands with capture_output=True
+
+2. **URL Handling**
+   - ngrok URLs are retrieved from the ngrok API at http://localhost:4040/api/tunnels
+   - The URL is found in the response JSON at ["tunnels"][0]["public_url"]
+   - Always implement retries when fetching the URL due to potential timing issues
+
+3. **Logging Strategy**
+   - Ollama server logs to ollama_model.log
+   - ngrok logs to ngrok.log
+   - Use print statements with emoji prefixes for better readability (e.g., "✅", "❌", "🚀")
+
+## Known Challenges
+
+1. **ngrok Connection Stability**
+   - ngrok connections may drop after extended periods
+   - Free tier has limitations on connection time and bandwidth
+   - Consider implementing a reconnection mechanism for long-running deployments
+
+2. **Process Cleanup**
+   - Ensure processes are properly terminated when the notebook is shut down
+   - Use pkill -f ngrok to clean up ngrok processes before starting new ones
+   - Consider implementing signal handlers for proper cleanup
+
+3. **Authentication Security**
+   - ngrok auth tokens should be kept secure and not committed to version control
+   - Consider using environment variables or a secure configuration file
+   - Be aware that the exposed API has no authentication by default
+
+## Evolution of Project Decisions
+
+1. **Model Selection**
+   - Initial implementation uses llama3.2:1b for balance of performance and resources
+   - Future implementations may support model switching or multiple models
+   - Consider adding model parameter validation and fallback options
+
+2. **Deployment Strategy**
+   - Current implementation is a Jupyter notebook for interactive use
+   - Future versions may move to a standalone script or service
+   - Consider containerization for easier deployment and isolation
+
+## Tool Usage Patterns
+
+1. **Jupyter Notebook**
+   - Use cell-based execution for step-by-step verification
+   - Keep related functionality in single cells when possible
+   - Use markdown cells for documentation and explanation
+
+2. **Subprocess Management**
+   - Prefer Python's subprocess module over os.system for better control
+   - Use Popen for processes that need to run in the background
+   - Use run for processes where you need to wait for completion
+
+3. **Error Handling**
+   - Use try/except blocks around network operations
+   - Implement retries with increasing delays for transient issues
+   - Provide clear error messages with suggested actions

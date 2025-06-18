@@ -21,8 +21,9 @@ public class InferenceEngineConfiguration : IInferenceEngineConfiguration
     private readonly IRedisCacheService _redisCacheService;
     private readonly IUrlValidator _urlValidator;
     private const string CACHE_KEY = "InferenceEngine:BaseUrl";
-
     public event Action<string> BaseUrlChanged;
+
+
 
     public InferenceEngineConfiguration(
         IConfiguration configuration, 

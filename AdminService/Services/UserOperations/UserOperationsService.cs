@@ -42,7 +42,7 @@ namespace AdminService.Services.UserOperations
                 throw new UserNotFoundException(userId);
             }
             
-            return UserOperationsMapper.ToUserResponse(user);
+            return await UserOperationsMapper.ToUserResponseAsync(user, _userManager);
         }
 
 
@@ -267,8 +267,8 @@ namespace AdminService.Services.UserOperations
                 .Take(pageSize)
                 .ToListAsync();
             
-            // Map to response DTOs using the mapper
-            var userResponses = UserOperationsMapper.ToUsersListResponse(users);
+            // Map to response DTOs using the async mapper
+            var userResponses = await UserOperationsMapper.ToUsersListResponseAsync(users, _userManager);
             
             return (userResponses, totalCount);
         }
@@ -309,8 +309,8 @@ namespace AdminService.Services.UserOperations
                 matchingUsers = filteredUsers;
             }
             
-            // Map to response DTOs using the mapper
-            return UserOperationsMapper.ToUsersListResponse(matchingUsers);
+            // Map to response DTOs using the async mapper
+            return await UserOperationsMapper.ToUsersListResponseAsync(matchingUsers, _userManager);
         }
 
 

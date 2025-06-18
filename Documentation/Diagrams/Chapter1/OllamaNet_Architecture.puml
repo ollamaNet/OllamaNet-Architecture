@@ -1,0 +1,79 @@
+@startuml OllamaNet_Architecture
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Set styles and formatting
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+title OllamaNet Architecture
+
+Person(user, "End User", "A user of the OllamaNet platform")
+Person(admin, "Administrator", "System administrator managing the platform")
+
+System_Boundary(ollamanet, "OllamaNet Platform") {
+    Container(client_app, "Frontend Application", "React", "Provides user interface for interacting with the platform")
+    
+    Container(gateway, "API Gateway", ".NET Core, Ocelot", "Routes requests and handles cross-cutting concerns")
+    
+    Container(auth_api, "Auth Service", ".NET Core Web API", "Handles authentication and authorization")
+    Container(admin_api, "Admin Service", ".NET Core Web API", "Handles administration and model operations")
+    Container(conversation_api, "Conversation Service", ".NET Core Web API", "Manages chat conversations and RAG")
+    Container(explore_api, "Explore Service", ".NET Core Web API", "Provides model discovery and browsing")
+    
+    Container_Boundary(inference_service, "Inference Service") {
+        Container(inference_api, "Inference API", "Python, Jupyter", "Handles AI model inference")
+        Container(ngrok, "ngrok Tunnel", "ngrok", "Exposes local API endpoint")
+    }
+    
+    ContainerDb(shared_db, "Shared Database", "SQL Server", "Stores data for all services with logical separation")
+    ContainerDb(vector_store, "Vector Store", "Pinecone", "Stores and queries vector embeddings")
+    ContainerDb(redis, "Redis Cache", "Redis", "Distributed cache for performance")
+    Container(rabbitmq, "Message Broker", "RabbitMQ", "Handles asynchronous messaging and service discovery")
+}
+
+System_Ext(ollama, "Ollama", "Open-source framework for running LLMs locally")
+
+Rel(user, client_app, "Uses", "HTTPS")
+Rel(admin, client_app, "Administers", "HTTPS")
+
+Rel(client_app, gateway, "Makes API calls to", "HTTPS")
+Rel(gateway, auth_api, "Routes auth requests to", "REST")
+Rel(gateway, admin_api, "Routes admin requests to", "REST")
+Rel(gateway, conversation_api, "Routes conversation requests to", "REST")
+Rel(gateway, explore_api, "Routes explore requests to", "REST")
+Rel(gateway, inference_api, "Routes inference requests to", "REST")
+
+Rel(auth_api, shared_db, "Reads/writes auth data", "Entity Framework")
+Rel(admin_api, shared_db, "Reads/writes admin data", "Entity Framework")
+Rel(conversation_api, shared_db, "Reads/writes conversation data", "Entity Framework")
+Rel(explore_api, shared_db, "Reads/writes model catalog", "Entity Framework")
+
+Rel(conversation_api, vector_store, "Queries for similar content", "HTTP")
+Rel(conversation_api, inference_api, "Requests completions from", "REST")
+Rel(admin_api, inference_api, "Configures", "REST")
+
+Rel(inference_api, ollama, "Runs models via", "HTTP")
+Rel(inference_api, ngrok, "Exposed through", "HTTP")
+Rel(inference_api, rabbitmq, "Publishes URL updates to", "AMQP")
+
+Rel(auth_api, redis, "Caches tokens", "Redis Client")
+Rel(conversation_api, redis, "Caches conversations", "Redis Client")
+Rel(admin_api, redis, "Caches model data", "Redis Client")
+Rel(explore_api, redis, "Caches search results", "Redis Client")
+
+Rel(admin_api, rabbitmq, "Subscribes to service updates", "AMQP")
+Rel(conversation_api, rabbitmq, "Subscribes to service updates", "AMQP")
+
+legend right
+  Detailed OllamaNet architecture showing all services,
+  their components, and interactions between them.
+  Note: All services share a single SQL database with logical
+  separation using schemas and access patterns.
+end legend
+
+footer Chapter 1
+header OllamaNet Documentation
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml OllamaNet_System_Overview
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Set styles and formatting
+LAYOUT_WITH_LEGEND()
+LAYOUT_TOP_DOWN()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+title OllamaNet System Overview
+
+Person(user, "End User", "A user of the OllamaNet platform")
+Person(admin, "Administrator", "System administrator managing the platform")
+Person(developer, "Developer", "Developer integrating with OllamaNet APIs")
+
+System_Boundary(ollamanet, "OllamaNet Platform") {
+    System(gateway, "API Gateway", "Routes requests and handles cross-cutting concerns")
+    System(conversation, "Conversation Service", "Manages chat conversations and RAG")
+    System(admin_service, "Admin Service", "Handles administration and model operations")
+    System(auth, "Auth Service", "Manages authentication and authorization")
+    System(explore, "Explore Service", "Provides model discovery and browsing")
+    System(inference, "Inference Service", "Handles AI model inference")
+}
+
+System_Ext(ollama, "Ollama", "Open-source framework for running LLMs locally")
+System_Ext(database, "Shared SQL Database", "Stores system data with logical separation between services")
+System_Ext(redis, "Redis", "Provides distributed caching")
+System_Ext(vector_db, "Vector Database", "Stores and queries vector embeddings")
+
+Rel(user, gateway, "Uses", "HTTPS")
+Rel(admin, gateway, "Administers", "HTTPS")
+Rel(developer, gateway, "Integrates with", "HTTPS/API")
+
+Rel(gateway, conversation, "Routes to", "REST")
+Rel(gateway, admin_service, "Routes to", "REST")
+Rel(gateway, auth, "Routes to", "REST")
+Rel(gateway, explore, "Routes to", "REST")
+Rel(gateway, inference, "Routes to", "REST")
+
+Rel(conversation, inference, "Uses", "REST/RabbitMQ")
+Rel(admin_service, inference, "Configures", "REST/RabbitMQ")
+Rel(conversation, database, "Reads/writes conversation data", "Entity Framework")
+Rel(auth, database, "Reads/writes user data", "Entity Framework")
+Rel(explore, database, "Reads/writes model catalog", "Entity Framework")
+Rel(admin_service, database, "Reads/writes administration data", "Entity Framework")
+
+Rel(inference, ollama, "Runs models via", "HTTP")
+Rel(conversation, vector_db, "Queries for similar content", "HTTP")
+Rel(conversation, redis, "Caches conversations", "Redis Client")
+Rel(admin_service, redis, "Caches model data", "Redis Client")
+
+legend right
+  OllamaNet high-level system context showing main components 
+  and their interactions with external systems and users.
+  Note: All services use a shared SQL database with logical separation.
+end legend
+
+footer Chapter 1
+header OllamaNet Documentation
+
+@enduml

@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace ConversationServices.Infrastructure.Caching;
 
-public interface IRedisCacheService
+public interface IRedisCacheService 
 {
     Task<T?> GetAsync<T>(string key);
     Task SetAsync<T>(string key, T value, TimeSpan? expiration = null);
@@ -132,6 +132,9 @@ public class RedisCacheService : IRedisCacheService
             throw new CacheOperationException("GET", key, ex);
         }
     }
+
+
+
 
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null)
     {

@@ -1,9 +1,10 @@
 using AdminService.Services.AIModelOperations;
 using AdminService.Services.AIModelOperations.DTOs;
-using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Security.Claims;
 
 namespace AdminService.Controllers
 {
@@ -17,6 +18,7 @@ namespace AdminService.Controllers
         private readonly IValidator<ModelTagOperationRequest> _tagOperationValidator;
         private readonly IValidator<SearchModelRequest> _searchModelValidator;
         private readonly ILogger<AIModelOperationsController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AIModelOperationsController(
             IAIModelOperationsService modelService,
@@ -24,7 +26,8 @@ namespace AdminService.Controllers
             IValidator<UpdateModelRequest> updateModelValidator,
             IValidator<ModelTagOperationRequest> tagOperationValidator,
             IValidator<SearchModelRequest> searchModelValidator,
-            ILogger<AIModelOperationsController> logger)
+            ILogger<AIModelOperationsController> logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _modelService = modelService;
             _createModelValidator = createModelValidator;
@@ -32,6 +35,7 @@ namespace AdminService.Controllers
             _tagOperationValidator = tagOperationValidator;
             _searchModelValidator = searchModelValidator;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET api/models/{modelId}
@@ -76,7 +80,7 @@ namespace AdminService.Controllers
                     return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
                 }
 
-                var userId = Request.Headers["X-User-Id"].ToString();
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue("UserId");
                 if (userId == null)
                     return Unauthorized();
                 //var userId = "2396eace-718c-4131-b18a-bbbc026990f0";

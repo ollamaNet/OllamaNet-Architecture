@@ -1,0 +1,127 @@
+@startuml OllamaNet_Architecture_Details
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Set styles and formatting
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+title OllamaNet Architecture - Technical Details
+
+System_Boundary(ollamanet, "OllamaNet Platform") {
+    Container_Boundary(gateway_tech, "API Gateway") {
+        Component(ocelot, "Ocelot", ".NET 7.0", "API Gateway framework")
+        Component(jwt_auth, "JWT Authentication", "Microsoft.AspNetCore.Authentication.JwtBearer", "Token validation")
+        Component(gateway_config, "Configuration Provider", "JSON Files", "Service routing configuration")
+    }
+    
+    Container_Boundary(auth_tech, "Auth Service") {
+        Component(auth_api, "ASP.NET Core Web API", ".NET 7.0", "RESTful API")
+        Component(identity, "ASP.NET Core Identity", "Microsoft.AspNetCore.Identity", "User management")
+        Component(jwt_gen, "JWT Generator", "System.IdentityModel.Tokens.Jwt", "Token generation")
+        Component(auth_repo, "Auth Repository", "Entity Framework Core", "Data access for auth domain")
+    }
+    
+    Container_Boundary(admin_tech, "Admin Service") {
+        Component(admin_api, "ASP.NET Core Web API", ".NET 7.0", "RESTful API")
+        Component(fluent_val_admin, "FluentValidation", "FluentValidation", "Request validation")
+        Component(admin_repo, "Admin Repository", "Entity Framework Core", "Data access for admin domain")
+        Component(automapper_admin, "AutoMapper", "AutoMapper", "Object mapping")
+    }
+    
+    Container_Boundary(conversation_tech, "Conversation Service") {
+        Component(conversation_api, "ASP.NET Core Web API", ".NET 7.0", "RESTful API")
+        Component(fluent_val_convo, "FluentValidation", "FluentValidation", "Request validation")
+        Component(convo_repo, "Conversation Repository", "Entity Framework Core", "Data access for conversation domain")
+        Component(automapper_convo, "AutoMapper", "AutoMapper", "Object mapping")
+        Component(pinecone, "Pinecone Client", "Pinecone.NET", "Vector database client")
+    }
+    
+    Container_Boundary(explore_tech, "Explore Service") {
+        Component(explore_api, "ASP.NET Core Web API", ".NET 7.0", "RESTful API")
+        Component(explore_repo, "Explore Repository", "Entity Framework Core", "Data access for explore domain")
+        Component(automapper_explore, "AutoMapper", "AutoMapper", "Object mapping")
+    }
+    
+    Container_Boundary(inference_tech, "Inference Service") {
+        Component(jupyter, "Jupyter Notebook", "Python 3.10", "Development environment")
+        Component(fastapi, "FastAPI", "Python", "API framework")
+        Component(pika, "Pika", "Python", "RabbitMQ client")
+        Component(ngrok_client, "ngrok Client", "Python", "Tunnel exposer")
+    }
+    
+    Container_Boundary(infrastructure, "Infrastructure") {
+        Component(ef_core, "Entity Framework Core", "7.0", "ORM framework")
+        Component(sql_server, "SQL Server", "2019", "Shared relational database")
+        Component(redis_cache, "Redis", "6.0", "In-memory data store")
+        Component(rabbit, "RabbitMQ", "3.8", "Message broker")
+        Component(pinecone_db, "Pinecone", "Cloud Service", "Vector database")
+    }
+    
+    Container_Boundary(client_tech, "Frontend") {
+        Component(react, "React", "18.0", "UI library")
+        Component(typescript, "TypeScript", "4.5", "Type-safe JavaScript")
+        Component(redux, "Redux", "4.2", "State management")
+        Component(material_ui, "Material UI", "5.0", "Component library")
+    }
+}
+
+' Centralized database architecture
+Rel(auth_repo, ef_core, "Uses", "Internal")
+Rel(admin_repo, ef_core, "Uses", "Internal")
+Rel(convo_repo, ef_core, "Uses", "Internal")
+Rel(explore_repo, ef_core, "Uses", "Internal")
+Rel(ef_core, sql_server, "Connects to", "TCP:1433")
+
+' Caching relationships
+Rel(auth_api, redis_cache, "Uses for caching", "TCP:6379")
+Rel(admin_api, redis_cache, "Uses for caching", "TCP:6379")
+Rel(conversation_api, redis_cache, "Uses for caching", "TCP:6379")
+Rel(explore_api, redis_cache, "Uses for caching", "TCP:6379")
+
+Rel(jwt_gen, jwt_auth, "Tokens validated by", "Standards-based")
+Rel(pinecone, pinecone_db, "Connects to", "HTTPS")
+
+' Service discovery
+Rel(fastapi, rabbit, "Publishes URL to", "AMQP")
+Rel(admin_api, rabbit, "Subscribes to", "AMQP")
+Rel(conversation_api, rabbit, "Subscribes to", "AMQP")
+
+' Gateway configuration
+Rel(ocelot, gateway_config, "Loads routes from", "File I/O")
+
+' Frameworks and libraries
+Rel(auth_api, identity, "Uses", "Internal")
+Rel(admin_api, fluent_val_admin, "Validates with", "Internal")
+Rel(conversation_api, fluent_val_convo, "Validates with", "Internal")
+Rel(admin_api, automapper_admin, "Maps objects with", "Internal")
+Rel(conversation_api, automapper_convo, "Maps objects with", "Internal")
+Rel(explore_api, automapper_explore, "Maps objects with", "Internal")
+
+' Inference service
+Rel(jupyter, fastapi, "Hosts", "Internal")
+Rel(fastapi, ngrok_client, "Exposed via", "Internal")
+
+' Frontend
+Rel(react, typescript, "Written in", "Internal")
+Rel(react, redux, "State managed by", "Internal")
+Rel(react, material_ui, "UI components from", "Internal")
+
+legend right
+  Detailed technical architecture of OllamaNet platform showing:
+  - Specific frameworks and libraries
+  - Version information
+  - Technical dependencies
+  - Communication protocols
+  - Framework relationships
+  
+  Note: All services share a single SQL database with logical
+  separation through repositories and Entity Framework contexts.
+end legend
+
+footer Chapter 2
+header OllamaNet Documentation
+
+@enduml

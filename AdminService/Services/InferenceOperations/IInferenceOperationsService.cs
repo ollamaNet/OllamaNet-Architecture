@@ -10,7 +10,7 @@ namespace AdminService.Services.InferenceOperations
         /// Get information about a specific model from the inference engine
         /// </summary>
         Task<ShowModelResponse?> ModelInfoAsync(string modelName);
-        
+
         /// <summary>
         /// Get a paginated list of models installed on the inference engine
         /// </summary>
@@ -19,7 +19,7 @@ namespace AdminService.Services.InferenceOperations
         /// <summary>
         /// Install/pull a model to the inference engine
         /// </summary>
-        Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null);
+        //Task<InstallProgressInfo> InstallModelAsync(string modelName, IProgress<InstallProgressInfo>? progress = null);
         
         /// <summary>
         /// Uninstall/remove a model from the inference engine

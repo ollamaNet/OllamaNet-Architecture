@@ -1,0 +1,101 @@
+@startuml system_architecture
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Set styles and formatting
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+title OllamaNet System Architecture
+
+Person(user, "End User", "A user of the OllamaNet platform")
+Person(admin, "Administrator", "System administrator managing the platform")
+Person(developer, "Developer", "Developer integrating with OllamaNet APIs")
+
+Enterprise_Boundary(system, "OllamaNet System") {
+    System_Boundary(front_end, "Frontend Layer") {
+        Container(client_app, "Web Application", "React, TypeScript", "Single-page application providing user interface")
+        Container(mobile_app, "Mobile Application", "React Native", "Mobile interface for OllamaNet")
+    }
+    
+    System_Boundary(api_layer, "API Gateway Layer") {
+        Container(gateway, "API Gateway", ".NET Core, Ocelot", "Routes requests and handles authentication, CORS, etc.")
+    }
+    
+    System_Boundary(service_layer, "Service Layer") {
+        Container(auth_service, "Auth Service", ".NET Core Web API", "Authentication and authorization")
+        Container(admin_service, "Admin Service", ".NET Core Web API", "Administration and model operations")
+        Container(conversation_service, "Conversation Service", ".NET Core Web API", "Chat and conversation management")
+        Container(explore_service, "Explore Service", ".NET Core Web API", "Model discovery and browsing")
+        Container(inference_service, "Inference Service", "Python, Jupyter", "AI model inference")
+    }
+    
+    System_Boundary(infra_layer, "Infrastructure Layer") {
+        Container(sql_server, "Shared SQL Database", "SQL Server", "Single database with logical separation for services")
+        Container(redis, "Cache", "Redis", "Distributed caching")
+        Container(rabbitmq, "Message Broker", "RabbitMQ", "Asynchronous messaging")
+        Container(vector_db, "Vector Database", "Pinecone", "Vector embeddings storage")
+    }
+    
+    System_Boundary(ai_layer, "AI Layer") {
+        Container(ollama, "Ollama", "Go", "Local LLM runtime")
+        Container(models, "AI Models", "GGUF format", "Large language models")
+    }
+}
+
+' External Systems
+System_Ext(email_system, "Email Service", "For sending notifications")
+System_Ext(monitoring, "Monitoring Tools", "For system monitoring")
+System_Ext(external_api, "External APIs", "Third-party integrations")
+
+' Relationships
+Rel(user, client_app, "Uses", "HTTPS")
+Rel(user, mobile_app, "Uses", "HTTPS")
+Rel(admin, client_app, "Administers", "HTTPS")
+Rel(developer, gateway, "Integrates with", "HTTPS/API")
+
+Rel(client_app, gateway, "Makes API calls to", "HTTPS")
+Rel(mobile_app, gateway, "Makes API calls to", "HTTPS")
+
+Rel(gateway, auth_service, "Routes auth requests to", "REST")
+Rel(gateway, admin_service, "Routes admin requests to", "REST")
+Rel(gateway, conversation_service, "Routes conversation requests to", "REST")
+Rel(gateway, explore_service, "Routes explore requests to", "REST")
+Rel(gateway, inference_service, "Routes inference requests to", "REST")
+
+Rel(auth_service, sql_server, "Reads/writes auth data", "Entity Framework")
+Rel(admin_service, sql_server, "Reads/writes admin data", "Entity Framework")
+Rel(conversation_service, sql_server, "Reads/writes conversation data", "Entity Framework")
+Rel(explore_service, sql_server, "Reads/writes model catalog", "Entity Framework")
+
+Rel(conversation_service, vector_db, "Queries for similar content", "HTTP")
+Rel(conversation_service, inference_service, "Requests completions from", "REST")
+Rel(admin_service, inference_service, "Configures", "REST")
+Rel(conversation_service, redis, "Caches conversations", "Redis Client")
+
+Rel(auth_service, email_system, "Sends emails via", "SMTP")
+Rel(admin_service, monitoring, "Reports metrics to", "HTTP")
+Rel(inference_service, external_api, "Integrates with", "HTTP")
+
+Rel(inference_service, ollama, "Runs models via", "HTTP")
+Rel(ollama, models, "Loads and runs", "File System")
+Rel(inference_service, rabbitmq, "Publishes URL updates to", "AMQP")
+Rel(admin_service, rabbitmq, "Subscribes to service updates", "AMQP")
+Rel(conversation_service, rabbitmq, "Subscribes to service updates", "AMQP")
+
+legend right
+  Comprehensive system architecture of OllamaNet showing:
+  - Layered architecture approach
+  - Service boundaries and responsibilities
+  - Shared infrastructure components
+  - Integration points with external systems
+  
+  Note: All services share a single SQL database with logical
+  separation using schemas and access patterns.
+end legend
+
+footer Chapter 4
+header OllamaNet Documentation
+
+@enduml
