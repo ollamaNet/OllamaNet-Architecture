@@ -1,0 +1,273 @@
+@startuml entity_relationship
+
+title OllamaNet Entity Relationship Diagram
+
+header OllamaNet Documentation
+footer Chapter 5
+
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+' Authentication entities
+entity "Users" as users {
+  *id : string <<PK>>
+  --
+  username : string
+  email : string
+  password_hash : string
+  email_confirmed : boolean
+  phone_number : string
+  phone_confirmed : boolean
+  two_factor_enabled : boolean
+  lockout_end : datetime
+  lockout_enabled : boolean
+  access_failed_count : int
+  created_at : datetime
+  updated_at : datetime
+  last_login_at : datetime
+}
+
+entity "Roles" as roles {
+  *id : string <<PK>>
+  --
+  name : string
+  normalized_name : string
+  description : string
+}
+
+entity "UserRoles" as user_roles {
+  *user_id : string <<PK>> <<FK>>
+  *role_id : string <<PK>> <<FK>>
+}
+
+entity "Permissions" as permissions {
+  *id : string <<PK>>
+  --
+  name : string
+  resource : string
+  action : string
+  description : string
+}
+
+entity "RolePermissions" as role_permissions {
+  *role_id : string <<PK>> <<FK>>
+  *permission_id : string <<PK>> <<FK>>
+}
+
+entity "RefreshTokens" as refresh_tokens {
+  *token : string <<PK>>
+  --
+  user_id : string <<FK>>
+  expiry_date : datetime
+  created_by_ip : string
+  revoked_at : datetime
+  replaced_by_token : string
+  reason_revoked : string
+}
+
+' Model entities
+entity "AIModels" as models {
+  *id : string <<PK>>
+  --
+  name : string
+  description : string
+  status : enum
+  size : bigint
+  context_length : int
+  parameter_count : bigint
+  quantization_level : string
+  base_model : string
+  model_format : string
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "ModelConfigurations" as model_configs {
+  *id : string <<PK>>
+  --
+  model_id : string <<FK>>
+  default_temperature : float
+  default_top_p : float
+  default_top_k : int
+  max_output_tokens : int
+  default_system_prompt : string
+}
+
+entity "Tags" as tags {
+  *id : string <<PK>>
+  --
+  name : string
+  category : string
+  description : string
+}
+
+entity "ModelTags" as model_tags {
+  *model_id : string <<PK>> <<FK>>
+  *tag_id : string <<PK>> <<FK>>
+}
+
+' Conversation entities
+entity "Conversations" as conversations {
+  *id : string <<PK>>
+  --
+  title : string
+  user_id : string <<FK>>
+  model_id : string <<FK>>
+  created_at : datetime
+  updated_at : datetime
+  folder_id : string <<FK>>
+  is_archived : boolean
+  last_message_at : datetime
+}
+
+entity "Messages" as messages {
+  *id : string <<PK>>
+  --
+  conversation_id : string <<FK>>
+  role : enum
+  content : text
+  created_at : datetime
+  token_count : int
+  metadata : json
+}
+
+entity "Feedback" as feedback {
+  *id : string <<PK>>
+  --
+  message_id : string <<FK>>
+  rating : int
+  comment : string
+  created_at : datetime
+  user_id : string <<FK>>
+}
+
+entity "Folders" as folders {
+  *id : string <<PK>>
+  --
+  name : string
+  user_id : string <<FK>>
+  parent_id : string <<FK>>
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "Notes" as notes {
+  *id : string <<PK>>
+  --
+  content : text
+  user_id : string <<FK>>
+  conversation_id : string <<FK>>
+  created_at : datetime
+  updated_at : datetime
+}
+
+' Document entities
+entity "Documents" as documents {
+  *id : string <<PK>>
+  --
+  name : string
+  content_type : string
+  size : bigint
+  user_id : string <<FK>>
+  uploaded_at : datetime
+  processed_at : datetime
+  status : enum
+  storage_path : string
+}
+
+entity "DocumentChunks" as chunks {
+  *id : string <<PK>>
+  --
+  document_id : string <<FK>>
+  content : text
+  chunk_index : int
+  embedding : binary
+  embedding_model_id : string
+}
+
+entity "DocumentMetadata" as doc_metadata {
+  *document_id : string <<PK>> <<FK>>
+  --
+  author : string
+  created_at : datetime
+  modified_at : datetime
+  page_count : int
+  title : string
+  keywords : json
+  custom : json
+}
+
+' Relationships
+users ||--o{ user_roles
+roles ||--o{ user_roles
+roles ||--o{ role_permissions
+permissions ||--o{ role_permissions
+users ||--o{ refresh_tokens
+
+models ||--|| model_configs
+models ||--o{ model_tags
+tags ||--o{ model_tags
+
+users ||--o{ conversations
+models ||--o{ conversations
+folders ||--o{ conversations
+folders ||--o{ folders : parent
+conversations ||--o{ messages
+messages ||--o{ feedback
+users ||--o{ feedback
+users ||--o{ notes
+conversations ||--o{ notes
+
+users ||--o{ documents
+documents ||--|| doc_metadata
+documents ||--o{ chunks
+
+' Notes
+note bottom of users
+  Central identity entity
+  used across all services
+end note
+
+note bottom of roles
+  Role-based access control
+  for authorization
+end note
+
+note bottom of models
+  Shared between AdminService,
+  ExploreService, and
+  ConversationService
+end note
+
+note bottom of conversations
+  Core entity in the
+  Conversation domain
+end note
+
+note bottom of documents
+  Represents uploaded files
+  for RAG functionality
+end note
+
+legend right
+  OllamaNet Entity Relationship Diagram
+  
+  This diagram shows the database entities and their relationships
+  across all bounded contexts in the OllamaNet platform:
+  
+  - Authentication entities (users, roles, permissions)
+  - Model entities (AI models, configurations, tags)
+  - Conversation entities (conversations, messages, feedback)
+  - Document entities (documents, chunks, metadata)
+  
+  Key features:
+  - Shared database with logical separation by domain
+  - Foreign key relationships between entities
+  - Support for hierarchical structures (folders)
+  - Metadata storage for various entity types
+  
+  All entities are stored in a single SQL Server database
+  with Entity Framework Core for data access.
+end legend
+
+@enduml

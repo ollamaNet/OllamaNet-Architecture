@@ -1,0 +1,115 @@
+@startuml User_Personas
+
+title OllamaNet User Personas
+
+header OllamaNet Documentation
+footer Chapter 3
+
+skinparam defaultTextAlignment center
+skinparam rectangleBorderColor #333333
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam rectangleFontStyle bold
+
+' Regular User Personas
+rectangle "Research Assistant" as research #LightBlue {
+  rectangle "<img:https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKhEIImkLl3BJqbLI4ajKb08BYs51GK0>" as research_img
+  rectangle "Sarah, 32\nGraduate Student" as research_name
+  
+  rectangle "Goals:" as research_goals
+  rectangle "- Find relevant research papers\n- Analyze complex documents\n- Extract key information\n- Organize research notes\n- Generate summaries" as research_goals_detail #FFFFFF
+  
+  rectangle "Pain Points:" as research_pain
+  rectangle "- Information overload\n- Limited time for research\n- Complex technical papers\n- Need for accurate citations\n- Organizing findings" as research_pain_detail #FFFFFF
+  
+  rectangle "Technical Comfort: Medium\nFrequency: Daily\nPriority: High" as research_details
+}
+
+rectangle "Professional Developer" as developer #LightGreen {
+  rectangle "<img:https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuU8goIp9ILLmJyrBBKh9J4zL24ejB4qjBk42>" as developer_img
+  rectangle "Alex, 28\nSoftware Engineer" as developer_name
+  
+  rectangle "Goals:" as developer_goals
+  rectangle "- Debug complex code\n- Generate code snippets\n- Understand unfamiliar libraries\n- Document existing code\n- Learn new technologies" as developer_goals_detail #FFFFFF
+  
+  rectangle "Pain Points:" as developer_pain
+  rectangle "- Time-consuming debugging\n- Documentation gaps\n- Technical debt\n- Learning curve for new tech\n- Tedious coding tasks" as developer_pain_detail #FFFFFF
+  
+  rectangle "Technical Comfort: High\nFrequency: Daily\nPriority: High" as developer_details
+}
+
+rectangle "Content Creator" as creator #LightPink {
+  rectangle "<img:https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuU8goIp9ILK8JCtEpwlEBovjL4ZEZSdFJIqkJanFBDK7noKn5Yb1>" as creator_img
+  rectangle "Maria, 35\nMarketing Specialist" as creator_name
+  
+  rectangle "Goals:" as creator_goals
+  rectangle "- Generate content ideas\n- Draft marketing copy\n- Analyze audience feedback\n- Repurpose existing content\n- Research market trends" as creator_goals_detail #FFFFFF
+  
+  rectangle "Pain Points:" as creator_pain
+  rectangle "- Content creation blocks\n- Meeting deadlines\n- Maintaining consistent voice\n- Engaging multiple audiences\n- SEO optimization" as creator_pain_detail #FFFFFF
+  
+  rectangle "Technical Comfort: Medium\nFrequency: Weekly\nPriority: Medium" as creator_details
+}
+
+' Administrative Personas
+rectangle "System Administrator" as admin #LightCyan {
+  rectangle "<img:https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKhEIImkLd3BJqfDBb58JCf9JCdEpyz9JCvEBIu6I1MkX2ZEBydFJYp91WK0>" as admin_img
+  rectangle "Carlos, 40\nIT Administrator" as admin_name
+  
+  rectangle "Goals:" as admin_goals
+  rectangle "- Manage user accounts\n- Configure AI models\n- Monitor system performance\n- Ensure security compliance\n- Deploy system updates" as admin_goals_detail #FFFFFF
+  
+  rectangle "Pain Points:" as admin_pain
+  rectangle "- Resource management\n- Security concerns\n- User permission issues\n- System downtime\n- Complex configurations" as admin_pain_detail #FFFFFF
+  
+  rectangle "Technical Comfort: Very High\nFrequency: Daily\nPriority: Critical" as admin_details
+}
+
+rectangle "Academic Supervisor" as academic #LightYellow {
+  rectangle "<img:https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKhEIImkLd1EBLBGjLFG14ujJYxEJC18LSW10000>" as academic_img
+  rectangle "Dr. Rahman, 45\nProfessor" as academic_name
+  
+  rectangle "Goals:" as academic_goals
+  rectangle "- Evaluate system architecture\n- Assess academic contributions\n- Review technical documentation\n- Validate research applications\n- Provide project guidance" as academic_goals_detail #FFFFFF
+  
+  rectangle "Pain Points:" as academic_pain
+  rectangle "- Limited detailed documentation\n- Need for academic relevance\n- Technical depth vs. accessibility\n- Project management concerns\n- Implementation quality" as academic_pain_detail #FFFFFF
+  
+  rectangle "Technical Comfort: High\nFrequency: Monthly\nPriority: High" as academic_details
+}
+
+' Usage Journey Maps
+rectangle "Key User Journeys" as journeys {
+  rectangle "Research Journey" as research_journey
+  rectangle "1. Login → 2. Create Conversation → 3. Upload Document →\n4. Ask Questions → 5. Organize Findings → 6. Export Results" as research_journey_detail #FFFFFF
+  
+  rectangle "Developer Journey" as dev_journey
+  rectangle "1. Login → 2. Select Technical Model → 3. Paste Code →\n4. Ask for Improvements → 5. Generate New Code → 6. Save Solution" as dev_journey_detail #FFFFFF
+  
+  rectangle "Admin Journey" as admin_journey
+  rectangle "1. Login → 2. View Dashboard → 3. Configure Models →\n4. Manage Users → 5. Review Logs → 6. Update Settings" as admin_journey_detail #FFFFFF
+}
+
+legend right
+  <b>OllamaNet User Personas</b>
+  
+  This diagram identifies key user personas for the OllamaNet platform,
+  their goals, pain points, and characteristics:
+  
+  <b>Regular Users:</b>
+  - Research Assistant: Academic research and document analysis
+  - Professional Developer: Code generation and technical assistance
+  - Content Creator: Content ideation and creation
+  
+  <b>Administrative Users:</b>
+  - System Administrator: Platform management and configuration
+  - Academic Supervisor: Project evaluation and guidance
+  
+  <b>Key Attributes:</b>
+  - Technical Comfort: Familiarity with technology
+  - Frequency: How often they use the system
+  - Priority: Importance for system design
+  
+  <b>User Journeys</b> map typical interaction paths for primary personas.
+end legend
+
+@enduml

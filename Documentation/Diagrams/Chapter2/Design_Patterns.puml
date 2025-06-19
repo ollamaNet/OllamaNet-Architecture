@@ -1,0 +1,147 @@
+@startuml Design_Patterns
+
+title Design Patterns in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 2
+
+skinparam componentStyle uml2
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+package "Architectural Patterns" {
+  class "Microservices Architecture" as micro
+  class "API Gateway Pattern" as gateway
+  class "Circuit Breaker Pattern" as circuit
+  class "CQRS Pattern" as cqrs
+  class "Event-Driven Architecture" as eda
+  class "Repository Pattern" as repo
+  class "Unit of Work Pattern" as uow
+}
+
+package "Creational Patterns" {
+  class "Dependency Injection" as di
+  class "Factory Method" as factory
+  class "Builder Pattern" as builder
+  class "Singleton" as singleton
+}
+
+package "Structural Patterns" {
+  class "Adapter Pattern" as adapter
+  class "Decorator Pattern" as decorator
+  class "Facade Pattern" as facade
+  class "Proxy Pattern" as proxy
+}
+
+package "Behavioral Patterns" {
+  class "Observer Pattern" as observer
+  class "Strategy Pattern" as strategy
+  class "Template Method" as template
+  class "Chain of Responsibility" as chain
+  class "Mediator Pattern" as mediator
+}
+
+package "Data Patterns" {
+  class "DTO Pattern" as dto
+  class "ORM" as orm
+  class "Specification Pattern" as spec
+  class "Cache-Aside Pattern" as cache
+}
+
+package "Implementation Examples" {
+  note "Gateway Pattern\n- Ocelot API Gateway\n- Request routing\n- Cross-cutting concerns" as gateway_example
+  note "Repository Pattern\n- Entity Framework repositories\n- Service-specific data access\n- Query encapsulation" as repo_example
+  note "Circuit Breaker\n- Polly integration\n- RabbitMQ resilience\n- HTTP client resilience" as circuit_example
+  note "Observer Pattern\n- RabbitMQ for service discovery\n- Event-based configuration updates\n- Message subscribers" as observer_example
+  note "Dependency Injection\n- .NET built-in DI container\n- Service registration\n- Lifetime management" as di_example
+}
+
+' Connect patterns to examples
+gateway -- gateway_example
+repo -- repo_example
+circuit -- circuit_example
+observer -- observer_example
+di -- di_example
+
+' Service mappings
+note bottom of gateway_example
+  Primary: API Gateway
+end note
+
+note bottom of repo_example
+  All services with data access
+end note
+
+note bottom of circuit_example
+  ConversationService, AdminService
+end note
+
+note bottom of observer_example
+  InferenceService (publisher)
+  AdminService, ConversationService (subscribers)
+end note
+
+note bottom of di_example
+  All .NET services
+end note
+
+' Pattern relationships
+micro --> gateway : Uses
+micro --> eda : Often employs
+gateway --> facade : Form of
+circuit --> decorator : Form of
+repo --> facade : Uses
+repo --> factory : Uses
+uow --> repo : Manages
+eda --> observer : Implements
+cqrs --> repo : Uses for queries
+cqrs --> eda : Uses for commands
+
+' Usage notes
+note right of micro
+  Core architectural pattern
+  for entire OllamaNet platform
+end note
+
+note right of gateway
+  Implemented with Ocelot
+  in the API Gateway service
+end note
+
+note right of circuit
+  Used for resilient communication
+  with external services and RabbitMQ
+end note
+
+note right of repo
+  Used across all services
+  for data access abstraction
+end note
+
+note right of di
+  Used throughout all .NET services
+  via built-in DI container
+end note
+
+note right of observer
+  Used for service discovery
+  via RabbitMQ pub/sub
+end note
+
+legend right
+  Key design patterns used throughout the OllamaNet platform,
+  organized by category with implementation examples.
+  
+  Each pattern addresses specific architectural concerns:
+  - Microservices: Service boundaries and independence
+  - Gateway: Centralized access and cross-cutting concerns
+  - Repository: Data access abstraction
+  - Circuit Breaker: Resilience and fault tolerance
+  - Observer: Event-driven communication
+  - Dependency Injection: Loose coupling and testability
+  
+  Lines indicate relationships between patterns.
+  Notes indicate primary services implementing each pattern.
+end legend
+
+@enduml

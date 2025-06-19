@@ -1,0 +1,108 @@
+@startuml gateway_components
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title API Gateway Components
+
+header OllamaNet Documentation
+footer Chapter 4
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+Container_Boundary(gateway, "API Gateway") {
+  Component(ocelot, "Ocelot Gateway", ".NET 7", "Core API Gateway framework")
+  
+  Component(config_loader, "Configuration Loader", "Service", "Loads and merges configuration files")
+  Component(route_manager, "Route Manager", "Service", "Manages route configurations")
+  
+  Component(auth_middleware, "Authentication Middleware", "Middleware", "Validates JWT tokens")
+  Component(claims_middleware, "Claims Forwarding Middleware", "Middleware", "Forwards user claims to downstream services")
+  Component(role_middleware, "Role Authorization Middleware", "Middleware", "Enforces role-based access")
+  
+  Component(cors_handler, "CORS Handler", "Middleware", "Manages cross-origin requests")
+  Component(error_handler, "Error Handler", "Middleware", "Standardizes error responses")
+  Component(logging, "Request Logging", "Middleware", "Logs request details")
+  
+  Component(rate_limit, "Rate Limiting", "Middleware", "Enforces request rate limits")
+  Component(transform, "Request/Response Transformer", "Middleware", "Modifies requests/responses")
+}
+
+Container_Ext(auth_service, "Auth Service", ".NET 7", "Authentication service")
+Container_Ext(admin_service, "Admin Service", ".NET 7", "Administration service")
+Container_Ext(conversation_service, "Conversation Service", ".NET 7", "Conversation service")
+Container_Ext(explore_service, "Explore Service", ".NET 7", "Explore service")
+Container_Ext(inference_service, "Inference Service", "Python", "Inference service")
+
+' Configuration loading
+Rel(config_loader, "configs", "Loads from", "File I/O")
+Rel(config_loader, route_manager, "Configures", "Internal")
+Rel(route_manager, ocelot, "Configures routes for", "Internal")
+
+' Middleware pipeline
+Rel(ocelot, auth_middleware, "Uses", "Pipeline")
+Rel(auth_middleware, claims_middleware, "Passes to", "Pipeline")
+Rel(claims_middleware, role_middleware, "Passes to", "Pipeline")
+Rel(role_middleware, cors_handler, "Passes to", "Pipeline")
+Rel(cors_handler, rate_limit, "Passes to", "Pipeline")
+Rel(rate_limit, transform, "Passes to", "Pipeline")
+Rel(transform, error_handler, "Passes to", "Pipeline")
+Rel(error_handler, logging, "Passes to", "Pipeline")
+
+' External integrations
+Rel(auth_middleware, auth_service, "Validates tokens with", "HTTPS")
+Rel(role_middleware, auth_service, "Checks permissions with", "HTTPS")
+
+' Routing to services
+Rel(ocelot, auth_service, "Routes to", "HTTPS")
+Rel(ocelot, admin_service, "Routes to", "HTTPS")
+Rel(ocelot, conversation_service, "Routes to", "HTTPS")
+Rel(ocelot, explore_service, "Routes to", "HTTPS")
+Rel(ocelot, inference_service, "Routes to", "HTTPS")
+
+note right of config_loader
+  Loads configuration from separate
+  JSON files per service:
+  - Admin.json
+  - Auth.json
+  - Conversation.json
+  - Explore.json
+  - Inference.json
+end note
+
+note right of auth_middleware
+  JWT Validation:
+  - Verifies token signature
+  - Checks expiration
+  - Validates issuer
+  - Extracts user identity
+end note
+
+note right of claims_middleware
+  Adds claims as headers:
+  - User ID
+  - Username
+  - Roles
+  - Tenant ID
+  - Other claims
+end note
+
+legend right
+  The API Gateway acts as the single entry point for all client requests,
+  handling cross-cutting concerns including:
+  
+  - Request routing to appropriate services
+  - Authentication and authorization
+  - Claims forwarding to downstream services
+  - Cross-origin resource sharing (CORS)
+  - Rate limiting and throttling
+  - Request/response transformation
+  - Centralized error handling
+  - Request logging
+  
+  The gateway uses a modular configuration approach with
+  separate configuration files for each service.
+end legend
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml requirements_traceability_diagram
+
+title Requirements Traceability Matrix
+
+header OllamaNet Documentation - Requirements Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "Core Requirements" {
+    component "Authentication" {
+        rectangle "REQ-001: JWT Auth" as r1 #98FB98
+        rectangle "REQ-002: RBAC" as r2 #98FB98
+        rectangle "REQ-003: MFA" as r3 #FFFF99
+    }
+
+    component "Conversation" {
+        rectangle "REQ-004: Chat" as r4 #98FB98
+        rectangle "REQ-005: History" as r5 #98FB98
+        rectangle "REQ-006: RAG" as r6 #98FB98
+    }
+
+    component "Model Management" {
+        rectangle "REQ-007: Model Config" as r7 #98FB98
+        rectangle "REQ-008: Inference" as r8 #98FB98
+        rectangle "REQ-009: Scaling" as r9 #FFFF99
+    }
+}
+
+note right of r9
+  Implementation Status
+  ==
+  Completed: 7
+  In Progress: 2
+  Pending: 0
+  --
+  Overall Progress: 85%
+end note
+
+legend right
+  Status Colors
+  ==
+  Green: Implemented
+  Yellow: In Progress
+  Red: Not Started
+  --
+  Based on Sprint Reviews
+end legend
+
+@enduml

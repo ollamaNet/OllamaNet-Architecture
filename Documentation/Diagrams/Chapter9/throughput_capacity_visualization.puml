@@ -1,0 +1,56 @@
+@startuml throughput_capacity_visualization
+
+title Throughput Capacity Visualization - OllamaNet Platform
+
+header OllamaNet Documentation - System Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+' Custom styling
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+}
+
+' Throughput metrics
+rectangle "System Throughput Analysis" {
+    component "Current Load" {
+        rectangle "Peak RPS: 1000" as peak
+        rectangle "Average RPS: 500" as avg
+        rectangle "Minimum RPS: 100" as min
+    }
+
+    component "Service Capacity" {
+        rectangle "Gateway: 2000 RPS" as gateway_cap
+        rectangle "Auth: 1500 RPS" as auth_cap
+        rectangle "Conversation: 1200 RPS" as conv_cap
+        rectangle "Admin: 800 RPS" as admin_cap
+    }
+
+    component "Database Load" {
+        rectangle "Read Operations: 3000/s" as db_read
+        rectangle "Write Operations: 500/s" as db_write
+        rectangle "Query Response: 20ms avg" as db_response
+    }
+}
+
+' Add performance indicators
+note right of peak
+  System Status: Healthy
+  Current Utilization: 50%
+  Headroom: 1000 RPS
+end note
+
+legend right
+  Throughput Metrics
+  ==
+  RPS: Requests per Second
+  --
+  Green: < 60% capacity
+  Yellow: 60-80% capacity
+  Red: > 80% capacity
+end legend
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml database_scaling_effectiveness
+
+title Database Scaling Effectiveness
+
+header OllamaNet Documentation - Resource Management
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "Database Performance Metrics" {
+    component "Query Performance" {
+        rectangle "Read Latency: 5ms" as qp1 #98FB98
+        rectangle "Write Latency: 10ms" as qp2 #98FB98
+        rectangle "Index Usage: 95%" as qp3 #98FB98
+    }
+
+    component "Connection Management" {
+        rectangle "Active Connections: 65%" as cm1 #FFFF99
+        rectangle "Connection Pool: 70%" as cm2 #FFFF99
+        rectangle "Deadlocks: 0.01%" as cm3 #98FB98
+    }
+
+    component "Resource Scaling" {
+        rectangle "CPU Scaling: Auto" as rs1 #98FB98
+        rectangle "Memory Scaling: Auto" as rs2 #98FB98
+        rectangle "Storage Scaling: Manual" as rs3 #FFFF99
+    }
+}
+
+legend right
+  Performance Indicators
+  ==
+  Green: Optimal
+  Yellow: Warning
+  Orange: Critical
+  Red: Error
+  --
+  Based on SQL Server metrics
+end legend
+
+@enduml

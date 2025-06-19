@@ -1,0 +1,76 @@
+@startuml authentication_authorization_flow_validation
+
+title Authentication & Authorization Flow Validation
+
+header OllamaNet Documentation - Security Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+skinparam sequenceMessageAlign center
+skinparam sequenceGroupBorderColor gray
+
+actor "User" as user
+participant "Gateway" as gateway
+participant "Auth Service" as auth
+participant "JWT Manager" as jwt
+participant "Role Manager" as role
+database "User Store" as db
+
+group Authentication Flow
+    user -> gateway: Request with Credentials
+    activate gateway
+    
+    gateway -> auth: Validate Credentials
+    activate auth
+    
+    auth -> db: Verify User Exists
+    db --> auth: User Found
+    
+    auth -> jwt: Generate JWT Token
+    activate jwt
+    jwt --> auth: Token Generated
+    deactivate jwt
+    
+    auth -> role: Fetch User Roles
+    activate role
+    role --> auth: Roles Retrieved
+    deactivate role
+    
+    auth --> gateway: Auth Token + Roles
+    deactivate auth
+    
+    gateway --> user: Token Returned
+    deactivate gateway
+end
+
+group Authorization Flow
+    user -> gateway: Request with JWT
+    activate gateway
+    
+    gateway -> jwt: Validate Token
+    activate jwt
+    jwt --> gateway: Token Valid
+    deactivate jwt
+    
+    gateway -> role: Check Permissions
+    activate role
+    role --> gateway: Permission Granted
+    deactivate role
+    
+    gateway -> gateway: Add Claims to Headers
+    
+    gateway --> user: Forward Request
+    deactivate gateway
+end
+
+legend right
+  Security Flow Validation
+  ==
+  ✓ Token-based Auth
+  ✓ Role-based Access
+  ✓ Claims Propagation
+  ✓ Secure Communication
+end legend
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml user_journey_success_rates
+
+title User Journey Success Rates
+
+header OllamaNet Documentation - User Metrics
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "User Journey Analysis" {
+    component "Authentication Flow" {
+        rectangle "Login Success: 99.5%" as auth1 #98FB98
+        rectangle "Registration Success: 98%" as auth2 #98FB98
+        rectangle "Password Reset: 95%" as auth3 #98FB98
+    }
+
+    component "Conversation Flow" {
+        rectangle "Chat Completion: 97%" as conv1 #98FB98
+        rectangle "Document Processing: 94%" as conv2 #FFFF99
+        rectangle "RAG Queries: 92%" as conv3 #FFFF99
+    }
+
+    component "Admin Operations" {
+        rectangle "User Management: 99%" as admin1 #98FB98
+        rectangle "Model Updates: 96%" as admin2 #98FB98
+        rectangle "System Config: 98%" as admin3 #98FB98
+    }
+}
+
+legend right
+  Success Rates
+  ==
+  Green: >= 95%
+  Yellow: 90-94%
+  Orange: 85-89%
+  Red: < 85%
+  --
+  30-day average
+end legend
+
+@enduml

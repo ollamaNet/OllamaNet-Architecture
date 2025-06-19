@@ -1,0 +1,336 @@
+@startuml Domain_Class_Diagram
+
+title OllamaNet Domain Class Diagram
+
+header OllamaNet Documentation
+footer Chapter 3
+
+skinparam classAttributeIconSize 0
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+
+package "Authentication Domain" #LightBlue {
+  class User <<entity>> <<aggregate root>> {
+    +Id: string
+    +Username: string
+    +Email: string
+    +PasswordHash: string
+    +EmailConfirmed: bool
+    +PhoneNumber: string
+    +PhoneNumberConfirmed: bool
+    +TwoFactorEnabled: bool
+    +LockoutEnd: DateTime?
+    +LockoutEnabled: bool
+    +AccessFailedCount: int
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    +LastLoginAt: DateTime?
+    --
+    +HasPermission(permission): bool
+    +AddToRole(role): void
+    +RemoveFromRole(role): void
+  }
+  
+  class Role <<entity>> {
+    +Id: string
+    +Name: string
+    +NormalizedName: string
+    +Description: string
+    --
+    +AddPermission(permission): void
+    +RemovePermission(permission): void
+  }
+  
+  class Permission <<entity>> {
+    +Id: string
+    +Name: string
+    +Resource: string
+    +Action: string
+    +Description: string
+  }
+  
+  class UserLogin <<entity>> {
+    +LoginProvider: string
+    +ProviderKey: string
+    +ProviderDisplayName: string
+    +UserId: string
+  }
+  
+  class RefreshToken <<value object>> {
+    +Token: string
+    +UserId: string
+    +ExpiryDate: DateTime
+    +CreatedByIp: string
+    +RevokedAt: DateTime?
+    +ReplacedByToken: string?
+    +ReasonRevoked: string?
+    --
+    +IsExpired: bool
+    +IsActive: bool
+  }
+}
+
+package "Model Administration Domain" #LightGreen {
+  class AIModel <<entity>> <<aggregate root>> {
+    +Id: string
+    +Name: string
+    +Description: string
+    +Status: ModelStatus
+    +Size: long
+    +ContextLength: int
+    +ParameterCount: long
+    +QuantizationLevel: string
+    +BaseModel: string
+    +ModelFormat: string
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    --
+    +UpdateStatus(status): void
+    +UpdateConfiguration(config): void
+  }
+  
+  enum ModelStatus {
+    +Available
+    +Unavailable
+    +Downloading
+    +Failed
+  }
+  
+  class ModelConfiguration <<entity>> {
+    +Id: string
+    +ModelId: string
+    +DefaultTemperature: float
+    +DefaultTopP: float
+    +DefaultTopK: int
+    +MaxOutputTokens: int
+    +DefaultSystemPrompt: string
+    +StopSequences: string[]
+    --
+    +ValidateParameters(): bool
+  }
+  
+  class Tag <<entity>> {
+    +Id: string
+    +Name: string
+    +Category: string
+    +Description: string
+  }
+  
+  class AIModelTag <<value object>> {
+    +ModelId: string
+    +TagId: string
+  }
+}
+
+package "Conversation Domain" #LightPink {
+  class Conversation <<entity>> <<aggregate root>> {
+    +Id: string
+    +Title: string
+    +UserId: string
+    +ModelId: string
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    +FolderId: string?
+    +IsArchived: bool
+    +LastMessageAt: DateTime?
+    --
+    +AddMessage(message): void
+    +UpdateTitle(title): void
+    +Archive(): void
+    +Restore(): void
+    +MoveToFolder(folderId): void
+  }
+  
+  class Message <<entity>> {
+    +Id: string
+    +ConversationId: string
+    +Role: MessageRole
+    +Content: string
+    +CreatedAt: DateTime
+    +TokenCount: int
+    +Metadata: Dictionary<string, object>
+    --
+    +AddFeedback(feedback): void
+  }
+  
+  enum MessageRole {
+    +User
+    +Assistant
+    +System
+  }
+  
+  class Feedback <<entity>> {
+    +Id: string
+    +MessageId: string
+    +Rating: int
+    +Comment: string
+    +CreatedAt: DateTime
+    +UserId: string
+  }
+  
+  class Folder <<entity>> <<aggregate root>> {
+    +Id: string
+    +Name: string
+    +UserId: string
+    +ParentId: string?
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    --
+    +Rename(name): void
+    +MoveTo(parentId): void
+  }
+  
+  class Note <<entity>> <<aggregate root>> {
+    +Id: string
+    +Content: string
+    +UserId: string
+    +ConversationId: string?
+    +CreatedAt: DateTime
+    +UpdatedAt: DateTime
+    --
+    +Update(content): void
+  }
+}
+
+package "Document Domain" #LightCyan {
+  class Document <<entity>> <<aggregate root>> {
+    +Id: string
+    +Name: string
+    +ContentType: string
+    +Size: long
+    +UserId: string
+    +UploadedAt: DateTime
+    +ProcessedAt: DateTime?
+    +Status: DocumentStatus
+    +StoragePath: string
+    --
+    +AddChunk(chunk): void
+    +UpdateStatus(status): void
+  }
+  
+  enum DocumentStatus {
+    +Uploaded
+    +Processing
+    +Indexed
+    +Failed
+  }
+  
+  class DocumentChunk <<entity>> {
+    +Id: string
+    +DocumentId: string
+    +Content: string
+    +ChunkIndex: int
+    +Embedding: float[]
+    +EmbeddingModelId: string
+    --
+    +UpdateEmbedding(embedding): void
+  }
+  
+  class DocumentMetadata <<value object>> {
+    +DocumentId: string
+    +Author: string?
+    +CreatedAt: DateTime?
+    +ModifiedAt: DateTime?
+    +PageCount: int?
+    +Title: string?
+    +Keywords: string[]
+    +Custom: Dictionary<string, object>
+  }
+}
+
+package "Inference Domain" #LightGray {
+  class InferenceRequest <<value object>> {
+    +Model: string
+    +Prompt: string
+    +SystemPrompt: string?
+    +Temperature: float
+    +TopP: float
+    +TopK: int
+    +MaxTokens: int
+    +StopSequences: string[]
+    +Stream: bool
+    +UserId: string?
+    --
+    +Validate(): bool
+  }
+  
+  class InferenceResponse <<value object>> {
+    +Content: string
+    +Model: string
+    +PromptTokenCount: int
+    +CompletionTokenCount: int
+    +FinishReason: string
+    +ElapsedTimeMs: long
+  }
+  
+  class ModelInfo <<value object>> {
+    +Id: string
+    +Name: string
+    +Description: string?
+    +ContextLength: int
+    +ParameterCount: long
+  }
+  
+  class ServiceInfo <<value object>> {
+    +Url: string
+    +Status: ServiceStatus
+    +AvailableModels: ModelInfo[]
+    +LastUpdated: DateTime
+  }
+  
+  enum ServiceStatus {
+    +Online
+    +Offline
+    +Degraded
+  }
+}
+
+' Relationships
+User "1" *-- "many" UserLogin
+User "1" *-- "many" RefreshToken
+User "many" o-- "many" Role
+Role "many" o-- "many" Permission
+
+AIModel "1" *-- "1" ModelConfiguration
+AIModel "many" o-- "many" Tag
+AIModel "many" -- "many" Tag
+(AIModel, Tag) .. AIModelTag
+
+Conversation "1" *-- "many" Message
+Message "1" *-- "many" Feedback
+Conversation "many" -- "1" Folder
+Conversation "many" -- "1" AIModel
+Note "many" -- "0..1" Conversation
+
+Document "1" *-- "many" DocumentChunk
+Document "1" *-- "1" DocumentMetadata
+
+' Cross-domain relationships
+User "1" -- "many" Conversation
+User "1" -- "many" Document
+User "1" -- "many" Folder
+User "1" -- "many" Note
+AIModel "1" -- "many" InferenceRequest : references
+
+legend right
+  Complete domain class diagram for OllamaNet platform showing:
+  
+  - Domain entities, value objects, and aggregates
+  - Entity attributes and operations
+  - Entity relationships and cardinality
+  - Domain-specific enumerations
+  
+  Color coding by domain:
+  - Authentication Domain (AuthService)
+  - Model Administration Domain (AdminService/ExploreService)
+  - Conversation Domain (ConversationService)
+  - Document Domain (ConversationService)
+  - Inference Domain (InferenceService)
+  
+  Relationship types:
+  - Composition: solid line with filled diamond
+  - Association: solid line
+  - Aggregation: solid line with empty diamond
+end legend
+
+@enduml

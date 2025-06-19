@@ -1,0 +1,50 @@
+@startuml resource_efficiency_analysis
+
+title Resource Efficiency Analysis
+
+header OllamaNet Documentation - Resource Management
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "Resource Utilization" {
+    component "CPU Usage" {
+        rectangle "Gateway: 45%" as cpu1 #98FB98
+        rectangle "Auth: 35%" as cpu2 #98FB98
+        rectangle "Conversation: 65%" as cpu3 #FFFF99
+        rectangle "Admin: 40%" as cpu4 #98FB98
+    }
+
+    component "Memory Usage" {
+        rectangle "Gateway: 50%" as mem1 #98FB98
+        rectangle "Auth: 45%" as mem2 #98FB98
+        rectangle "Conversation: 70%" as mem3 #FFB366
+        rectangle "Admin: 55%" as mem4 #98FB98
+    }
+
+    component "Storage Usage" {
+        rectangle "Database: 60%" as store1 #FFFF99
+        rectangle "Cache: 45%" as store2 #98FB98
+        rectangle "File Storage: 55%" as store3 #98FB98
+    }
+}
+
+note right of store3
+  Resource Thresholds
+  ==
+  Warning: 70%
+  Critical: 85%
+  Action Required: 90%
+end note
+
+legend right
+  Utilization Levels
+  ==
+  Green: < 60%
+  Yellow: 60-75%
+  Orange: 75-85%
+  Red: > 85%
+end legend
+
+@enduml

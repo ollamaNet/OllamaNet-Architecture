@@ -1,0 +1,103 @@
+@startuml Deployment_Comparison
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+title OllamaNet Deployment Comparison
+
+header OllamaNet Documentation
+footer Chapter 2
+
+' Define styles
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+' Standard Microservices Deployment
+Deployment_Node(prod_env, "Production Environment", "Cloud Platform") {
+  Deployment_Node(std_services, "Standard Services Deployment", "Docker Containers") {
+    Container(gateway_container, "API Gateway", ".NET 7, Ocelot", "Routes requests to appropriate services")
+    Container(auth_container, "Auth Service", ".NET 7", "Handles authentication and authorization")
+    Container(admin_container, "Admin Service", ".NET 7", "Platform administration")
+    Container(convo_container, "Conversation Service", ".NET 7", "Manages conversations and RAG")
+    Container(explore_container, "Explore Service", ".NET 7", "Model discovery and browsing")
+  }
+  
+  Deployment_Node(db_node, "Database Server", "Cloud SQL") {
+    ContainerDb(sql_db, "Shared SQL Database", "SQL Server", "Stores data for all services")
+    ContainerDb(redis, "Redis Cache", "Redis", "Distributed caching")
+  }
+  
+  Deployment_Node(msg_node, "Message Broker", "Cloud Service") {
+    Container(rabbitmq, "RabbitMQ", "3.8", "Message broker for async communication")
+  }
+}
+
+' Notebook-Based Deployment (InferenceService)
+Deployment_Node(notebook_env, "Notebook Environment", "Jupyter/Google Colab") {
+  Container(inference_notebook, "InferenceService", "Python, Jupyter", "AI model inference")
+  Container(ngrok, "ngrok Tunnel", "ngrok", "Exposes notebook API to public internet")
+  
+  Deployment_Node(local_models, "Local Model Storage", "File System") {
+    Container(ollama, "Ollama", "Go", "Local LLM runtime")
+    Container(models, "AI Models", "GGUF format", "Large language models")
+  }
+}
+
+' Draw relationships between components
+Rel(gateway_container, auth_container, "Routes to", "HTTPS")
+Rel(gateway_container, admin_container, "Routes to", "HTTPS")
+Rel(gateway_container, convo_container, "Routes to", "HTTPS")
+Rel(gateway_container, explore_container, "Routes to", "HTTPS")
+Rel(gateway_container, ngrok, "Routes to", "HTTPS")
+
+Rel(auth_container, sql_db, "Reads/writes", "Entity Framework")
+Rel(admin_container, sql_db, "Reads/writes", "Entity Framework")
+Rel(convo_container, sql_db, "Reads/writes", "Entity Framework")
+Rel(explore_container, sql_db, "Reads/writes", "Entity Framework")
+
+Rel(convo_container, redis, "Caches data", "StackExchange.Redis")
+Rel(admin_container, redis, "Caches data", "StackExchange.Redis")
+
+Rel(inference_notebook, ngrok, "Exposes API via", "HTTP")
+Rel(inference_notebook, ollama, "Runs models via", "HTTP")
+Rel(ollama, models, "Loads and executes", "File I/O")
+
+Rel(inference_notebook, rabbitmq, "Publishes URL updates", "AMQP")
+Rel(admin_container, rabbitmq, "Subscribes to updates", "AMQP")
+Rel(convo_container, rabbitmq, "Subscribes to updates", "AMQP")
+
+note right of std_services
+  Containerized Services:
+  - Consistent deployment environment
+  - Scalable and orchestrated
+  - Immutable infrastructure
+  - CI/CD pipeline integration
+  - Automated scaling
+end note
+
+note right of notebook_env
+  Notebook-Based Deployment:
+  - Rapid development
+  - Interactive debugging
+  - Easier model experimentation
+  - Local GPU utilization
+  - Flexible deployment options
+  - Dynamic service discovery needed
+end note
+
+legend right
+  OllamaNet employs a hybrid deployment approach:
+  
+  1. Standard microservices (.NET based) are deployed as containers
+     with traditional scaling and orchestration
+  
+  2. InferenceService uses a notebook-based deployment for:
+     - Faster model experimentation
+     - Simplified GPU access
+     - Interactive development
+  
+  This hybrid approach leverages the strengths of both models
+  while using message-based service discovery to maintain
+  system cohesion despite different deployment patterns.
+end legend
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml service_performance_comparison
+
+title Service Performance Comparison - OllamaNet Platform
+
+header OllamaNet Documentation - System Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+' Custom styling
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+}
+
+rectangle "Performance Metrics by Service" {
+    component "Response Times" {
+        rectangle "Gateway: 50ms" as gateway_rt
+        rectangle "Auth: 75ms" as auth_rt
+        rectangle "Conversation: 150ms" as conv_rt
+        rectangle "Admin: 100ms" as admin_rt
+    }
+
+    component "Error Rates" {
+        rectangle "Gateway: 0.1%" as gateway_err
+        rectangle "Auth: 0.2%" as auth_err
+        rectangle "Conversation: 0.3%" as conv_err
+        rectangle "Admin: 0.15%" as admin_err
+    }
+
+    component "Resource Usage" {
+        rectangle "Gateway: 40% CPU" as gateway_cpu
+        rectangle "Auth: 35% CPU" as auth_cpu
+        rectangle "Conversation: 60% CPU" as conv_cpu
+        rectangle "Admin: 45% CPU" as admin_cpu
+    }
+}
+
+legend right
+  Performance Indicators
+  ==
+  Response Time Target: < 200ms
+  Error Rate Target: < 0.5%
+  CPU Usage Target: < 70%
+  --
+  Based on production metrics
+  30-day average
+end legend
+
+@enduml

@@ -1,0 +1,103 @@
+@startuml messaging_patterns
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Messaging Patterns in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 4
+
+' Set styles
+skinparam componentStyle uml2
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+rectangle "RabbitMQ Message Broker" {
+  component [URL Update\nTopic Exchange] as topic_exchange
+  queue "AdminService\nURL Queue" as admin_queue
+  queue "ConversationService\nURL Queue" as convo_queue
+  queue "Dead Letter\nQueue" as dlq
+}
+
+rectangle "InferenceService" as inference {
+  component [URL Publisher] as url_publisher
+  component [Service Configuration] as inference_config
+}
+
+rectangle "AdminService" as admin {
+  component [URL Subscriber] as admin_subscriber
+  component [Message Handler] as admin_handler
+  component [Retry Policy] as admin_retry
+  component [URL Configuration] as admin_config
+}
+
+rectangle "ConversationService" as convo {
+  component [URL Subscriber] as convo_subscriber
+  component [Message Handler] as convo_handler
+  component [Retry Policy] as convo_retry
+  component [URL Configuration] as convo_config
+}
+
+' Publication flow
+inference_config --> url_publisher : Provides URL
+url_publisher --> topic_exchange : Publishes to\n"inference.url.update"
+topic_exchange --> admin_queue : Routes by topic
+topic_exchange --> convo_queue : Routes by topic
+
+' Consumption flows
+admin_queue --> admin_subscriber : Consumes messages
+admin_subscriber --> admin_retry : Applies retry policy
+admin_retry --> admin_handler : Processes message
+admin_handler --> admin_config : Updates configuration
+
+convo_queue --> convo_subscriber : Consumes messages
+convo_subscriber --> convo_retry : Applies retry policy
+convo_retry --> convo_handler : Processes message
+convo_handler --> convo_config : Updates configuration
+
+' Dead letter routing
+admin_retry --> dlq : Routes failed\nmessages after\nretry exhaustion
+convo_retry --> dlq : Routes failed\nmessages after\nretry exhaustion
+
+note right of url_publisher
+  Publishes URL when:
+  - Service starts
+  - URL changes
+  - Periodic heartbeat
+end note
+
+note left of admin_subscriber
+  Subscribes with:
+  - Durable queue
+  - Topic binding
+  - Auto acknowledgment
+end note
+
+note right of admin_retry
+  Implements:
+  - Exponential backoff
+  - Circuit breaker
+  - Error logging
+end note
+
+note left of dlq
+  Dead Letter Queue:
+  - Captures failed messages
+  - Enables manual inspection
+  - Allows reprocessing
+end note
+
+legend right
+  OllamaNet uses a topic-based messaging pattern with RabbitMQ
+  for service discovery and configuration updates. This enables:
+  
+  - Loosely coupled service communication
+  - Dynamic configuration updates
+  - Resilient message processing with retry policies
+  - Error handling with dead letter queues
+  
+  This pattern is especially important for the InferenceService
+  which has a dynamic endpoint due to its notebook-based deployment.
+end legend
+
+@enduml

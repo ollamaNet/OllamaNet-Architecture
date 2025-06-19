@@ -7,6 +7,66 @@ LAYOUT_WITH_LEGEND()
 skinparam wrapWidth 200
 skinparam defaultTextAlignment center
 
+' Professional color scheme - Black, White, Dark Blue
+skinparam BackgroundColor White
+skinparam ArrowColor #000000
+skinparam BorderColor #000000
+
+' Container styling
+skinparam rectangle {
+  BorderColor #000000
+  BackgroundColor White
+  FontColor #000000
+}
+
+' Component styling
+skinparam component {
+  BorderColor #000000
+  BackgroundColor White
+  FontColor #000000
+}
+
+' System boundary styling
+skinparam rectangle<<boundary>> {
+  BorderColor #000080
+  BackgroundColor transparent
+  FontColor #000080
+}
+
+' Relationship styling
+skinparam arrow {
+  Color #000000
+  FontColor #000000
+}
+
+' Custom styles for specific elements
+UpdateElementStyle(gateway, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+UpdateElementStyle(auth_service, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+UpdateElementStyle(admin_service, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+UpdateElementStyle(conversation_service, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+UpdateElementStyle(explore_service, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+UpdateElementStyle(inference_service, $bgColor="White", $borderColor="#000080", $fontColor="#000000")
+
+' Title and legend styling
+skinparam title {
+  FontColor #000080
+  BorderColor #000000
+}
+
+skinparam legend {
+  BackgroundColor White
+  BorderColor #000000
+  FontColor #000000
+}
+
+skinparam footer {
+  FontColor #000080
+}
+
+skinparam header {
+  FontColor #000080
+}
+
 title OllamaNet Platform Components
 
 System_Boundary(ollamanet, "OllamaNet Platform") {

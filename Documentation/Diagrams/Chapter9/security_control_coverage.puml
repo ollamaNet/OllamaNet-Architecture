@@ -1,0 +1,51 @@
+@startuml security_control_coverage
+
+title Security Control Coverage Matrix
+
+header OllamaNet Documentation - Security Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "Security Controls Coverage" {
+    component "Authentication Controls" {
+        rectangle "JWT Implementation: 100%" as jwt
+        rectangle "Password Policy: 100%" as pwd
+        rectangle "MFA Support: 80%" as mfa
+        rectangle "Session Management: 90%" as session
+    }
+
+    component "Authorization Controls" {
+        rectangle "RBAC Implementation: 100%" as rbac
+        rectangle "Permission Management: 90%" as perm
+        rectangle "API Security: 95%" as api
+        rectangle "Resource Access: 85%" as resource
+    }
+
+    component "Data Security" {
+        rectangle "Encryption at Rest: 100%" as encrypt
+        rectangle "Secure Communication: 100%" as comm
+        rectangle "Data Masking: 75%" as mask
+        rectangle "Audit Logging: 90%" as audit
+    }
+
+    component "Infrastructure Security" {
+        rectangle "Network Security: 95%" as network
+        rectangle "Container Security: 90%" as container
+        rectangle "Secrets Management: 100%" as secrets
+        rectangle "Vulnerability Scanning: 85%" as vuln
+    }
+}
+
+legend right
+  Coverage Levels
+  ==
+  Green: >= 90%
+  Yellow: 70-89%
+  Red: < 70%
+  --
+  Based on NIST Framework
+end legend
+
+@enduml

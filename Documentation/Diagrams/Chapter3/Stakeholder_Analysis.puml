@@ -1,0 +1,175 @@
+@startuml Stakeholder_Analysis
+
+title OllamaNet Stakeholder Analysis
+
+header OllamaNet Documentation
+footer Chapter 3
+
+skinparam defaultTextAlignment center
+skinparam actorStyle awesome
+
+' Define stakeholder groups with different colors
+circle "OllamaNet\nPlatform" as platform #LightGray
+
+' Primary stakeholders (inner circle)
+actor "End Users" as users #LightBlue
+actor "Administrators" as admins #LightBlue
+actor "Faculty\nSupervisor" as faculty #LightBlue
+
+' Secondary stakeholders (middle circle)
+actor "Developers" as developers #LightGreen
+actor "AI Model\nProviders" as model_providers #LightGreen
+actor "System\nOperators" as operators #LightGreen
+
+' Tertiary stakeholders (outer circle)
+actor "Integration\nPartners" as partners #LightYellow
+actor "External\nSystems" as external #LightYellow
+actor "Community\nContributors" as community #LightYellow
+
+' Positioning with distance representing proximity to the system
+users -[#Blue]-> platform : Uses for conversations\nand information retrieval
+admins -[#Blue]-> platform : Manages platform\nand user access
+faculty -[#Blue]-> platform : Evaluates project\nand provides feedback
+
+developers -[#Green]-> platform : Builds and\nmaintains
+model_providers -[#Green]-> platform : Supplies\nAI models
+operators -[#Green]-> platform : Ensures availability\nand performance
+
+partners -[#Orange]-> platform : Integrates with\nown systems
+external -[#Orange]-> platform : Exchanges data\nand services
+community -[#Orange]-> platform : Contributes\nimprovements
+
+' Stakeholder characteristics and requirements
+note bottom of users
+  <b>End Users</b>
+  Priority: High
+  Influence: Medium
+  
+  Key Requirements:
+  - Intuitive conversation interface
+  - Accurate AI responses
+  - Document analysis capabilities
+  - Conversation organization
+  - Quick response times
+end note
+
+note bottom of admins
+  <b>Administrators</b>
+  Priority: High
+  Influence: High
+  
+  Key Requirements:
+  - User management
+  - Model configuration
+  - System monitoring
+  - Usage analytics
+  - Role-based access control
+end note
+
+note bottom of faculty
+  <b>Faculty Supervisor</b>
+  Priority: High
+  Influence: High
+  
+  Key Requirements:
+  - Project documentation
+  - System architecture
+  - Academic relevance
+  - Technical innovation
+  - Implementation quality
+end note
+
+note bottom of developers
+  <b>Developers</b>
+  Priority: Medium
+  Influence: High
+  
+  Key Requirements:
+  - Clear architecture
+  - Well-documented code
+  - Testable components
+  - Development tools
+  - Deployment automation
+end note
+
+note bottom of model_providers
+  <b>AI Model Providers</b>
+  Priority: Medium
+  Influence: Medium
+  
+  Key Requirements:
+  - Model integration APIs
+  - Parameter flexibility
+  - Usage metrics
+  - Resource optimization
+end note
+
+note bottom of operators
+  <b>System Operators</b>
+  Priority: Medium
+  Influence: Medium
+  
+  Key Requirements:
+  - Monitoring tools
+  - Backup procedures
+  - Scaling capabilities
+  - Error reporting
+  - Alerting mechanisms
+end note
+
+note bottom of partners
+  <b>Integration Partners</b>
+  Priority: Low
+  Influence: Low
+  
+  Key Requirements:
+  - Stable APIs
+  - Documentation
+  - Authentication mechanisms
+  - Data exchange formats
+end note
+
+note bottom of external
+  <b>External Systems</b>
+  Priority: Low
+  Influence: Low
+  
+  Key Requirements:
+  - Integration points
+  - Data formats
+  - Security protocols
+  - Rate limiting
+end note
+
+note bottom of community
+  <b>Community Contributors</b>
+  Priority: Low
+  Influence: Low
+  
+  Key Requirements:
+  - Contribution guidelines
+  - Code structure
+  - Issue tracking
+  - Feature requests
+end note
+
+legend right
+  <b>OllamaNet Stakeholder Analysis</b>
+  
+  This diagram identifies key stakeholders and their
+  relationship to the OllamaNet platform:
+  
+  <b>Stakeholder Proximity:</b>
+  - <b><color #Blue>Primary</color></b>: Direct users and evaluators
+  - <b><color #Green>Secondary</color></b>: Supporting and maintaining
+  - <b><color #Orange>Tertiary</color></b>: Peripheral involvement
+  
+  <b>Stakeholder Attributes:</b>
+  - <b>Priority</b>: Importance to project success
+  - <b>Influence</b>: Ability to affect project direction
+  
+  <b>Key Requirements</b> for each stakeholder are
+  listed to inform system design and priorities.
+end legend
+
+@enduml

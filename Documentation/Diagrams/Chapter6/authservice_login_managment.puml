@@ -1,0 +1,108 @@
+@startuml authservice_login_managment
+
+title Login Management Flow - Auth Service
+
+header OllamaNet Documentation - Service Flows
+footer Chapter 6
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam sequenceGroupBorderColor gray
+
+actor "User" as user
+participant "Gateway" as gateway
+participant "AuthController" as controller
+participant "AuthService" as service
+participant "JWTManager" as jwt
+participant "RoleManager" as roles
+database "Database" as db
+
+group Login Flow
+    user -> gateway: Login Request
+    activate gateway
+    
+    gateway -> controller: POST /api/auth/login
+    activate controller
+    
+    controller -> service: AuthenticateAsync
+    activate service
+    
+    service -> db: Validate Credentials
+    activate db
+    
+    alt Valid Credentials
+        db --> service: User Found
+        
+        service -> jwt: Generate Token
+        activate jwt
+        jwt --> service: JWT Token
+        deactivate jwt
+        
+        service -> roles: Get User Roles
+        activate roles
+        roles --> service: Role List
+        deactivate roles
+        
+        service -> service: Create Auth Response
+        
+        service --> controller: Auth Success
+        controller --> gateway: 200 OK with Token
+        gateway --> user: Login Success + Token
+    else Invalid Credentials
+        db --> service: Invalid Credentials
+        service --> controller: Auth Failed
+        controller --> gateway: 401 Unauthorized
+        gateway --> user: Login Failed
+    end
+    deactivate db
+    deactivate service
+    deactivate controller
+    deactivate gateway
+end
+
+group Token Refresh Flow
+    user -> gateway: Refresh Token Request
+    activate gateway
+    
+    gateway -> controller: POST /api/auth/refresh
+    activate controller
+    
+    controller -> service: RefreshTokenAsync
+    activate service
+    
+    service -> jwt: Validate Refresh Token
+    activate jwt
+    
+    alt Valid Token
+        jwt --> service: Token Valid
+        
+        service -> jwt: Generate New Tokens
+        jwt --> service: New Token Pair
+        
+        service --> controller: Refresh Success
+        controller --> gateway: 200 OK with New Tokens
+        gateway --> user: New Access Token
+    else Invalid Token
+        jwt --> service: Token Invalid
+        service --> controller: Refresh Failed
+        controller --> gateway: 401 Unauthorized
+        gateway --> user: Refresh Failed
+    end
+    deactivate jwt
+    deactivate service
+    deactivate controller
+    deactivate gateway
+end
+
+legend right
+  Flow Legend
+  ==
+  Green: Success Path
+  Red: Error Path
+  Blue: Token Operations
+  --
+  Includes token refresh
+  and role management
+end legend
+
+@enduml

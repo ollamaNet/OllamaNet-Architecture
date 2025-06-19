@@ -1,0 +1,58 @@
+@startuml response_time_analysis
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Response Time Analysis - OllamaNet Services
+
+header OllamaNet Documentation - System Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+' Custom styles
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+}
+
+' Response time metrics visualization
+rectangle "Response Time Analysis" {
+    component "Gateway Service" as gateway {
+        rectangle "Average: 50ms" as gateway_avg
+        rectangle "95th: 120ms" as gateway_95
+        rectangle "99th: 200ms" as gateway_99
+    }
+
+    component "Auth Service" as auth {
+        rectangle "Average: 75ms" as auth_avg
+        rectangle "95th: 150ms" as auth_95
+        rectangle "99th: 250ms" as auth_99
+    }
+
+    component "Conversation Service" as conversation {
+        rectangle "Average: 150ms" as conv_avg
+        rectangle "95th: 300ms" as conv_95
+        rectangle "99th: 500ms" as conv_99
+    }
+
+    component "Admin Service" as admin {
+        rectangle "Average: 100ms" as admin_avg
+        rectangle "95th: 200ms" as admin_95
+        rectangle "99th: 350ms" as admin_99
+    }
+}
+
+' Add legend
+legend right
+  Response Time Thresholds
+  ==
+  Green: < 100ms
+  Yellow: 100ms - 300ms
+  Red: > 300ms
+  --
+  Measurements from production
+  Last 30 days average
+end legend
+
+@enduml

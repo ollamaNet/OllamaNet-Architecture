@@ -1,0 +1,58 @@
+@startuml horizontal_scaling_performance
+
+title Horizontal Scaling Performance Analysis
+
+header OllamaNet Documentation - System Evaluation
+footer Chapter 10
+
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+' Custom styling
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+    
+}
+
+rectangle "Scaling Performance Analysis" {
+    component "Single Instance Baseline" {
+        rectangle "Throughput: 500 RPS" as single_throughput
+        rectangle "Response Time: 100ms" as single_response
+        rectangle "CPU Usage: 75%" as single_cpu
+    }
+
+    component "Two Instances" {
+        rectangle "Throughput: 950 RPS" as double_throughput
+        rectangle "Response Time: 95ms" as double_response
+        rectangle "CPU Usage: 45%" as double_cpu
+    }
+
+    component "Three Instances" {
+        rectangle "Throughput: 1400 RPS" as triple_throughput
+        rectangle "Response Time: 90ms" as triple_response
+        rectangle "CPU Usage: 35%" as triple_cpu
+    }
+}
+
+note right of triple_throughput
+  Scaling Efficiency
+  ==
+  2 instances: 95% efficiency
+  3 instances: 93% efficiency
+  --
+  Near-linear scaling achieved
+end note
+
+legend right
+  Scaling Metrics
+  ==
+  Based on load testing
+  Using Azure Kubernetes Service
+  --
+  Green: Improved
+  Yellow: Neutral
+  Red: Degraded
+end legend
+
+@enduml

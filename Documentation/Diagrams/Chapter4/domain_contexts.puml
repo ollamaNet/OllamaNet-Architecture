@@ -1,0 +1,145 @@
+@startuml domain_contexts
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Domain Contexts and Domain Events in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 4
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+' Define bounded contexts
+Rectangle "Authentication Domain" as auth_domain #LightBlue {
+  Component(user_repo, "User Repository", "Repository", "Manages user entities")
+  Component(auth_svc, "Auth Service", "Service", "Handles authentication")
+  Component(user_mgr, "User Manager", "Service", "Manages users")
+  
+  Component(user_created_event, "UserCreatedEvent", "Domain Event", "User created")
+  Component(user_updated_event, "UserUpdatedEvent", "Domain Event", "User updated")
+  Component(role_assigned_event, "RoleAssignedEvent", "Domain Event", "Role assigned to user")
+}
+
+Rectangle "Model Administration Domain" as admin_domain #LightGreen {
+  Component(model_repo, "Model Repository", "Repository", "Manages model entities")
+  Component(model_svc, "Model Service", "Service", "Handles model operations")
+  Component(admin_user_repo, "Admin User Repository", "Repository", "User view for admin")
+  
+  Component(model_registered_event, "ModelRegisteredEvent", "Domain Event", "Model registered")
+  Component(model_updated_event, "ModelUpdatedEvent", "Domain Event", "Model updated")
+  Component(model_status_changed_event, "ModelStatusChangedEvent", "Domain Event", "Model status changed")
+}
+
+Rectangle "Model Discovery Domain" as explore_domain #LightYellow {
+  Component(catalog_repo, "Model Catalog Repository", "Repository", "Manages model catalog")
+  Component(tag_repo, "Tag Repository", "Repository", "Manages tags")
+  Component(search_svc, "Search Service", "Service", "Handles model search")
+  
+  Component(model_indexed_event, "ModelIndexedEvent", "Domain Event", "Model indexed for search")
+  Component(tag_added_event, "TagAddedEvent", "Domain Event", "Tag added to model")
+}
+
+Rectangle "Conversation Domain" as convo_domain #LightPink {
+  Component(convo_repo, "Conversation Repository", "Repository", "Manages conversations")
+  Component(message_repo, "Message Repository", "Repository", "Manages messages")
+  Component(folder_repo, "Folder Repository", "Repository", "Manages folders")
+  Component(chat_svc, "Chat Service", "Service", "Handles chat interactions")
+  
+  Component(convo_created_event, "ConversationCreatedEvent", "Domain Event", "Conversation created")
+  Component(message_added_event, "MessageAddedEvent", "Domain Event", "Message added")
+  Component(feedback_added_event, "FeedbackAddedEvent", "Domain Event", "Feedback added")
+}
+
+Rectangle "Document Domain" as doc_domain #LightCyan {
+  Component(doc_repo, "Document Repository", "Repository", "Manages documents")
+  Component(chunk_repo, "Chunk Repository", "Repository", "Manages document chunks")
+  Component(doc_processor, "Document Processor", "Service", "Processes documents")
+  Component(embedding_svc, "Embedding Service", "Service", "Creates embeddings")
+  
+  Component(doc_uploaded_event, "DocumentUploadedEvent", "Domain Event", "Document uploaded")
+  Component(doc_processed_event, "DocumentProcessedEvent", "Domain Event", "Document processed")
+  Component(embedding_created_event, "EmbeddingCreatedEvent", "Domain Event", "Embedding created")
+}
+
+Rectangle "Inference Domain" as inference_domain #LightGray {
+  Component(inference_svc, "Inference Service", "Service", "Handles inference requests")
+  Component(model_runner, "Model Runner", "Service", "Runs AI models")
+  Component(url_publisher, "URL Publisher", "Service", "Publishes service URL")
+  
+  Component(inference_requested_event, "InferenceRequestedEvent", "Domain Event", "Inference requested")
+  Component(inference_completed_event, "InferenceCompletedEvent", "Domain Event", "Inference completed")
+  Component(url_updated_event, "ServiceUrlUpdatedEvent", "Domain Event", "Service URL updated")
+}
+
+' Domain event flows
+Rel_D(user_created_event, admin_user_repo, "Updates")
+Rel_R(user_updated_event, admin_user_repo, "Updates")
+Rel_R(role_assigned_event, admin_user_repo, "Updates")
+
+Rel_D(model_registered_event, catalog_repo, "Updates")
+Rel_R(model_updated_event, catalog_repo, "Updates")
+Rel_R(model_status_changed_event, catalog_repo, "Updates")
+
+Rel_D(model_registered_event, inference_svc, "Notifies")
+Rel_R(model_status_changed_event, inference_svc, "Notifies")
+
+Rel_U(tag_added_event, model_repo, "Updates")
+
+Rel_D(convo_created_event, convo_repo, "Persists")
+Rel_D(message_added_event, message_repo, "Persists")
+Rel_D(feedback_added_event, chat_svc, "Processes")
+
+Rel_D(doc_uploaded_event, doc_processor, "Triggers")
+Rel_D(doc_processed_event, embedding_svc, "Triggers")
+Rel_D(embedding_created_event, chunk_repo, "Updates")
+
+Rel_U(inference_requested_event, model_runner, "Processes")
+Rel_D(inference_completed_event, chat_svc, "Notifies")
+
+Rel_U(url_updated_event, model_svc, "Updates")
+Rel_U(url_updated_event, chat_svc, "Updates")
+
+' Domain event buses
+Component(event_bus, "Domain Event Bus", "RabbitMQ", "Central event bus for domain events")
+
+Rel_U(auth_domain, event_bus, "Publishes events")
+Rel_U(admin_domain, event_bus, "Publishes events")
+Rel_U(explore_domain, event_bus, "Publishes events")
+Rel_U(convo_domain, event_bus, "Publishes events")
+Rel_U(doc_domain, event_bus, "Publishes events")
+Rel_U(inference_domain, event_bus, "Publishes events")
+
+Rel_D(event_bus, auth_domain, "Delivers events")
+Rel_D(event_bus, admin_domain, "Delivers events")
+Rel_D(event_bus, explore_domain, "Delivers events")
+Rel_D(event_bus, convo_domain, "Delivers events")
+Rel_D(event_bus, doc_domain, "Delivers events")
+Rel_D(event_bus, inference_domain, "Delivers events")
+
+legend right
+  Domain Contexts and Domain Events in OllamaNet
+  
+  This diagram shows:
+  - Domain contexts and their core components
+  - Domain events generated by each context
+  - Event flows between contexts
+  - Central event bus for event distribution
+  
+  Domain events enable:
+  - Loose coupling between domains
+  - Event-driven communication
+  - Eventual consistency
+  - Cross-domain integration
+  
+  Color coding by domain context:
+  - Authentication Domain (AuthService)
+  - Model Administration Domain (AdminService)
+  - Model Discovery Domain (ExploreService)
+  - Conversation Domain (ConversationService)
+  - Document Domain (ConversationService)
+  - Inference Domain (InferenceService)
+end legend
+
+@enduml

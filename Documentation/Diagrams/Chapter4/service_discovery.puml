@@ -1,0 +1,69 @@
+@startuml service_discovery
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Sequence.puml
+
+title Service Discovery in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 4
+
+actor "InferenceService" as inference
+participant "ngrok Tunnel" as ngrok
+participant "RabbitMQ\nMessage Broker" as rabbitmq
+participant "AdminService" as admin
+participant "ConversationService" as conversation
+
+note over inference
+  Jupyter Notebook-based service
+  with dynamic URL via ngrok
+end note
+
+== Service Startup and Registration ==
+inference -> ngrok: Start tunnel
+ngrok --> inference: Return public URL (https://xyz.ngrok.io)
+
+inference -> inference: Store URL in configuration
+
+inference -> rabbitmq: Publish URL update message\n(Topic: "inference.url.update")
+note right: Message contains service ID and URL
+
+== Service URL Update Consumption ==
+rabbitmq -> admin: Deliver URL update message
+admin -> admin: Update InferenceService URL in cache
+admin -> admin: Configure client to use new URL
+
+rabbitmq -> conversation: Deliver URL update message
+conversation -> conversation: Update InferenceService URL in cache
+conversation -> conversation: Configure client to use new URL
+
+== Service Usage ==
+conversation -> inference: Make API request to current URL
+inference --> conversation: Send response
+
+== Service Restart/URL Change ==
+inference -> ngrok: Restart tunnel (new URL)
+ngrok --> inference: Return new public URL
+
+inference -> rabbitmq: Publish URL update message
+note right: Topic-based exchange ensures\nall subscribers receive updates
+
+rabbitmq -> admin: Deliver updated URL
+rabbitmq -> conversation: Deliver updated URL
+
+admin -> admin: Update configuration with new URL
+conversation -> conversation: Update configuration with new URL
+
+note across
+  URL updates happen dynamically without system restart
+  Services maintain connectivity despite changing endpoints
+end note
+
+legend right
+  Service discovery mechanism using RabbitMQ message broker.
+  InferenceService publishes its dynamically changing URL,
+  while other services subscribe to updates to maintain connectivity.
+  This approach accommodates the notebook-based deployment model
+  where URLs may change frequently.
+end legend
+
+@enduml

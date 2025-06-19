@@ -1,0 +1,118 @@
+@startuml admin_model_management_flow
+
+title AI Model Management Flow - Admin Service
+
+header OllamaNet Documentation - Service Flows
+footer Chapter 6
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam sequenceGroupBorderColor gray
+
+actor "Admin User" as admin
+participant "Gateway" as gateway
+participant "AdminController" as controller
+participant "AIModelOperationsService" as service
+participant "Validator" as validator
+participant "CacheManager" as cache
+database "Database" as db
+queue "MessageBus" as bus
+
+group Model Creation Flow
+    admin -> gateway: Create Model Request
+    activate gateway
+    
+    gateway -> controller: POST /api/models
+    activate controller
+    
+    controller -> validator: Validate Model Request
+    activate validator
+    validator --> controller: Validation Result
+    deactivate validator
+    
+    alt Validation Success
+        controller -> service: CreateModelAsync
+        activate service
+        
+        service -> db: Check Model Exists
+        db --> service: Result
+        
+        alt Model Doesn't Exist
+            service -> db: Save Model
+            db --> service: Success
+            
+            service -> cache: Invalidate Models Cache
+            service -> bus: Publish ModelCreated Event
+            
+            service --> controller: Success Response
+            controller --> gateway: 201 Created
+            gateway --> admin: Model Created Successfully
+        else Model Exists
+            service --> controller: Model Already Exists
+            controller --> gateway: 409 Conflict
+            gateway --> admin: Model Already Exists Error
+        end
+        deactivate service
+    else Validation Failed
+        controller --> gateway: 400 Bad Request
+        gateway --> admin: Validation Error Details
+    end
+    deactivate controller
+    deactivate gateway
+end
+
+group Model Update Flow
+    admin -> gateway: Update Model Request
+    activate gateway
+    
+    gateway -> controller: PUT /api/models/{id}
+    activate controller
+    
+    controller -> validator: Validate Update Request
+    activate validator
+    validator --> controller: Validation Result
+    deactivate validator
+    
+    alt Validation Success
+        controller -> service: UpdateModelAsync
+        activate service
+        
+        service -> db: Find Model
+        db --> service: Model
+        
+        alt Model Found
+            service -> db: Update Model
+            db --> service: Success
+            
+            service -> cache: Invalidate Model Cache
+            service -> bus: Publish ModelUpdated Event
+            
+            service --> controller: Success Response
+            controller --> gateway: 200 OK
+            gateway --> admin: Model Updated Successfully
+        else Model Not Found
+            service --> controller: Model Not Found
+            controller --> gateway: 404 Not Found
+            gateway --> admin: Model Not Found Error
+        end
+        deactivate service
+    else Validation Failed
+        controller --> gateway: 400 Bad Request
+        gateway --> admin: Validation Error Details
+    end
+    deactivate controller
+    deactivate gateway
+end
+
+legend right
+  Flow Legend
+  ==
+  Green: Success Path
+  Red: Error Path
+  Blue: Validation
+  --
+  Includes caching and
+  event publishing
+end legend
+
+@enduml

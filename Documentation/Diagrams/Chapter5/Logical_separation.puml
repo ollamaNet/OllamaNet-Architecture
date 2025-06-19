@@ -1,0 +1,181 @@
+@startuml logical_separation
+
+title Logical vs. Physical Database Separation in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 5
+
+skinparam componentStyle uml2
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+package "Physical Database (SQL Server)" as physical {
+  database "OllamaNet Database" as db {
+    folder "dbo Schema" as dbo {
+      [Users]
+      [Roles]
+      [UserRoles]
+      [Permissions]
+      [RolePermissions]
+      [RefreshTokens]
+    }
+    
+    folder "admin Schema" as admin {
+      [AIModels]
+      [ModelConfigurations]
+      [Tags]
+      [ModelTags]
+      [SystemSettings]
+    }
+    
+    folder "convo Schema" as convo {
+      [Conversations]
+      [Messages]
+      [Feedback]
+      [Folders]
+      [Notes]
+    }
+    
+    folder "doc Schema" as doc {
+      [Documents]
+      [DocumentChunks]
+      [DocumentMetadata]
+    }
+  }
+}
+
+package "Logical Database Contexts" as logical {
+  component "AuthenticationContext" as auth_context {
+    interface "IUserRepository"
+    interface "IRoleRepository"
+    interface "IPermissionRepository"
+  }
+  
+  component "AdministrationContext" as admin_context {
+    interface "IModelRepository"
+    interface "ITagRepository"
+    interface "ISettingsRepository"
+  }
+  
+  component "ConversationContext" as convo_context {
+    interface "IConversationRepository"
+    interface "IMessageRepository"
+    interface "IFolderRepository"
+  }
+  
+  component "DocumentContext" as doc_context {
+    interface "IDocumentRepository"
+    interface "IChunkRepository"
+  }
+}
+
+package "Services" as services {
+  component "AuthService" as auth_service
+  component "AdminService" as admin_service
+  component "ExploreService" as explore_service
+  component "ConversationService" as convo_service
+}
+
+' Schema access rights
+note right of dbo
+  Full access: AuthService
+  Read access: All services
+end note
+
+note right of admin
+  Full access: AdminService
+  Read access: ExploreService, ConversationService
+end note
+
+note right of convo
+  Full access: ConversationService
+  No access: Other services
+end note
+
+note right of doc
+  Full access: ConversationService
+  No access: Other services
+end note
+
+' Service to context relationships
+auth_service --> auth_context
+admin_service --> admin_context
+admin_service --> auth_context : Read-only
+explore_service --> admin_context : Read-only
+convo_service --> convo_context
+convo_service --> doc_context
+convo_service --> auth_context : Read-only
+convo_service --> admin_context : Read-only
+
+' Context to schema relationships
+auth_context --> dbo
+admin_context --> admin
+admin_context --> dbo : Read-only
+convo_context --> convo
+convo_context --> dbo : Read-only
+doc_context --> doc
+
+' Database users
+package "Database Users" as db_users {
+  component "auth_user" as db_auth_user
+  component "admin_user" as db_admin_user
+  component "convo_user" as db_convo_user
+}
+
+db_auth_user --> dbo : Owner
+db_admin_user --> admin : Owner
+db_admin_user --> dbo : Read-only
+db_convo_user --> convo : Owner
+db_convo_user --> doc : Owner
+db_convo_user --> dbo : Read-only
+db_convo_user --> admin : Read-only
+
+' Cross-Schema Relationships
+[Users] <-- [AIModels] : Foreign Key
+[Users] <-- [Conversations] : Foreign Key
+[Users] <-- [Documents] : Foreign Key
+[AIModels] <-- [Conversations] : Foreign Key
+
+note bottom of physical
+  Single physical database with schema separation
+  provides logical boundaries between domains
+end note
+
+note bottom of logical
+  Repository interfaces provide
+  domain-specific data access
+end note
+
+note bottom of db_users
+  Database users with limited permissions
+  enforce schema separation
+end note
+
+legend right
+  Logical vs. Physical Database Separation in OllamaNet
+  
+  This diagram illustrates how OllamaNet achieves logical
+  separation of data while using a single physical database:
+  
+  1. Schema Separation
+     - Different database schemas for each domain
+     - Schema-specific tables with clear ownership
+  
+  2. Access Control
+     - Database users with limited permissions
+     - Service-specific database credentials
+     - Read-only access where appropriate
+  
+  3. Logical Boundaries
+     - Domain-specific DbContext instances
+     - Repository interfaces for domain operations
+     - Controlled cross-schema access
+  
+  This approach balances:
+  - Data isolation between services
+  - Simplified database administration
+  - Efficient cross-domain queries
+  - Consistent backup and recovery
+end legend
+
+@enduml

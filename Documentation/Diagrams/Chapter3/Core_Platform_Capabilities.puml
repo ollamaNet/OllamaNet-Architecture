@@ -1,0 +1,161 @@
+@startuml Core_Platform_Capabilities
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title OllamaNet Core Platform Capabilities
+
+header OllamaNet Documentation
+footer Chapter 3
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+' Define capability groups
+rectangle "User & Identity Management" as identity #LightBlue {
+  usecase "User Registration" as reg
+  usecase "Authentication" as auth
+  usecase "Authorization" as authz
+  usecase "User Profile Management" as profile
+  usecase "Role Management" as roles
+}
+
+rectangle "AI Model Management" as model_mgmt #LightGreen {
+  usecase "Model Registration" as model_reg
+  usecase "Model Configuration" as model_config
+  usecase "Model Discovery" as model_discovery
+  usecase "Model Versioning" as model_version
+  usecase "Tag Management" as tags
+}
+
+rectangle "Conversation Management" as convo #LightPink {
+  usecase "Chat Interface" as chat
+  usecase "Conversation History" as history
+  usecase "Conversation Export" as export
+  usecase "Conversation Organization" as folders
+  usecase "Note Taking" as notes
+}
+
+rectangle "Retrieval-Augmented Generation" as rag #LightYellow {
+  usecase "Document Upload" as upload
+  usecase "Document Processing" as processing
+  usecase "Vector Embedding" as embedding
+  usecase "Context Retrieval" as retrieval
+  usecase "Context-Enhanced Generation" as enhanced_gen
+}
+
+rectangle "AI Inference" as inference #LightCyan {
+  usecase "Text Generation" as text_gen
+  usecase "Prompt Engineering" as prompts
+  usecase "Parameter Configuration" as params
+  usecase "Model Switching" as model_switch
+  usecase "Stream Response" as stream
+}
+
+rectangle "Cross-Cutting Capabilities" as cross #LightGray {
+  usecase "API Gateway" as gateway
+  usecase "Caching" as cache
+  usecase "Service Discovery" as discovery
+  usecase "Monitoring" as monitor
+  usecase "Resilience" as resilience
+}
+
+' Define relationships
+' User & Identity to other capabilities
+identity --> model_mgmt : Secures
+identity --> convo : Secures
+identity --> rag : Secures
+identity --> inference : Secures
+
+' Model management relationships
+model_mgmt --> inference : Configures
+model_mgmt --> convo : Provides models for
+
+' Conversation relationships
+convo --> rag : Enhances with
+convo --> inference : Uses
+
+' RAG relationships
+rag --> inference : Augments
+
+' Define service mappings
+note bottom of identity
+  Implemented by: AuthService
+end note
+
+note bottom of model_mgmt
+  Implemented by: AdminService, ExploreService
+end note
+
+note bottom of convo
+  Implemented by: ConversationService
+end note
+
+note bottom of rag
+  Implemented by: ConversationService
+end note
+
+note bottom of inference
+  Implemented by: InferenceService
+end note
+
+note bottom of cross
+  Implemented across all services
+  Gateway handled by API Gateway
+end note
+
+' Maturity levels
+note right of reg
+  Maturity: High
+end note
+
+note right of auth
+  Maturity: High
+end note
+
+note right of model_reg
+  Maturity: High
+end note
+
+note right of chat
+  Maturity: High
+end note
+
+note right of upload
+  Maturity: Medium
+end note
+
+note right of embedding
+  Maturity: Medium
+end note
+
+note right of text_gen
+  Maturity: High
+end note
+
+note right of gateway
+  Maturity: High
+end note
+
+note right of discovery
+  Maturity: Medium
+end note
+
+legend right
+  Core Platform Capabilities of OllamaNet organized by domain.
+  
+  Capabilities are grouped by functional area and colored
+  to indicate the primary service responsible:
+  
+  - User & Identity Management (AuthService)
+  - AI Model Management (AdminService, ExploreService)
+  - Conversation Management (ConversationService)
+  - Retrieval-Augmented Generation (ConversationService)
+  - AI Inference (InferenceService)
+  - Cross-Cutting Capabilities (All Services)
+  
+  Arrows indicate dependencies between capability groups.
+  Notes indicate implementation maturity levels.
+end legend
+
+@enduml

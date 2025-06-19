@@ -1,0 +1,95 @@
+@startuml service_dependencies
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title OllamaNet Service Dependencies
+
+header OllamaNet Documentation
+footer Chapter 4
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+Container(gateway, "API Gateway", ".NET 7, Ocelot", "Routes requests to appropriate services")
+
+Container(auth_service, "Auth Service", ".NET 7", "Authentication and authorization")
+Container(admin_service, "Admin Service", ".NET 7", "Administration and model operations")
+Container(conversation_service, "Conversation Service", ".NET 7", "Chat and conversation management")
+Container(explore_service, "Explore Service", ".NET 7", "Model discovery and browsing")
+Container(inference_service, "Inference Service", "Python, Jupyter", "AI model inference")
+
+ContainerDb(shared_db, "Shared Database", "SQL Server", "Stores application data")
+ContainerDb(redis, "Redis Cache", "Redis", "Distributed caching")
+Container(rabbitmq, "RabbitMQ", "Message Broker", "Handles asynchronous messaging")
+ContainerDb(vector_db, "Vector Database", "Pinecone", "Vector embeddings storage")
+
+System_Ext(ollama, "Ollama", "Local LLM runtime")
+System_Ext(email_system, "Email Service", "For sending notifications")
+
+' Gateway dependencies
+Rel(gateway, auth_service, "Routes to", "Required")
+Rel(gateway, admin_service, "Routes to", "Required")
+Rel(gateway, conversation_service, "Routes to", "Required")
+Rel(gateway, explore_service, "Routes to", "Required")
+Rel(gateway, inference_service, "Routes to", "Optional")
+
+' Auth Service dependencies
+Rel(auth_service, shared_db, "Requires", "Critical")
+Rel(auth_service, redis, "Uses", "Optional")
+Rel(auth_service, email_system, "Uses", "Optional")
+
+' Admin Service dependencies
+Rel(admin_service, shared_db, "Requires", "Critical")
+Rel(admin_service, auth_service, "Requires for authorization", "Critical")
+Rel(admin_service, inference_service, "Configures", "Optional")
+Rel(admin_service, redis, "Uses", "Optional")
+Rel(admin_service, rabbitmq, "Subscribes to", "Optional")
+
+' Conversation Service dependencies
+Rel(conversation_service, shared_db, "Requires", "Critical")
+Rel(conversation_service, auth_service, "Requires for authorization", "Critical")
+Rel(conversation_service, inference_service, "Uses for completions", "Critical")
+Rel(conversation_service, vector_db, "Uses for RAG", "Optional")
+Rel(conversation_service, redis, "Uses", "Optional")
+Rel(conversation_service, rabbitmq, "Subscribes to", "Optional")
+
+' Explore Service dependencies
+Rel(explore_service, shared_db, "Requires", "Critical")
+Rel(explore_service, auth_service, "Requires for authorization", "Critical")
+Rel(explore_service, redis, "Uses", "Optional")
+
+' Inference Service dependencies
+Rel(inference_service, ollama, "Requires", "Critical")
+Rel(inference_service, rabbitmq, "Publishes to", "Optional")
+
+note right of auth_service
+  Critical path service:
+  All other services depend on
+  Auth Service for authorization
+end note
+
+note left of inference_service
+  Loosely coupled:
+  - Publishes its URL via RabbitMQ
+  - No direct dependencies on other services
+  - Can be deployed independently
+end note
+
+legend right
+  Service dependency diagram showing:
+  
+  - Required vs. optional dependencies
+  - Critical path services
+  - Infrastructure dependencies
+  - Cross-service dependencies
+  
+  Line style indicates dependency type:
+  - Solid line: Required dependency
+  - Dashed line: Optional dependency
+  
+  This helps identify critical paths and
+  deployment order requirements.
+end legend
+
+@enduml

@@ -157,7 +157,7 @@ namespace AdminService.Controllers.Validators
 
             When(x => x.Description != null, () => {
                 RuleFor(x => x.Description)
-                    .MaximumLength(500).WithMessage("Description cannot exceed 500 characters");
+                    .MaximumLength(1000).WithMessage("Description cannot exceed 500 characters");
             });
 
             When(x => x.Version != null, () => {
@@ -172,17 +172,17 @@ namespace AdminService.Controllers.Validators
 
             When(x => x.License != null, () => {
                 RuleFor(x => x.License)
-                    .MaximumLength(100).WithMessage("License cannot exceed 100 characters");
+                    .MaximumLength(2000).WithMessage("License cannot exceed 100 characters");
             });
 
             When(x => x.Template != null, () => {
                 RuleFor(x => x.Template)
-                    .MaximumLength(1000).WithMessage("Template cannot exceed 1000 characters");
+                    .MaximumLength(2000).WithMessage("Template cannot exceed 1000 characters");
             });
 
             When(x => x.ModelFile != null, () => {
                 RuleFor(x => x.ModelFile)
-                    .MaximumLength(500).WithMessage("Model file path cannot exceed 500 characters");
+                    .MaximumLength(2000).WithMessage("Model file path cannot exceed 500 characters");
             });
 
             When(x => x.ReferenceLink != null, () => {

@@ -1034,7 +1034,8 @@
       ],
       "UpstreamPathTemplate": "/documents/{id}/download",
       "UpstreamHttpMethod": [
-        "GET"
+        "GET",
+        "POST"
       ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",

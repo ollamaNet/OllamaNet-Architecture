@@ -1,0 +1,186 @@
+@startuml Monolithic_vs_Microservices
+
+title Monolithic vs. Microservices Architecture Comparison
+
+header OllamaNet Documentation
+footer Chapter 2
+
+skinparam defaultTextAlignment center
+skinparam roundCorner 10
+skinparam rectangleBorderColor #333333
+skinparam componentBorderColor #333333
+
+' Define styles
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam componentBackgroundColor #FFFFFF
+
+' Monolithic Architecture
+rectangle "Monolithic Architecture" as mono {
+  component "OllamaNet Monolithic Application" as mono_app #LightBlue {
+    rectangle "Authentication Module" as mono_auth
+    rectangle "Admin Module" as mono_admin
+    rectangle "Conversation Module" as mono_convo
+    rectangle "Model Discovery Module" as mono_explore
+    rectangle "Inference Module" as mono_inference
+    rectangle "Document Processing Module" as mono_doc
+    
+    database "Shared Database" as mono_db
+    
+    mono_auth <--> mono_admin : Direct Method Call
+    mono_auth <--> mono_convo : Direct Method Call
+    mono_admin <--> mono_inference : Direct Method Call
+    mono_convo <--> mono_inference : Direct Method Call
+    mono_convo <--> mono_doc : Direct Method Call
+    mono_explore <--> mono_admin : Direct Method Call
+    
+    mono_auth <--> mono_db
+    mono_admin <--> mono_db
+    mono_convo <--> mono_db
+    mono_explore <--> mono_db
+    mono_doc <--> mono_db
+  }
+  
+  note bottom of mono_app
+    <b>Deployment:</b> Single application deployed as a unit
+    <b>Scaling:</b> Entire application scaled together
+    <b>Development:</b> Single codebase, shared libraries
+    <b>Data Access:</b> Direct access to all database tables
+  end note
+}
+
+' Microservices Architecture
+rectangle "Microservices Architecture (OllamaNet)" as micro {
+  component "Auth Service" as auth #LightBlue {
+    rectangle "Authentication API" as auth_api
+    database "User Data" as auth_db
+  }
+  
+  component "Admin Service" as admin #LightGreen {
+    rectangle "Administration API" as admin_api
+    database "Model Config Data" as admin_db
+  }
+  
+  component "Conversation Service" as convo #LightPink {
+    rectangle "Conversation API" as convo_api
+    rectangle "Document API" as doc_api
+    database "Conversation Data" as convo_db
+  }
+  
+  component "Explore Service" as explore #LightYellow {
+    rectangle "Model Discovery API" as explore_api
+    database "Model Catalog Data" as explore_db
+  }
+  
+  component "Inference Service" as inference #LightGray {
+    rectangle "Inference API" as inference_api
+    rectangle "Model Runner" as model_runner
+  }
+  
+  component "API Gateway" as gateway #LightCyan {
+    rectangle "Routing" as routing
+    rectangle "Authentication" as gateway_auth
+    rectangle "Load Balancing" as lb
+  }
+  
+  component "Message Broker" as broker #Orange {
+    queue "Service Discovery" as sd_queue
+    queue "Event Bus" as event_queue
+  }
+  
+  ' Connections
+  gateway --> auth_api : HTTP
+  gateway --> admin_api : HTTP
+  gateway --> convo_api : HTTP
+  gateway --> explore_api : HTTP
+  gateway --> inference_api : HTTP
+  
+  auth_api <--> auth_db
+  admin_api <--> admin_db
+  convo_api <--> convo_db
+  explore_api <--> explore_db
+  
+  auth_api <-- admin_api : HTTP
+  auth_api <-- convo_api : HTTP
+  auth_api <-- explore_api : HTTP
+  
+  inference_api <-- convo_api : HTTP
+  admin_api --> inference_api : HTTP
+  
+  inference_api --> broker : Publish
+  admin_api <-- broker : Subscribe
+  convo_api <-- broker : Subscribe
+  
+  note bottom of gateway
+    <b>Deployment:</b> Services deployed independently
+    <b>Scaling:</b> Individual services scaled based on demand
+    <b>Development:</b> Multiple codebases, independent teams
+    <b>Data Access:</b> Each service has its own data access
+  end note
+}
+
+' Comparison table
+rectangle "Architecture Comparison" as comparison {
+  component "Characteristic" as char
+  component "Monolithic" as mono_comp
+  component "Microservices" as micro_comp
+  
+  component "Development\nComplexity" as dev
+  component "Lower" as mono_dev #LightGreen
+  component "Higher" as micro_dev #FFCCCC
+  
+  component "Deployment\nComplexity" as deploy
+  component "Lower" as mono_deploy #LightGreen
+  component "Higher" as micro_deploy #FFCCCC
+  
+  component "Scalability" as scale
+  component "Limited" as mono_scale #FFCCCC
+  component "Excellent" as micro_scale #LightGreen
+  
+  component "Fault\nIsolation" as fault
+  component "Poor" as mono_fault #FFCCCC
+  component "Excellent" as micro_fault #LightGreen
+  
+  component "Technology\nDiversity" as tech
+  component "Limited" as mono_tech #FFCCCC
+  component "Flexible" as micro_tech #LightGreen
+  
+  component "Team\nAutonomy" as team
+  component "Limited" as mono_team #FFCCCC
+  component "High" as micro_team #LightGreen
+  
+  component "Communication\nOverhead" as comm
+  component "Low" as mono_comm #LightGreen
+  component "High" as micro_comm #FFCCCC
+  
+  component "Database\nManagement" as db
+  component "Simpler" as mono_db_mgmt #LightGreen
+  component "Complex" as micro_db_mgmt #FFCCCC
+}
+
+legend right
+  <b>Monolithic vs. Microservices Architecture Comparison</b>
+  
+  This diagram compares two architectural approaches:
+  
+  <b>Monolithic Architecture:</b>
+  - Single deployable application
+  - Shared codebase and database
+  - Direct internal communication
+  - Simpler development and deployment
+  - Limited scalability and technology choices
+  
+  <b>Microservices Architecture (OllamaNet):</b>
+  - Multiple independent services
+  - Service-specific data storage
+  - API-based communication
+  - Gateway for client requests
+  - Message broker for async communication
+  - Independent scaling and deployment
+  - Technology diversity
+  
+  OllamaNet adopts microservices architecture for
+  scalability, fault isolation, and team autonomy
+  despite increased complexity.
+end legend
+
+@enduml

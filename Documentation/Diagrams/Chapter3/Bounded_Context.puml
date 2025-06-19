@@ -1,0 +1,235 @@
+@startuml Bounded_Contexts
+
+title OllamaNet Bounded Contexts and Service Mappings
+
+header OllamaNet Documentation
+footer Chapter 3
+
+skinparam componentStyle uml2
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+
+package "AuthService" as auth_service #LightBlue {
+  package "Authentication & Identity Context" as auth_bc {
+    class User {
+      +Id: string
+      +Username: string
+      +Email: string
+      +PasswordHash: string
+      +Roles: List<Role>
+    }
+    
+    class Role {
+      +Id: string
+      +Name: string
+      +Permissions: List<Permission>
+    }
+    
+    class Permission {
+      +Id: string
+      +Name: string
+      +Resource: string
+      +Action: string
+    }
+    
+    class RefreshToken {
+      +Token: string
+      +ExpiryDate: DateTime
+      +IsRevoked: bool
+    }
+  }
+}
+
+package "AdminService" as admin_service #LightGreen {
+  package "Administration Context" as admin_bc {
+    class AdminUser {
+      +Id: string
+      +Username: string
+      +Email: string
+    }
+    
+    class AIModel {
+      +Id: string
+      +Name: string
+      +Description: string
+      +Status: ModelStatus
+      +Configuration: ModelConfig
+    }
+    
+    class ModelConfig {
+      +Parameters: Dictionary<string, object>
+      +DefaultPrompt: string
+      +MaxTokens: int
+    }
+    
+    class SystemSetting {
+      +Key: string
+      +Value: string
+      +Description: string
+    }
+  }
+}
+
+package "ExploreService" as explore_service #LightYellow {
+  package "Model Discovery Context" as explore_bc {
+    class Model {
+      +Id: string
+      +Name: string
+      +Description: string
+      +Size: long
+      +Tags: List<Tag>
+      +ContextLength: int
+    }
+    
+    class Tag {
+      +Id: string
+      +Name: string
+      +Category: string
+    }
+    
+    class ModelSearchResult {
+      +Models: List<Model>
+      +TotalCount: int
+      +FilteredCount: int
+    }
+  }
+}
+
+package "ConversationService" as convo_service #LightPink {
+  package "Conversation Context" as convo_bc {
+    class Conversation {
+      +Id: string
+      +Title: string
+      +CreatedAt: DateTime
+      +UpdatedAt: DateTime
+      +UserId: string
+      +FolderId: string?
+      +Messages: List<Message>
+    }
+    
+    class Message {
+      +Id: string
+      +Content: string
+      +Role: MessageRole
+      +CreatedAt: DateTime
+      +ConversationId: string
+    }
+    
+    class Folder {
+      +Id: string
+      +Name: string
+      +UserId: string
+      +ParentId: string?
+    }
+    
+    class Note {
+      +Id: string
+      +Content: string
+      +ConversationId: string
+    }
+  }
+  
+  package "Document Context" as doc_bc {
+    class Document {
+      +Id: string
+      +Name: string
+      +ContentType: string
+      +Size: long
+      +UserId: string
+      +UploadedAt: DateTime
+      +Chunks: List<DocumentChunk>
+    }
+    
+    class DocumentChunk {
+      +Id: string
+      +Content: string
+      +Embedding: float[]
+      +DocumentId: string
+    }
+  }
+}
+
+package "InferenceService" as inference_service #LightGray {
+  package "Inference Context" as inference_bc {
+    class InferenceRequest {
+      +Model: string
+      +Prompt: string
+      +Parameters: ModelParameters
+      +Stream: bool
+    }
+    
+    class InferenceResponse {
+      +ModelId: string
+      +Content: string
+      +FinishReason: string
+      +TokensUsed: int
+    }
+    
+    class ModelParameters {
+      +Temperature: float
+      +TopP: float
+      +TopK: int
+      +MaxTokens: int
+      +Stop: string[]
+    }
+  }
+}
+
+' Context relationships
+auth_bc -- admin_bc : User identity translation
+auth_bc -- convo_bc : User identity translation
+admin_bc -- explore_bc : Model definitions
+admin_bc -- inference_bc : Model configurations
+explore_bc -- convo_bc : Model selection
+convo_bc -- inference_bc : Generation requests
+convo_bc -- doc_bc : Document references
+doc_bc -- inference_bc : Embedding generation
+
+' Cross-service dependencies
+note top of auth_service
+  Provides identity services
+  for all other contexts
+end note
+
+note bottom of admin_service
+  Manages platform configuration
+  and model administration
+end note
+
+note bottom of explore_service
+  Enables model discovery
+  and metadata browsing
+end note
+
+note bottom of convo_service
+  Manages user conversations
+  and document processing
+end note
+
+note bottom of inference_service
+  Provides AI model inference
+  capabilities to other services
+end note
+
+legend right
+  OllamaNet Bounded Contexts and their Service Mappings
+  
+  This diagram shows:
+  - Domain entities within each bounded context
+  - Service ownership of bounded contexts
+  - Key attributes of domain entities
+  - Relationships between bounded contexts
+  
+  Each service is responsible for one or more bounded contexts:
+  - AuthService: Authentication & Identity Context
+  - AdminService: Administration Context
+  - ExploreService: Model Discovery Context
+  - ConversationService: Conversation Context, Document Context
+  - InferenceService: Inference Context
+  
+  Lines between contexts represent domain model translations
+  across service boundaries.
+end legend
+
+@enduml

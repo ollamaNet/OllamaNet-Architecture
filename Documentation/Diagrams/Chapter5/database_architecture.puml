@@ -1,0 +1,131 @@
+@startuml database_architecture
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title OllamaNet Database Architecture
+
+header OllamaNet Documentation
+footer Chapter 5
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+' Database components
+ContainerDb(sql_server, "SQL Server Database", "SQL Server 2019", "Central shared database for all services")
+
+Container_Boundary(ef_core, "Entity Framework Core Layer") {
+  Component(db_context, "OllamaNetDbContext", "DbContext", "Primary database context")
+  
+  Component(auth_context, "AuthenticationContext", "DbContext", "Authentication domain context")
+  Component(admin_context, "AdministrationContext", "DbContext", "Administration domain context")
+  Component(explore_context, "ExploreContext", "DbContext", "Model discovery domain context")
+  Component(conversation_context, "ConversationContext", "DbContext", "Conversation domain context")
+  Component(document_context, "DocumentContext", "DbContext", "Document domain context")
+  
+  Component(uow, "UnitOfWork", "Pattern", "Coordinates operations across repositories")
+  Component(repository, "Repository<T>", "Pattern", "Generic repository pattern implementation")
+}
+
+Container_Boundary(services, "Services Layer") {
+  Component(auth_service, "AuthService", ".NET Service", "Authentication service implementation")
+  Component(admin_service, "AdminService", ".NET Service", "Admin service implementation")
+  Component(explore_service, "ExploreService", ".NET Service", "Explore service implementation")
+  Component(conversation_service, "ConversationService", ".NET Service", "Conversation service implementation")
+  Component(document_service, "DocumentService", ".NET Service", "Document service implementation")
+}
+
+Container_Boundary(caching, "Caching Layer") {
+  Component(redis, "Redis Cache", "Redis", "Distributed caching")
+  Component(cache_manager, "CacheManager", "Service", "Caching abstraction")
+  Component(cache_interceptor, "CacheInterceptor", "Aspect", "Transparent caching")
+}
+
+Container_Boundary(migrations, "Database Migrations") {
+  Component(migration_runner, "MigrationRunner", "EF Core", "Applies database migrations")
+  Component(migrations, "Migrations", "EF Core", "Database schema migrations")
+  Component(seed_data, "SeedData", "EF Core", "Initial seed data")
+}
+
+' External systems
+ContainerDb(vector_db, "Vector Database", "Pinecone", "Stores vector embeddings for RAG")
+
+' Repository implementations
+Component(user_repo, "UserRepository", "Repository", "User entity repository")
+Component(model_repo, "ModelRepository", "Repository", "Model entity repository")
+Component(conversation_repo, "ConversationRepository", "Repository", "Conversation entity repository")
+Component(document_repo, "DocumentRepository", "Repository", "Document entity repository")
+
+' Relationships
+Rel(auth_context, db_context, "Inherits from", "Specializes")
+Rel(admin_context, db_context, "Inherits from", "Specializes")
+Rel(explore_context, db_context, "Inherits from", "Specializes")
+Rel(conversation_context, db_context, "Inherits from", "Specializes")
+Rel(document_context, db_context, "Inherits from", "Specializes")
+
+Rel(db_context, sql_server, "Connects to", "EF Core")
+
+Rel(user_repo, auth_context, "Uses", "CRUD operations")
+Rel(model_repo, admin_context, "Uses", "CRUD operations")
+Rel(conversation_repo, conversation_context, "Uses", "CRUD operations")
+Rel(document_repo, document_context, "Uses", "CRUD operations")
+
+Rel(auth_service, user_repo, "Uses", "Data access")
+Rel(admin_service, model_repo, "Uses", "Data access")
+Rel(explore_service, model_repo, "Uses", "Data access")
+Rel(conversation_service, conversation_repo, "Uses", "Data access")
+Rel(document_service, document_repo, "Uses", "Data access")
+
+Rel(repository, uow, "Coordinated by", "Transaction management")
+
+Rel(migration_runner, migrations, "Applies", "At startup")
+Rel(migration_runner, seed_data, "Seeds", "Initial data")
+Rel(migration_runner, db_context, "Uses", "Connection")
+
+Rel(auth_service, cache_manager, "Uses", "Caching")
+Rel(admin_service, cache_manager, "Uses", "Caching")
+Rel(explore_service, cache_manager, "Uses", "Caching")
+Rel(conversation_service, cache_manager, "Uses", "Caching")
+Rel(document_service, cache_manager, "Uses", "Caching")
+
+Rel(cache_manager, redis, "Uses", "Redis Client")
+Rel(cache_interceptor, cache_manager, "Uses", "Cache operations")
+
+Rel(document_service, vector_db, "Stores embeddings in", "HTTP API")
+
+note right of db_context
+  Single primary DbContext with
+  filtered views for each domain
+end note
+
+note right of uow
+  Ensures atomic operations
+  across multiple repositories
+end note
+
+note bottom of cache_manager
+  Provides second-level cache
+  to reduce database load
+end note
+
+legend right
+  OllamaNet Database Architecture
+  
+  This diagram shows the database architecture with:
+  
+  - Shared SQL Server database used by all services
+  - Entity Framework Core for data access
+  - Repository and Unit of Work patterns
+  - Domain-specific DbContext instances
+  - Distributed caching with Redis
+  - Database migration strategy
+  
+  The architecture enables:
+  - Logical separation of data by domain
+  - Consistent data access patterns
+  - Transaction management across repositories
+  - Caching for performance optimization
+  - Structured schema evolution
+end legend
+
+@enduml

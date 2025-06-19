@@ -1,0 +1,127 @@
+@startuml DDD_Bounded_Contexts
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Domain-Driven Design Bounded Contexts in OllamaNet
+
+header OllamaNet Documentation
+footer Chapter 2
+
+LAYOUT_WITH_LEGEND()
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+
+' Define bounded contexts with different colors
+Boundary(auth_context, "Authentication & Identity Context", "#LightBlue") {
+  Container(user, "User", "Entity", "Core user identity entity")
+  Container(role, "Role", "Entity", "User role for authorization")
+  Container(permission, "Permission", "Entity", "Granular access right")
+  Container(token, "Token", "Value Object", "Authentication token")
+  Container(credential, "Credential", "Value Object", "User login credentials")
+}
+
+Boundary(admin_context, "Administration Context", "#LightGreen") {
+  Container(admin_user, "User", "Entity", "Administrative user view")
+  Container(model_config, "Model Configuration", "Entity", "AI model configuration")
+  Container(system_setting, "System Setting", "Entity", "Platform configuration")
+  Container(inference_config, "Inference Configuration", "Entity", "Inference engine settings")
+}
+
+Boundary(explore_context, "Model Discovery Context", "#LightYellow") {
+  Container(model, "Model", "Entity", "Available AI model")
+  Container(model_tag, "Tag", "Entity", "Model categorization")
+  Container(search_criteria, "Search Criteria", "Value Object", "Model search parameters")
+  Container(model_info, "Model Info", "Value Object", "Model metadata")
+}
+
+Boundary(convo_context, "Conversation Context", "#LightPink") {
+  Container(conversation, "Conversation", "Aggregate Root", "Chat conversation")
+  Container(message, "Message", "Entity", "Chat message")
+  Container(folder, "Folder", "Entity", "Conversation organization")
+  Container(note, "Note", "Entity", "User notes")
+  Container(feedback, "Feedback", "Entity", "Message feedback")
+}
+
+Boundary(document_context, "Document Context", "#LightCyan") {
+  Container(document, "Document", "Aggregate Root", "Uploaded document")
+  Container(chunk, "Document Chunk", "Entity", "Document segment")
+  Container(embedding, "Embedding", "Value Object", "Vector representation")
+  Container(metadata, "Document Metadata", "Value Object", "Document properties")
+}
+
+Boundary(inference_context, "Inference Context", "#LightGray") {
+  Container(inference_request, "Inference Request", "Value Object", "Model prompt")
+  Container(inference_response, "Inference Response", "Value Object", "Model completion")
+  Container(model_params, "Model Parameters", "Value Object", "Generation parameters")
+  Container(inference_model, "Model", "Entity", "Inference model definition")
+}
+
+' Define context relationships with mapping patterns
+Rel_D(auth_context, admin_context, "Shared Kernel", "Same User concept")
+Rel_D(auth_context, convo_context, "Customer/Supplier", "User Identity")
+
+Rel_L(admin_context, inference_context, "Partnership", "Model Configuration")
+Rel_U(admin_context, explore_context, "Partnership", "Model Definitions")
+
+Rel_R(explore_context, inference_context, "Customer/Supplier", "Model Information")
+Rel_D(explore_context, convo_context, "Open Host Service", "Model Selection")
+
+Rel_D(convo_context, document_context, "Customer/Supplier", "Document References")
+Rel_R(convo_context, inference_context, "Customer/Supplier", "Generation Requests")
+
+Rel_R(document_context, inference_context, "Conformist", "Embedding Generation")
+
+' Anti-corruption layers
+note as ACL1
+  Anti-Corruption Layer:
+  AuthService translates between
+  User domain objects and 
+  administration/conversation views
+end note
+
+note as ACL2
+  Anti-Corruption Layer:
+  AdminService translates between
+  administrative model configs
+  and inference model parameters
+end note
+
+note as ACL3
+  Anti-Corruption Layer:
+  ConversationService translates between
+  conversation messages and
+  inference requests/responses
+end note
+
+' Connect ACLs to relationships
+auth_context .. ACL1
+admin_context .. ACL1
+admin_context .. ACL2
+inference_context .. ACL2
+convo_context .. ACL3
+inference_context .. ACL3
+
+legend right
+  Domain-Driven Design Bounded Contexts in OllamaNet
+  
+  This diagram shows the bounded contexts and their relationships:
+  
+  - Authentication & Identity (AuthService)
+  - Administration (AdminService)
+  - Model Discovery (ExploreService)
+  - Conversation (ConversationService)
+  - Document (ConversationService)
+  - Inference (InferenceService)
+  
+  Relationship types between contexts:
+  - Shared Kernel: Shared models and logic
+  - Customer/Supplier: Downstream/upstream relationship
+  - Partnership: Mutual dependency relationship
+  - Conformist: Adapts to upstream model
+  - Open Host Service: Published language/protocol
+  
+  Anti-Corruption Layers (ACL) protect context boundaries
+  by translating between domain models.
+end legend
+
+@enduml
