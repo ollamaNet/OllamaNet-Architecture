@@ -53,10 +53,10 @@ OllamaNet addresses these challenges through its specialized microservice archit
 
 ┌─ Terminology ──────────────────────────────────────────────────┐
 │                                                                │
-│ **API Gateway**: Component that routes requests to appropriate  │
+│ **API Gateway**: Component that routes requests to appropriate │
 │ microservices                                                  │
 │                                                                │
-│ **Context Preservation**: Maintaining conversation history      │
+│ **Context Preservation**: Maintaining conversation history     │
 │ and state across interactions                                  │
 │                                                                │
 │ **Caching**: Storing frequently accessed data to improve       │

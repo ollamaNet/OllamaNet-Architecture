@@ -1,0 +1,72 @@
+@startuml Scalability_Architecture
+
+title OllamaNet Scalability Architecture
+
+header OllamaNet Documentation
+footer Chapter 3
+
+skinparam monochrome true
+skinparam defaultTextAlignment center
+
+cloud "Load Balancer" as lb
+node "API Gateway" as gateway
+node "Auth Service" as auth1
+node "Auth Service (replica)" as auth2
+node "Admin Service" as admin1
+node "Admin Service (replica)" as admin2
+node "Conversation Service" as convo1
+node "Conversation Service (replica)" as convo2
+node "Explore Service" as explore1
+node "Explore Service (replica)" as explore2
+database "SQL Server" as db
+cloud "Redis" as redis
+cloud "RabbitMQ" as rabbit
+cloud "Pinecone" as vector
+
+lb --> gateway
+gateway --> auth1
+gateway --> auth2
+gateway --> admin1
+gateway --> admin2
+gateway --> convo1
+gateway --> convo2
+gateway --> explore1
+gateway --> explore2
+
+auth1 --> db
+auth2 --> db
+admin1 --> db
+admin2 --> db
+convo1 --> db
+convo2 --> db
+explore1 --> db
+explore2 --> db
+
+auth1 --> redis
+admin1 --> redis
+convo1 --> redis
+explore1 --> redis
+
+convo1 --> vector
+convo2 --> vector
+
+auth1 --> rabbit
+admin1 --> rabbit
+convo1 --> rabbit
+explore1 --> rabbit
+
+note right of lb
+  Stateless services can be scaled horizontally.
+  Load balancer distributes traffic.
+  Shared DB and cache.
+end note
+
+legend right
+  Black & white view of scalable deployment:
+  - Multiple service replicas
+  - Load balancing
+  - Shared infra
+  - Stateless design
+end legend
+
+@enduml

@@ -1,3 +1,6 @@
+
+
+
 @startuml OllamaNet_System_Overview
 
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
@@ -7,7 +10,15 @@ LAYOUT_WITH_LEGEND()
 LAYOUT_TOP_DOWN()
 skinparam wrapWidth 200
 skinparam defaultTextAlignment center
+' Force black and white theme
+skinparam monochrome true
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
 
+' Optional: tighten wrap and font styling for cleaner look
+skinparam wrapWidth 200
+skinparam handwritten false
 title OllamaNet System Overview
 
 Person(user, "End User", "A user of the OllamaNet platform")

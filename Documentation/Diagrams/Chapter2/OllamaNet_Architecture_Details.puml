@@ -1,0 +1,56 @@
+@startuml OllamaNet_Architecture_Details
+
+title OllamaNet Architecture - Technical Details
+
+header OllamaNet Documentation
+footer Chapter 2
+
+skinparam monochrome true
+skinparam defaultTextAlignment center
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+System_Boundary(ollamanet, "OllamaNet Platform") {
+    Container(gateway, "API Gateway", "Ocelot/.NET", "Routes requests, handles cross-cutting concerns")
+    Container(auth, "Auth Service", ".NET", "Authentication, JWT, RBAC")
+    Container(admin, "Admin Service", ".NET", "Model management, admin operations")
+    Container(convo, "Conversation Service", ".NET", "Chat, RAG, document management")
+    Container(explore, "Explore Service", ".NET", "Model discovery, search")
+    Container(inference, "Inference Service", "Python/FastAPI", "LLM inference, ngrok tunnel")
+    ContainerDb(sql, "SQL Server", "Database", "Shared relational data")
+    ContainerDb(redis, "Redis", "Cache", "Distributed caching")
+    Container(rabbit, "RabbitMQ", "Message Broker", "Async messaging, service discovery")
+    ContainerDb(vector, "Pinecone", "Vector DB", "Embeddings for RAG")
+}
+
+Rel(user, gateway, "Uses")
+Rel(gateway, auth, "Routes to")
+Rel(gateway, admin, "Routes to")
+Rel(gateway, convo, "Routes to")
+Rel(gateway, explore, "Routes to")
+Rel(gateway, inference, "Routes to")
+
+Rel(auth, sql, "Reads/writes")
+Rel(admin, sql, "Reads/writes")
+Rel(convo, sql, "Reads/writes")
+Rel(explore, sql, "Reads/writes")
+Rel(convo, vector, "Queries")
+Rel(convo, redis, "Caches")
+Rel(admin, redis, "Caches")
+Rel(auth, redis, "Caches")
+Rel(explore, redis, "Caches")
+Rel(inference, rabbit, "Publishes URL")
+Rel(admin, rabbit, "Subscribes")
+Rel(convo, rabbit, "Subscribes")
+Rel(inference, sql, "Reads/writes (if any)")
+
+legend right
+  Black & white technical breakdown of OllamaNet:
+  - All major services, infra, and data stores
+  - Key technology/framework for each
+  - Shared database and cache
+  - Message broker for async/service discovery
+end legend
+
+@enduml

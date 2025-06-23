@@ -6,12 +6,6 @@ LAYOUT_WITH_LEGEND()
 
 title "ConversationService - Component Architecture"
 
-' Color scheme - consistent with context diagram
-!define API_LAYER_COLOR #3498DB
-!define SERVICE_LAYER_COLOR #2ECC71
-!define INFRASTRUCTURE_LAYER_COLOR #E74C3C
-!define VALIDATION_COLOR #F39C12
-!define EXTERNAL_SYSTEM_COLOR #95A5A6
 
 ' API Layer
 Container_Boundary(api, "API Layer") {

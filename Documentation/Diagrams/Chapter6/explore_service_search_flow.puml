@@ -1,13 +1,12 @@
-@startuml explore_service_search_flow
+@startuml exploreservice_search_flow
 
-title Model Search Flow - Explore Service
+title Explore Service - Search Flow
 
-header OllamaNet Documentation - Service Flows
+header OllamaNet Documentation
 footer Chapter 6
 
-skinparam backgroundColor white
-skinparam sequenceMessageAlign center
-skinparam sequenceGroupBorderColor gray
+skinparam monochrome true
+skinparam defaultTextAlignment center
 
 actor "User" as user
 participant "Gateway" as gateway
@@ -17,87 +16,31 @@ participant "CacheManager" as cache
 participant "ModelMapper" as mapper
 database "Database" as db
 
-group Search Models Flow
-    user -> gateway: Search Request
-    activate gateway
-    
-    gateway -> controller: GET /api/explore/search
-    activate controller
-    
-    controller -> service: SearchModelsAsync
-    activate service
-    
-    service -> cache: Try Get Cached Results
-    activate cache
-    
-    alt Cache Hit
-        cache --> service: Cached Search Results
-        service --> controller: Return Cached Results
-        controller --> gateway: 200 OK with Results
-        gateway --> user: Search Results
-    else Cache Miss
-        cache --> service: Cache Miss
-        
-        service -> db: Query Models
-        activate db
-        db --> service: Raw Results
-        deactivate db
-        
-        service -> mapper: Map to DTOs
-        activate mapper
-        mapper --> service: Mapped Results
-        deactivate mapper
-        
-        service -> cache: Cache Results
-        
-        service --> controller: Search Results
-        controller --> gateway: 200 OK with Results
-        gateway --> user: Search Results
-    end
-    deactivate cache
-    deactivate service
-    deactivate controller
-    deactivate gateway
-end
-
-group Filter Models Flow
-    user -> gateway: Filter Request
-    activate gateway
-    
-    gateway -> controller: GET /api/explore/filter
-    activate controller
-    
-    controller -> service: FilterModelsAsync
-    activate service
-    
-    service -> db: Apply Filters
-    activate db
-    db --> service: Filtered Results
-    deactivate db
-    
+user -> gateway: Search Request
+gateway -> controller: API Call
+controller -> service: SearchModels
+service -> cache: Try Get Cached Results
+alt Cache Hit
+    cache --> service: Cached Results
+    service --> controller: Return Results
+    controller --> gateway: 200 OK
+    gateway --> user: Results
+else Cache Miss
+    cache --> service: Miss
+    service -> db: Query Models
+    db --> service: Raw Results
     service -> mapper: Map Results
-    activate mapper
-    mapper --> service: Mapped Results
-    deactivate mapper
-    
-    service --> controller: Filter Results
-    controller --> gateway: 200 OK with Results
-    gateway --> user: Filtered Results
-    
-    deactivate service
-    deactivate controller
-    deactivate gateway
+    mapper --> service: DTOs
+    service -> cache: Cache Results
+    service --> controller: Return Results
+    controller --> gateway: 200 OK
+    gateway --> user: Results
 end
 
 legend right
-  Flow Legend
-  ==
-  Blue: Cache Operations
-  Green: Success Path
-  Yellow: Data Transform
-  --
-  Includes caching and
-  result mapping
+  Black & white search flow:
+  - Cache, DB, mapping
+  - Success and cache-miss paths
 end legend
 
 @enduml

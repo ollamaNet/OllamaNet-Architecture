@@ -1,0 +1,55 @@
+@startuml service_deployment
+
+title OllamaNet Service Deployment Topology
+
+header OllamaNet Documentation
+footer Chapter 4
+
+skinparam monochrome true
+skinparam defaultTextAlignment center
+
+cloud "CI/CD Pipeline" as cicd
+folder "Artifact Registry" as registry
+cloud "Dev Environment" as dev
+cloud "Staging Environment" as staging
+cloud "Production Environment" as prod
+
+cicd --> registry : Build & Push
+registry --> dev : Deploy
+registry --> staging : Deploy
+registry --> prod : Deploy
+
+node "Kubernetes Cluster" as k8s_dev
+node "Kubernetes Cluster" as k8s_staging
+node "Kubernetes Cluster" as k8s_prod
+
+dev --> k8s_dev
+staging --> k8s_staging
+prod --> k8s_prod
+
+k8s_dev --> node "API Gateway" as gw_dev
+k8s_staging --> node "API Gateway" as gw_staging
+k8s_prod --> node "API Gateway" as gw_prod
+
+gw_dev --> node "Services" as svc_dev
+gw_staging --> node "Services" as svc_staging
+gw_prod --> node "Services" as svc_prod
+
+svc_dev --> database "SQL Server" as db
+svc_staging --> database "SQL Server" as db
+svc_prod --> database "SQL Server" as db
+
+note right of cicd
+  CI/CD builds, tests, and deploys
+  to all environments.
+end note
+
+legend right
+  Black & white deployment topology:
+  - CI/CD pipeline
+  - Artifact registry
+  - Multi-environment clusters
+  - Shared database
+end legend
+
+@enduml
