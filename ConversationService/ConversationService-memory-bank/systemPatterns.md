@@ -1,388 +1,385 @@
 # System Patterns for ConversationService
 
-> **Note:** As of the latest migration (Phases 1-9), ConversationService now uses a fully modular, best-practices folder and namespace structure. All legacy folders have been removed, all files are in their correct locations, and documentation/diagrams are up to date. The current focus is on feature enhancements and performance optimization.
-
 ## Architecture Overview
-ConversationService follows a clean, layered architecture pattern within a microservices ecosystem:
 
-- **API Layer**: Controllers handling HTTP requests and responses
-  - ConversationController for conversation management
-  - ChatController for real-time chat interactions
-  - FolderController for folder organization
-  - NoteController for note management
-  - FeedbackController for feedback collection
-  - DocumentController for document upload and management
-- **Service Layer**: Domain-specific services containing business logic
-  - ConversationService for conversation management
-  - ChatService for AI model interactions
-  - ChatHistoryManager for history retrieval and persistence
-  - FolderService for folder organization
-  - NoteService for note management
-  - FeedbackService for feedback handling
-  - RagService for document retrieval and indexing
-  - DocumentManagementService for document lifecycle management
-  - DocumentProcessingService for text extraction and processing
-- **Infrastructure Layer**: Technical implementations and external service integrations
-  - RedisCacheService for low-level Redis operations
-  - CacheManager for high-level caching abstraction
-  - InferenceEngineConnector for AI model integration
-  - RagInfrastructure for embedding and vector operations
-  - DocumentStorage for secure file system operations
-- **Data Access Layer**: Repository pattern via IUnitOfWork from shared DB layer
+The ConversationService follows a modular, layered architecture with clear separation of concerns. The system is designed around domain-driven principles with distinct boundaries between different functional areas.
 
-## RAG System Architecture
-The RAG (Retrieval-Augmented Generation) system follows a clean architecture pattern:
+### Modular Structure
 
-### Infrastructure Layer (`Infrastructure/Rag/`)
-- **Embedding**
-  - `ITextEmbeddingGeneration`: Interface for text embedding generation
-  - `InferenceEngineTextEmbeddingGeneration`: Inference Engine-based implementation
-- **Vector Database**
-  - `IPineconeService`: Interface for vector database operations
-  - `PineconeService`: Pinecone implementation for vector storage and retrieval
-- **Configuration**
-  - `RagOptions`: RAG system configuration
-  - `PineconeOptions`: Pinecone-specific settings
+The codebase is organized into the following layers:
 
-### Service Layer (`Services/Rag/`)
-- **Interfaces**
-  - `IRagIndexingService`: Document indexing operations
-  - `IRagRetrievalService`: Context retrieval operations
-- **Implementation**
-  - `RagIndexingService`: Document processing and indexing
-  - `RagRetrievalService`: Query processing and context retrieval
-- **DTOs**
-  - `DocumentChunk`: Document chunk representation
-- **Helpers**
-  - `QueryCleaner`: Query preprocessing utilities
+1. **API Layer**
+   - Controllers for each domain entity
+   - Request/response DTOs
+   - Middleware for cross-cutting concerns
+   - API-specific extensions and configurations
 
-## Document Processing Architecture
+2. **Service Layer**
+   - Business logic implementations
+   - Service interfaces for dependency inversion
+   - Domain models and mappers
+   - Business rules and validations
 
-### Infrastructure Layer (`Infrastructure/Document/`)
-- **Storage**
-  - `IDocumentStorage`: Interface for document storage operations
-  - `FileSystemDocumentStorage`: Implementation for file system storage
-- **Options**
-  - `DocumentManagementOptions`: Configuration for document management
-- **Exceptions**
-  - `DocumentException`: Base exception for document operations
-  - `DocumentStorageException`: Storage-specific exceptions
-  - `DocumentProcessingException`: Processing-specific exceptions
-  - `UnsupportedDocumentTypeException`: Format validation exceptions
+3. **Infrastructure Layer**
+   - External service integrations
+   - Caching implementation
+   - Messaging infrastructure
+   - Document storage and processing
+   - Vector database operations
 
-### Service Layer (`Services/Document/`)
-- **Interfaces**
-  - `IDocumentManagementService`: Document lifecycle management
-  - `IDocumentProcessingService`: Document processing operations
-- **Implementation**
-  - `DocumentManagementService`: Handles document storage and metadata
-  - `DocumentProcessingService`: Manages text extraction and processing
-- **DTOs**
-  - `Requests/UploadDocumentRequest`: Document upload parameters
-  - `Responses/AttachmentResponse`: Document metadata response
-  - `Responses/ProcessingResponse`: Processing result with metrics
-- **Processors**
-  - `Base/IDocumentProcessor`: Base interface for all processors
-  - `PDF/PdfDocumentProcessor`: PDF-specific text extraction
-  - `Text/TextDocumentProcessor`: Plain text processing
-  - `Word/WordDocumentProcessor`: Word document processing
-  - `Markdown/MarkdownDocumentProcessor`: Markdown processing
+4. **Data Access Layer**
+   - Entity Framework Core repositories
+   - Database models and configurations
+   - Migration management
+   - Query optimization
+
+### RAG System Architecture
+
+The RAG (Retrieval-Augmented Generation) system follows a modular design:
+
+#### Infrastructure Layer
+- **Embedding**: Vector embedding generation and management
+- **Vector Database**: Pinecone integration for vector storage and retrieval
+- **Configuration**: Settings for chunking, embedding, and retrieval
+
+#### Service Layer
+- **Interfaces**: Clear contracts for document processing and retrieval
+- **Implementation**: Concrete implementations of document processors
+- **DTOs**: Data transfer objects for document metadata and content
+- **Helpers**: Utility classes for text processing and chunking
+
+### Document Processing Architecture
+
+The document processing pipeline is structured as follows:
+
+#### Infrastructure Layer
+- **Storage**: Document storage mechanisms
+- **Options**: Configuration options for processors
+- **Exceptions**: Specialized exceptions for document processing
+
+#### Service Layer
+- **Interfaces**: Contracts for document processors
+- **Implementation**: Format-specific document processors
+- **DTOs**: Document metadata and content models
+- **Processors**: Pipeline components for text extraction, chunking, and embedding
 
 ## Design Patterns
-- **Repository Pattern**: Abstracts data access through repositories from shared DB layer
-- **Unit of Work**: Manages transactions and repository coordination via IUnitOfWork
-- **Dependency Injection**: Comprehensive service registration in ServiceExtensions.cs
-- **Observer Pattern**: Server-sent events for streaming AI responses
-- **Strategy Pattern**: Different strategies for cache retrieval and fallback
-- **Factory Pattern**: Creation of chat histories and response objects
-- **Decorator Pattern**: Enhanced services with caching behavior
-- **Adapter Pattern**: InferenceEngineConnector adapting to the InferenceEngine client
-- **Cache-Aside Pattern**: GetOrSetAsync with database fallback strategy
-- **Circuit Breaker Pattern**: Timeout and retry logic for cache operations
-- **Chain of Responsibility**: Document processor selection based on file type
-- **Template Method**: Common document processing flow with format-specific implementations
+
+### Structural Patterns
+
+1. **Repository Pattern**
+   - Abstracts data access logic
+   - Provides consistent interface for data operations
+   - Enables testability through dependency injection
+
+2. **Adapter Pattern**
+   - Used for external service integrations
+   - Wraps third-party APIs with consistent interfaces
+   - Examples: InferenceEngineConnector, PineconeClient
+
+3. **Decorator Pattern**
+   - Applied for cross-cutting concerns
+   - Examples: Caching decorators, logging decorators
+
+4. **Facade Pattern**
+   - Simplifies complex subsystems
+   - Examples: DocumentProcessingFacade, ChatFacade
+
+### Behavioral Patterns
+
+1. **Strategy Pattern**
+   - Used for interchangeable algorithms
+   - Examples: Document processors, chunking strategies
+
+2. **Observer Pattern**
+   - Implemented for event-based communication
+   - Examples: Message consumers, event handlers
+
+3. **Chain of Responsibility**
+   - Applied in middleware pipeline
+   - Examples: Authentication, error handling, logging
+
+4. **Command Pattern**
+   - Used for encapsulating operations
+   - Examples: Message commands, document processing commands
+
+### Architectural Patterns
+
+1. **Dependency Injection**
+   - Used throughout the application
+   - Registered in ServiceExtensions
+   - Enables loose coupling and testability
+
+
+2. **Circuit Breaker**
+   - Applied for external service calls
+   - Prevents cascading failures
+   - Implemented with Polly
+
+3. **Cache-Aside**
+   - Used for data caching
+   - Check cache before database
+   - Update cache after database changes
 
 ## Component Relationships
-```
-Controllers → Services → Repositories/Connectors → Database/External Services
-       ↓              ↓                  ↓
- Validators      Cache Manager    Document Storage
-```
 
-- **Controllers**: Handle HTTP requests, validate inputs, manage authentication
-- **Validators**: Ensure request data integrity through FluentValidation
-- **Services**: Implement business logic, coordinate with repositories and caching
-- **ChatHistoryManager**: Manages conversation history with caching integration
-- **CacheManager**: Provides caching abstraction with fallback mechanisms
-- **RedisCacheService**: Offers low-level Redis operations with error handling
-- **Repositories**: Access database via the shared DB layer
-- **InferenceEngineConnector**: Integrates with the Inference Engine service via ngrok endpoint
-- **DocumentStorage**: Manages secure file storage operations
-- **DocumentProcessors**: Handle format-specific text extraction
+### Service Organization
 
-## Service Organization
-- **ConversationService**: Manages conversation CRUD, search, and organization
-  - CreateConversationAsync
-  - GetConversationsAsync
-  - SearchConversationsAsync
-  - UpdateConversationAsync
-  - DeleteConversationAsync
-  - MoveConversationToFolderAsync
-- **ChatService**: Handles chat interactions and streaming responses
-  - GetModelResponse (non-streaming)
-  - GetStreamedModelResponse (streaming)
-  - Internal processing methods for response handling
-- **ChatHistoryManager**: Manages conversation history
-  - GetChatHistoryWithCachingAsync
-  - SaveChatInteractionAsync
-  - SaveStreamedChatInteractionAsync
-  - InvalidateChatHistoryCacheAsync
-- **FolderService**: Manages folder CRUD operations and organization
-- **NoteService**: Manages note CRUD operations
-- **FeedbackService**: Handles feedback collection and management
-- **DocumentManagementService**: Manages document lifecycle
-  - UploadDocumentAsync
-  - GetDocumentAsync
-  - DeleteDocumentAsync
-  - GetConversationDocumentsAsync
-- **DocumentProcessingService**: Handles document processing
-  - ProcessDocumentAsync
-  - ExtractTextAsync
-  - ChunkTextAsync
+Services are organized around domain entities:
 
-## Configuration Management
-- **ServiceExtensions.cs**: Extension methods for service registration:
-  - AddDatabaseAndIdentity: Database context and identity setup
-  - AddJwtAuthentication: JWT authentication configuration
-  - AddRepositories: Repository registration
-  - AddApplicationServices: Service and connector registration
-  - ConfigureCors: CORS policy setup
-  - ConfigureCache: Redis cache configuration
-  - ConfigureSwagger: Swagger documentation setup
-  - AddDocumentServices: Document processors and storage
-- **appsettings.json**: Environment-specific configuration for:
-  - Database connection (SQL Server)
-  - Redis connection (Upstash)
-  - JWT settings with 30-day duration
-  - RedisCacheSettings with domain-specific TTLs
-  - DocumentManagement settings (file size, types, paths)
-  - Logging configuration
+- **ConversationService**: Manages conversation metadata and operations
+- **ChatService**: Handles message exchange and AI interactions
+- **FolderService**: Manages organizational structure
+- **NoteService**: Handles user notes and annotations
+- **DocumentService**: Manages document processing and retrieval
+- **FeedbackService**: Collects and manages user feedback
 
-## API Design
-- **RESTful Endpoints**: Organized by resource type with clear URLs
-- **HTTP Methods**: Proper use of GET, POST, PUT, DELETE
-- **Streaming Endpoint**: SSE for real-time AI responses
-- **Authentication**: JWT tokens for secure access
-- **Authorization**: Role-based with [Authorize] attribute
-- **ProducesResponseType**: Explicit response type documentation
-- **Swagger Documentation**: API documentation with status codes
-- **Status Codes**: Consistent HTTP status codes
-- **File Upload**: Multipart form-data for document uploads
+### Configuration Management
 
-## Caching Strategy
-- **Multi-level Caching**: Redis-based distributed caching via Upstash
-- **Cache Keys**: Centralized key management in CacheKeys.cs:
-  - Conversation-specific keys: ConversationList, ConversationInfo, ConversationMessages
-  - Chat-specific keys: ChatHistory
-- **TTL Management**: Domain-specific expiration times in RedisCacheSettings
-  - Default: 60 minutes
-  - Model Info: 24 hours
-  - Tags: 24 hours
-  - Search Results: 30 minutes
-- **Cache Invalidation**: Targeted invalidation on data mutations
-- **Fallback Mechanism**: Database retrieval on cache miss
-- **Exception Handling**: Specialized exception hierarchy in CacheExceptions.cs
-- **Retry Logic**: Configurable retry parameters with exponential backoff
-- **Performance Monitoring**: Stopwatch for operation timing
+- **Options Pattern**: Used for strongly-typed configuration
+- **IConfiguration**: Injected for dynamic configuration access
+- **Environment Variables**: Used for sensitive configuration
+- **User Secrets**: Used for local development
 
-## Error Handling
-- **Controller-Level Try/Catch**: Specific exception handling with status codes
-- **Logging**: Comprehensive logging with Stopwatch for performance timing
-- **HTTP Status Codes**: Mapped from exception types:
-  - 400: Bad Request (validation failures, ArgumentException)
-  - 401: Unauthorized (missing authentication)
-  - 404: Not Found (KeyNotFoundException, InvalidOperationException)
-  - 500: Internal Server Error (general exceptions)
-- **Custom Exceptions**: Domain-specific exception types
-- **Validation Errors**: Structured response format
-- **Cache Exceptions**: Specialized hierarchy for different cache failures
-- **Document Exceptions**: Specialized hierarchy for document operations
+### API Design
 
-## Streaming Implementation
-- **Server-Sent Events**: Real-time streaming for chat responses
-- **Content-Type**: text/event-stream for proper SSE implementation
-- **IAsyncEnumerable**: In InferenceEngineConnector.GetStreamedChatMessageContentsAsync
-- **Response.BodyWriter**: Direct streaming to HTTP response
-- **Cancellation Support**: EnumeratorCancellation for proper cancellation
-- **JSON Serialization**: Response objects serialized with consistent format
-- **Background Processing**: Task.Run for post-streaming operations
+- **RESTful Principles**: Resource-based endpoints
+- **Consistent Response Format**: Standardized success and error responses
+- **Versioning**: API versioning for backward compatibility
+- **Swagger Documentation**: Comprehensive API documentation
+
+### Caching Strategy
+
+- **Redis**: Distributed caching for scalability
+- **Domain-Specific TTLs**: Different expiration times based on data volatility
+- **Cache Keys**: Structured key format with entity type and ID
+- **Cache Invalidation**: Proactive invalidation on data changes
+
+### Error Handling
+
+- **Global Exception Handler**: Centralized error processing
+- **Specialized Exceptions**: Domain-specific exception types
+- **Consistent Response Format**: Standardized error responses
+- **Logging**: Comprehensive error logging with context
+
+### Streaming Implementation
+
+- **Server-Sent Events (SSE)**: Used for real-time streaming
+- **IAsyncEnumerable**: Leveraged for asynchronous streaming
+- **Response.BodyWriter**: Direct writing to response stream
+- **Cancellation Support**: Proper handling of client disconnects
 
 ## Data Consistency
-- **Unit of Work Pattern**: For atomic operations via IUnitOfWork
-- **Cache Synchronization**: Invalidation on data changes
-- **Cache-Aside Pattern**: Consistent data retrieval strategy
-- **Input Validation**: FluentValidation before persistence
-- **Error Handling**: Transaction management
-- **Contextual Logging**: Operation context in all data operations
+
+- **Unit of Work**: Ensures atomic operations
+- **Transactions**: Used for multi-entity operations
+- **Optimistic Concurrency**: Prevents data conflicts
+- **Validation**: Input validation with FluentValidation
 
 ## Cross-Cutting Concerns
-- **Logging**: Contextual logging with operation metadata and timing
-- **Authentication**: JWT-based user identification
-- **Authorization**: Role-based access control with policies
-- **Caching**: Redis-based performance optimization
+
+- **Logging**: Structured logging with Serilog
+- **Authentication**: JWT-based authentication
+- **Authorization**: Role-based and resource-based authorization
 - **Validation**: Request validation with FluentValidation
-- **Exception Handling**: Controller-level with appropriate status codes
-- **Performance Monitoring**: Stopwatch for timing metrics
-- **Document Security**: Content validation and secure storage
+- **Caching**: Redis-based distributed caching
 
 ## Security Patterns
-- **JWT Authentication**: Token validation with comprehensive checks
-- **User Identification**: Claims-based identity and X-User-Id header
-- **Role-based Authorization**: Admin and User policies
-- **Input Validation**: FluentValidation for request validation
-- **HTTPS Enforcement**: In middleware pipeline
-- **CORS Configuration**: Specific origin allowance (localhost:5173)
-- **Token Security**: 30-day lifetime with full validation
-- **Document Security**:
-  - Content type validation
-  - File size validation
-  - Secure file paths
-  - Access control
+
+- **JWT Authentication**: Token-based authentication
+- **Role-Based Authorization**: Access control based on user roles
+- **Resource Authorization**: Access control based on resource ownership
+- **HTTPS Enforcement**: Secure communication
+- **CORS Configuration**: Controlled cross-origin access
 
 ## Deployment Patterns
-- Kubernetes-based deployment
-- Containerized services
-- Redis cluster for caching
-- Health monitoring
-- Auto-scaling
-- Load balancing
+
+- **Containerization**: Docker-based deployment
+- **Configuration Externalization**: Environment-specific settings
+- **Health Checks**: Endpoint for monitoring service health
+- **Graceful Shutdown**: Proper handling of application termination
 
 ## Integration Patterns
-- REST API for service-to-service communication
-- Redis for distributed caching
-- SQL Server for data persistence
-- Inference Engine Service for model inference
-- API Gateway for request routing and authentication
+
+- **HTTP Clients**: Used for synchronous service communication
+- **Message-Based Communication**: Used for asynchronous operations
+- **Circuit Breaker**: Prevents cascading failures
+- **Retry Policies**: Handles transient failures
 
 ## Architectural Patterns
 
-- **Microservices Architecture**: ConversationService is one component in a larger microservices ecosystem
-- **Repository Pattern**: Data access abstracted through repositories
-- **Unit of Work Pattern**: Transaction management for database operations
-- **Dependency Injection**: Used throughout the application for loose coupling
-- **Options Pattern**: Configuration handled via IOptions
-- **Service Discovery Pattern**: Using RabbitMQ for dynamic InferenceEngine URL updates
-- **Circuit Breaker Pattern**: Using Polly for resilient RabbitMQ connections
-- **Publisher-Subscriber Pattern**: For service discovery message distribution
-- **Caching Pattern**: Redis used for caching and persistent storage
+- **Microservice Architecture**: Independent service with specific responsibility
+- **API Gateway Pattern**: Centralized entry point (implemented at platform level)
+- **Service Discovery**: Dynamic service endpoint resolution
+- **Bulkhead Pattern**: Isolation of failures
 
 ## Design Patterns
 
-- **Adapter Pattern**: InferenceEngineConnector adapting to the InferenceEngine client
-- **Factory Pattern**: Creation of services and repositories
-- **Strategy Pattern**: For different document processors
-- **Observer Pattern**: For InferenceEngine URL change notifications
-- **Command Pattern**: For handling requests
-- **Builder Pattern**: For constructing complex objects
-- **Singleton Pattern**: For services that should have a single instance
+- **Repository Pattern**: Data access abstraction
+- **Factory Pattern**: Object creation
+- **Strategy Pattern**: Interchangeable algorithms
+- **Decorator Pattern**: Dynamic behavior extension
 
 ## Messaging Patterns
 
-- **Request-Response**: For synchronous API calls
-- **Event-Based Communication**: For asynchronous operations
-- **Message Queue**: RabbitMQ for service discovery and configuration updates
-- **Publish-Subscribe**: Using RabbitMQ topic exchange for URL updates
-
-## Integration Patterns
-
-- **API Gateway**: All requests route through an API gateway
-- **Service Registry**: Using RabbitMQ and Redis for service endpoint discovery
-- **Message Broker**: RabbitMQ for communication between services
-- **Circuit Breaker**: Using Polly for resilient external service calls
+- **Publish-Subscribe**: Event-based communication
+- **Message Consumer**: Processing of asynchronous messages
+- **Dead Letter Queue**: Handling of failed messages
+- **Message Serialization**: Consistent message format
 
 ## Concurrency Patterns
 
-- **Async/Await**: For non-blocking I/O operations
-- **Thread Pool**: For background processing
-- **Task-based Asynchronous Pattern (TAP)**: For asynchronous operations
-- **IAsyncEnumerable**: In InferenceEngineConnector.GetStreamedChatMessageContentsAsync
+- **Async/Await**: Asynchronous programming model
+- **Task-based Parallelism**: Parallel processing where appropriate
+- **Thread Safety**: Thread-safe data access
+- **Cancellation Support**: Proper handling of operation cancellation
 
 ## Key Components
 
-- **Controllers**: REST API endpoints
-- **Services**: Business logic
-- **Repositories**: Data access
-- **DTOs**: Data transfer objects
-- **Validators**: Request validation
-- **Mappers**: Object mapping
-- **InferenceEngineConnector**: Integrates with the Inference Engine service
-- **InferenceEngineConfiguration**: Manages dynamic URL configuration
-- **RabbitMQ Consumer**: Listens for configuration updates
+### Controllers
+- **ConversationController**: Manages conversation operations
+- **ChatController**: Handles chat interactions
+- **FolderController**: Manages folder operations
+- **NoteController**: Handles note operations
+- **DocumentController**: Manages document operations
+- **FeedbackController**: Handles feedback submission
+
+### Services
+- **ConversationService**: Business logic for conversations
+- **ChatService**: Business logic for chat interactions
+- **FolderService**: Business logic for folders
+- **NoteService**: Business logic for notes
+- **DocumentService**: Business logic for documents
+- **FeedbackService**: Business logic for feedback
+- **CacheService**: Manages caching operations
+
+### Repositories
+- **ConversationRepository**: Data access for conversations
+- **MessageRepository**: Data access for messages
+- **FolderRepository**: Data access for folders
+- **NoteRepository**: Data access for notes
+- **DocumentRepository**: Data access for documents
+- **FeedbackRepository**: Data access for feedback
+
+### DTOs
+- **Request DTOs**: Input models for API endpoints
+- **Response DTOs**: Output models for API responses
+- **Domain DTOs**: Internal data transfer objects
+
+### Validators
+- **Request Validators**: Validate API inputs
+- **Domain Validators**: Validate business rules
+
+### Mappers
+- **Entity to DTO Mappers**: Convert between entities and DTOs
+- **DTO to Entity Mappers**: Convert between DTOs and entities
+
+### Infrastructure
+- **InferenceEngineConnector**: Integration with AI service
+- **PineconeClient**: Integration with vector database
+- **RedisCacheManager**: Manages Redis caching
+- **DocumentStorage**: Handles document storage
+- **MessageConsumers**: Process RabbitMQ messages
 
 ## Key Layers
 
-1. **Presentation Layer**: Controllers
-2. **Service Layer**: Services, DTOs, Mappers
-3. **Data Access Layer**: Repositories, Entity Framework Core
-4. **Integration Layer**: External service connectors
-5. **Configuration Layer**: Dynamic configuration management
-6. **Messaging Layer**: RabbitMQ consumers and producers
+### Presentation Layer
+- **Controllers**: API endpoints
+- **Middleware**: Cross-cutting concerns
+- **Filters**: Request processing
+
+### Service Layer
+- **Services**: Business logic
+- **Validators**: Business rules
+- **Mappers**: Object transformation
+
+### Data Access Layer
+- **Repositories**: Data operations
+- **Entities**: Database models
+- **Configurations**: Entity configurations
+
+### Integration Layer
+- **Connectors**: External service integration
+- **Clients**: Third-party API clients
+- **Adapters**: Interface adaptation
+
+### Configuration Layer
+- **Options**: Strongly-typed configuration
+- **Extensions**: Configuration extensions
+- **Settings**: Application settings
+
+### Messaging Layer
+- **Consumers**: Message processing
+- **Publishers**: Message sending
+- **Handlers**: Message handling
 
 ## Resilience Patterns
 
-- **Retry Pattern**: Using Polly for retrying failed operations
-- **Circuit Breaker Pattern**: Using Polly for handling faults
-- **Fallback Pattern**: Fallback to configuration when Redis is unavailable
-- **Timeout Pattern**: Configurable timeouts for external service calls
-- **Bulkhead Pattern**: Isolating failures to prevent cascading
+### Retry Pattern
+- **Exponential Backoff**: Increasing delay between retries
+- **Jitter**: Random variation in retry delays
+- **Max Retries**: Limited number of retry attempts
+
+### Circuit Breaker Pattern
+- **Failure Threshold**: Limit before circuit opens
+- **Recovery Time**: Duration before retry
+- **Half-Open State**: Testing recovery
+
+### Fallback Pattern
+- **Default Values**: Fallback when service unavailable
+- **Cached Data**: Use cached data when fresh data unavailable
+- **Degraded Mode**: Limited functionality when dependencies fail
 
 ## Service Registration
 
-The application uses organized service registration in `ServiceExtensions.cs`:
+Services are registered in the DI container using extension methods:
 
-- **AddDatabaseAndIdentity**: Database and identity services
-- **AddJwtAuthentication**: Authentication and authorization
-- **AddRepositories**: Data access repositories
-- **AddApplicationServices**: Service and connector registration
-- **AddInferenceEngineConfiguration**: Service discovery and configuration
-- **ConfigureCors**: CORS policies
-- **ConfigureCache**: Redis cache
-- **ConfigureSwagger**: API documentation
+```csharp
+// Example from ServiceExtensions.cs
+public static IServiceCollection AddConversationServices(this IServiceCollection services, IConfiguration configuration)
+{
+    services.AddScoped<IConversationService, ConversationService>();
+    services.AddScoped<IChatService, ChatService>();
+    services.AddScoped<IFolderService, FolderService>();
+    services.AddScoped<INoteService, NoteService>();
+    services.AddScoped<IDocumentService, DocumentService>();
+    services.AddScoped<IFeedbackService, FeedbackService>();
+    
+    return services;
+}
+```
 
 ## Configuration Management
 
-The application uses a multi-layered configuration approach:
+Configuration is managed through multiple approaches:
 
-1. **Static Configuration**: appsettings.json for initial settings
-2. **Dynamic Configuration**: InferenceEngineConfiguration for runtime updates
-3. **Persistent Configuration**: Redis for configuration persistence
-4. **Event-Based Updates**: RabbitMQ for real-time configuration changes
-5. **Resilient Fallbacks**: Graceful degradation when services are unavailable
+1. **Static Configuration**: `appsettings.json`
+2. **Environment Variables**: For sensitive data
+3. **User Secrets**: For local development
+4. **Dynamic Configuration**: Service discovery updates
+5. **Feature Flags**: For feature toggling
 
 ## Service Discovery Implementation
 
-The service discovery mechanism consists of:
+The service discovery mechanism uses RabbitMQ for dynamic configuration updates:
 
-1. **InferenceEngineConfiguration**: Central service for URL management
-   - Provides current URL via GetBaseUrl()
-   - Updates URL via UpdateBaseUrl(string)
-   - Notifies subscribers via BaseUrlChanged event
-   - Persists URL in Redis cache
+### Components
 
-2. **RabbitMQ Messaging**:
-   - Topic exchange: "service-discovery"
-   - Queue: "inference-url-updates"
-   - Routing key: "inference.url.changed"
-   - Message format: InferenceUrlUpdateMessage
+- **InferenceEngineConfiguration**: Service for managing InferenceEngine URL
+- **InferenceUrlConsumer**: RabbitMQ message consumer
+- **RedisCacheManager**: Persistence for configuration values
+- **Resilience Policies**: Retry and circuit breaker patterns
 
-3. **Resilience with Polly**:
-   - Retry policy for connection attempts
-   - Circuit breaker for handling outages
-   - Graceful degradation when services unavailable
+### Messaging Flow
 
-4. **Consumer Architecture**:
-   - BackgroundService for long-running processing
-   - Async message handling
-   - Reconnection logic for RabbitMQ
+1. Configuration change published to RabbitMQ exchange
+2. Message routed to ConversationService queue
+3. Consumer processes message and updates configuration
+4. Updated configuration persisted to Redis
+5. Services use updated configuration for subsequent requests
 
-This service discovery mechanism allows the Inference Engine URL to be updated dynamically at runtime without requiring application restart, which is particularly useful with services using dynamic URLs like ngrok. 
+### Resilience Patterns
+
+- **Retry**: For connection issues
+- **Circuit Breaker**: For service outages
+- **Fallback**: To static configuration when messaging fails

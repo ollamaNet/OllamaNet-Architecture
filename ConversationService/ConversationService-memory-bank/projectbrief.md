@@ -1,54 +1,144 @@
-# ConversationService Project Brief
+# Project Brief: ConversationService
 
-> **Note:** As of the latest migration (Phases 1-9), ConversationService now uses a fully modular, best-practices folder and namespace structure. All legacy folders have been removed, all files are in their correct locations, and documentation/diagrams are up to date. The current focus is on feature enhancements and performance optimization.
+## Overview
 
-## Project Overview
-ConversationService is a critical microservice component of the OllamaNet platform that manages all aspects of user conversations with AI models. It provides APIs for creating, managing, and interacting with conversations, including real-time chat capabilities. The service implements both standard REST endpoints and streaming responses for AI model interactions, supporting a robust and responsive user experience for conversational AI applications.
+The ConversationService is a critical microservice within the OllamaNet platform, responsible for managing AI-powered conversations. It provides a comprehensive set of APIs for conversation management, real-time chat, message history, folder organization, note management, feedback collection, and document processing with RAG capabilities. The service is designed to be scalable, performant, and secure, with a focus on providing a seamless user experience.
 
-## Core Functionality
-- **Conversation Management**: Create, read, update, delete, and organize conversations
-- **Real-time Chat**: Process user messages and stream AI model responses
-- **Message History**: Store and retrieve conversation history for continuity
-- **Folder Organization**: Support for organizing conversations in user folders
-- **Note Management**: Create and manage notes associated with conversations
-- **Feedback Collection**: Collect and manage user feedback on AI responses
-- **Caching Strategy**: Redis-based caching for improved performance
+## Key Features
 
-## Technical Stack
-- **ASP.NET Core Web API (.NET 9.0)**: Core framework for RESTful API development
-- **Entity Framework Core**: ORM for data access through shared Ollama_DB_layer
-- **SQL Server**: Primary database for persistence
-- **Redis**: Distributed caching for performance optimization
-- **InferenceEngine Client**: Client library for Inference Engine model integration
-- **FluentValidation**: Request validation framework
-- **Semantic Kernel**: Microsoft's framework for AI chat completion
-- **JWT Authentication**: Security implementation for user authentication
-- **Swagger/OpenAPI**: API documentation and testing
+1. **Conversation Management**
+   - Create, retrieve, update, and delete conversations
+   - Search conversations by content or metadata
+   - Move conversations between folders
 
-## Project Scope
-ConversationService is a central component in the OllamaNet microservices architecture, handling all conversational interactions between users and AI models. It provides a robust API for frontend applications to manage conversations, interact with AI models, and organize content. The service implements advanced features like conversation organization, streaming responses, and sophisticated caching strategies to deliver a performant and reliable user experience.
+2. **Real-time Chat**
+   - Send messages to AI models
+   - Receive streaming responses
+   - Maintain conversation context
+
+3. **Message History**
+   - Store and retrieve conversation history
+   - Paginate through message history
+   - Cache frequently accessed messages
+
+4. **Folder Organization**
+   - Create, retrieve, update, and delete folders
+   - Organize conversations in folders
+   - Navigate folder hierarchies
+
+5. **Note Management**
+   - Add notes to conversations
+   - Update and delete notes
+   - Retrieve notes by conversation
+
+6. **Feedback Collection**
+   - Submit feedback on AI responses
+   - Retrieve feedback for analysis
+   - Track feedback metrics
+
+7. **Document Processing with RAG**
+   - Upload documents to conversations
+   - Process and extract text from documents
+   - Generate embeddings and index in vector database
+   - Retrieve relevant context for AI responses
+
+8. **Caching**
+   - Cache conversation data
+   - Cache chat history
+   - Cache frequently used model information
+   - Implement cache invalidation strategies
+
+## Technology Stack
+
+- **ASP.NET Core**: Web API framework
+- **Entity Framework Core**: ORM for data access
+- **SQL Server**: Relational database
+- **Redis (Upstash)**: Distributed caching
+- **InferenceEngine Client**: AI model integration
+- **FluentValidation**: Request validation
+- **Semantic Kernel**: AI orchestration
+- **Pinecone**: Vector database for RAG
+- **JWT Authentication**: Security
 
 ## Integration Points
-- **Shared DB layer**: Database access layer for data persistence
-- **InferenceEngine Client**: Integration with Inference Engine API
-- **Authentication Service**: JWT validation and user identification
-- **Redis Cache**: Distributed caching for performance optimization
-- **Frontend Application**: Web UI consuming the ConversationService API
-- **Other Microservices**: Admin and Explore services for model information
+
+1. **InferenceEngine Service**
+   - Send chat requests
+   - Receive model responses
+   - Generate text embeddings
+
+2. **Identity Service**
+   - Validate user authentication
+   - Authorize user actions
+
+3. **Frontend Applications**
+   - Web interface
+   - Mobile applications
+
+4. **Analytics Service**
+   - Send usage metrics
+   - Track performance data
+
+5. **Admin Service**
+   - Receive configuration updates
+   - Report service health
 
 ## Key Requirements
-- **Conversation Persistence**: Reliable storage and retrieval of conversation data
-- **Real-time Interaction**: Low-latency responses for chat interactions
-- **Streaming Capability**: Server-sent events for real-time model responses
-- **Organizational Structure**: Support for folders and conversation management
-- **Performance Optimization**: Caching strategies to minimize latency
-- **Scalability**: Robust design for handling increased load
-- **Security**: Proper authentication and authorization checks
-- **Error Handling**: Comprehensive exception management and fallback strategies
+
+1. **Performance**
+   - Response time < 100ms for cached data
+   - Response time < 1s for new requests
+   - Support for 10,000+ concurrent users
+
+2. **Scalability**
+   - Horizontal scaling capability
+   - Efficient resource utilization
+   - Stateless design where possible
+
+3. **Reliability**
+   - 99.9% uptime
+   - Graceful degradation
+   - Comprehensive error handling
+
+4. **Security**
+   - JWT authentication
+   - Role-based authorization
+   - Data encryption
+   - Input validation
+
+5. **Real-time Interaction**
+   - Streaming responses
+   - Low latency
+   - Connection resilience
 
 ## Success Criteria
-1. Real-time message delivery under 100ms
-2. 99.9% uptime
-3. Support for 10,000+ concurrent users
-4. Message history retrieval within 200ms
-5. Successful integration with all dependent services
+
+1. **Functional**
+   - All API endpoints implemented and tested
+   - Integration with InferenceEngine successful
+   - Document processing pipeline operational
+   - Caching strategy implemented
+
+2. **Performance**
+   - Message delivery under 100ms
+   - Document processing under 30s
+   - Cache hit ratio > 80%
+
+3. **Scalability**
+   - Support for 10,000+ concurrent users
+   - Linear scaling with added resources
+
+4. **Reliability**
+   - 99.9% uptime
+   - Successful recovery from failures
+
+5. **User Experience**
+   - Seamless conversation flow
+   - Intuitive organization
+   - Fast response times
+
+## Current Status
+
+The ConversationService is fully implemented with all core features operational. The service uses a modular, best-practices folder structure with all components properly organized. Recent work has focused on implementing the RAG document processing system, refining the caching strategy, and establishing a robust service discovery mechanism using RabbitMQ.
+
+Current efforts are directed toward performance optimization, enhancing the RAG capabilities, and preparing for advanced search features. The service is deployed and operational, serving user requests reliably with excellent performance metrics.
